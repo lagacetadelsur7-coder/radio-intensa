@@ -372,7 +372,8 @@ const textInput = document.getElementById("msgtext");
 const nickGate = document.getElementById("nickGate");
 const chatMain = document.getElementById("chatMain");
 const changeNickBtn = document.getElementById("changeNick");
-function getNick(){ return (localStorage.getItem("ri_nick")||"").trim(); }
+let myNick = "";
+function getNick(){ return myNick; }
 function showChat(){
   nickGate.style.display = "none";
   chatMain.classList.add("open");
@@ -389,13 +390,13 @@ function showGate(){
 document.getElementById("joinBtn").onclick = ()=>{
   const n = nickInput.value.trim();
   if(!n){ nickInput.focus(); return; }
-  localStorage.setItem("ri_nick", n);
+  myNick = n;
   showChat();
   textInput.focus();
 };
 nickInput.addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("joinBtn").click(); });
 changeNickBtn.onclick = showGate;
-if(getNick()) showChat(); else showGate();
+showGate();
 const seen = new Set();
 const botNicks = new Set(["Lau de Quilmes","El Tano","Meli_Rock","JorgitoRC","Vane_Noche","Dieguito_LP","Bebo"]);
 
@@ -408,7 +409,7 @@ function addMsg(m){
   if(seen.has(m.id)) return; seen.add(m.id);
   const div = document.createElement("div");
   const isBot = botNicks.has(m.nick);
-  const isMe = m.nick === (localStorage.getItem("ri_nick")||"").trim() && !isBot;
+  const isMe = m.nick === getNick() && !isBot;
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
   const colors = {"Lau de Quilmes":"#ff2fd6","El Tano":"#00e5ff","Meli_Rock":"#ff7a1a","JorgitoRC":"#39ff6a","Vane_Noche":"#b78bff","Dieguito_LP":"#ffd23f","Bebo":"#00e5ff"};
   div.innerHTML = '<div class="nick" style="color:'+(colors[m.nick]||"#eef0ff")+'">'+esc(m.nick)+
