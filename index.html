@@ -394,7 +394,6 @@ function showGate(){
   nickGate.style.display = "";
   changeNickBtn.style.display = "none";
   nickInput.value = getNick();
-  setTimeout(()=>nickInput.focus(), 50);
 }
 document.getElementById("joinBtn").onclick = ()=>{
   const n = nickInput.value.trim();
