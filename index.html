@@ -152,8 +152,24 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .nick-change{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline}
 .nick-change:hover{color:var(--cyan)}
 
+/* MARQUESINA */
+.marquee{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:rgba(0,229,255,.03);padding:10px 0}
+.marquee-track{display:inline-flex;gap:34px;white-space:nowrap;animation:mscroll 24s linear infinite;
+  font-family:'Orbitron';font-size:13px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.5)}
+.marquee-track .sep{color:var(--magenta);text-shadow:0 0 10px rgba(255,47,214,.5)}
+@keyframes mscroll{to{transform:translateX(-50%)}}
+
 /* FOOTER */
 footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--muted);font-size:14px}
+footer .alma{font-family:'Orbitron';font-size:13px;letter-spacing:2px;color:var(--magenta);margin:8px 0 2px;
+  text-shadow:0 0 10px rgba(255,47,214,.4)}
+footer .dir{font-size:14px}
+footer .social{display:flex;gap:14px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+footer .social a{border:1px solid var(--border);padding:8px 22px;border-radius:999px;font-size:14px;
+  letter-spacing:1px;transition:.2s;color:var(--text)}
+footer .social a:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 14px rgba(0,229,255,.3)}
+footer .copy{font-size:12px}
 footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
 </style>
@@ -189,6 +205,11 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
     <div class="hint">Pegá acá la URL de tu stream y apretá Guardar. Queda guardada en este navegador.</div>
   </div>
 </section>
+
+<div class="marquee"><div class="marquee-track">
+  <span>Bienvenidos a Intensa</span><span class="sep">✦</span><span>Almafuerte medios y contenidos</span><span class="sep">✦</span>
+  <span>Bienvenidos a Intensa</span><span class="sep">✦</span><span>Almafuerte medios y contenidos</span><span class="sep">✦</span>
+</div></div>
 
 <div class="layout">
   <div>
@@ -248,7 +269,13 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
 
 <footer id="contacto">
   <div class="flogo">RADIO INTENSA</div>
-  <p>Río Cuarto, Córdoba, Argentina · Todos los derechos reservados</p>
+  <div class="alma">ALMAFUERTE MEDIOS Y CONTENIDOS</div>
+  <p class="dir">Silvy Sultany · Productora y Directora</p>
+  <div class="social">
+    <a href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener">Instagram</a>
+    <a href="http://link.mercadopago.com.ar/radiointensa" target="_blank" rel="noopener">Colaborar</a>
+  </div>
+  <p class="copy">Río Cuarto, Córdoba, Argentina · Copyright © 2025 Radio Intensa · Todos los derechos reservados</p>
 </footer>
 
 <script>
