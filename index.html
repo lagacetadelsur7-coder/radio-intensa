@@ -435,7 +435,7 @@ textInput.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); })
 
 sb.channel("chat-live").on("postgres_changes",
   {event:"INSERT", schema:"public", table:"messages"},
-  payload => addMsg(payload.new)
+  payload => { addMsg(payload.new); if(window.maybeAutoReply) window.maybeAutoReply(payload.new); }
 ).subscribe(status=>{
   if(status==="SUBSCRIBED"){ connEl.textContent="Conectado · chat en vivo"; connEl.className="conn ok"; }
 });
@@ -475,6 +475,51 @@ const personas = [
     "Qué buen tema el anterior",
     "Saludos a todos los oyentes"]}
 ];
+/* Respuestas automáticas cuando un oyente real escribe */
+const botNickSet = new Set(["Lau de Quilmes","El Tano","Meli_Rock","JorgitoRC","Vane_Noche","Dieguito_LP","Bebo"]);
+let lastAutoReply = 0;
+window.maybeAutoReply = function(m){
+  try{
+    if(!botsOn || !amLeader()) return;
+    if(!m || botNickSet.has(m.nick)) return;
+    const now = Date.now();
+    if(now - lastAutoReply < 90000) return;
+    const t = (m.text || "").toLowerCase();
+    let pool = null;
+    if(/hola|buenas|buen d[ií]a|qué tal|que tal/.test(t)) pool = [
+      "¡Hola {n}! ¿Cómo andás?",
+      "Buenas, bienvenido al chat",
+      "Holaa {n}, ¿de dónde nos escuchás?"];
+    else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(t)) pool = [
+      "¿Cuál tema decís {n}? Yo también lo quiero saber",
+      "Temazo el que sonó recién, ¿no?"];
+    else if(/saludo/.test(t)) pool = [
+      "¡Saludos para vos también {n}!",
+      "¡Qué grande, saludos!"];
+    else if(/gracias/.test(t)) pool = ["De nada!", "¡Un placer!"];
+    else if(/\?/.test(t)) pool = [
+      "Buena pregunta {n}, a ver qué dicen los conductores",
+      "Yo también quiero saber eso",
+      "Seguro lo responden al aire en un rato"];
+    else if(Math.random() < 0.22) pool = [
+      "Totalmente de acuerdo",
+      "Jaja, muy bueno",
+      "Aguante la Intensa"];
+    if(!pool) return;
+    lastAutoReply = now;
+    const p = personas[Math.floor(Math.random()*personas.length)];
+    const text = pool[Math.floor(Math.random()*pool.length)].replaceAll("{n}", m.nick);
+    setTimeout(async ()=>{
+      try{
+        typingEl.textContent = p.nick + " está escribiendo...";
+        await new Promise(r=>setTimeout(r, 1500 + Math.random()*2000));
+        typingEl.textContent = "";
+        await sb.from("messages").insert({nick:p.nick, text});
+      }catch(e){}
+    }, 4000 + Math.random()*6000);
+  }catch(e){}
+};
+
 /* Control oculto: ?bots=off apaga los personajes, ?bots=on los prende (solo lo sabe el dueño) */
 (function(){
   try{
