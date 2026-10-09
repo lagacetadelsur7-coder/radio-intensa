@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radio Intensa — En vivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#07070f; --panel:#0d0d1a; --panel2:#121224;
+  --cyan:#00e5ff; --magenta:#ff2fd6; --orange:#ff7a1a;
+  --text:#eef0ff; --muted:#9a9ab5; --border:rgba(0,229,255,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',system-ui,sans-serif;min-height:100vh;
+  background-image:radial-gradient(1000px 500px at 20% -5%,rgba(255,47,214,.08),transparent),
+                   radial-gradient(1000px 500px at 85% 0%,rgba(0,229,255,.08),transparent);}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* NAV */
+header{position:sticky;top:0;z-index:50;background:rgba(7,7,15,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1180px;margin:0 auto}
+.logo{font-family:'Orbitron';font-weight:800;font-size:20px;letter-spacing:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(0,229,255,.45))}
+.navlinks{display:flex;gap:26px;font-weight:600;letter-spacing:1.5px;font-size:14px}
+.navlinks a{color:var(--muted);transition:.2s}
+.navlinks a:hover,.navlinks a.active{color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.7)}
+
+/* HERO */
+.hero{text-align:center;padding:56px 20px 40px;position:relative}
+.hero-logo{font-family:'Orbitron';font-weight:800;font-size:clamp(42px,8vw,84px);letter-spacing:6px;line-height:1.05;
+  background:linear-gradient(180deg,#7df9ff 10%,var(--cyan) 40%,var(--magenta) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px rgba(0,229,255,.35)) drop-shadow(0 0 60px rgba(255,47,214,.25))}
+.live-badge{display:inline-flex;align-items:center;gap:8px;margin:18px 0 6px;padding:7px 18px;border-radius:999px;
+  border:1px solid rgba(255,60,60,.5);background:rgba(255,40,40,.08);font-weight:700;letter-spacing:3px;font-size:14px}
+.live-dot{width:10px;height:10px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 12px #ff3b3b;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.35}}
+#wave{display:block;margin:14px auto 6px;max-width:640px;width:100%;height:110px}
+.player{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:8px;flex-wrap:wrap}
+.btn-play{width:74px;height:74px;border-radius:50%;border:2px solid var(--cyan);background:rgba(0,229,255,.08);
+  color:var(--cyan);font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 24px rgba(0,229,255,.35),inset 0 0 18px rgba(0,229,255,.12);transition:.2s}
+.btn-play:hover{transform:scale(1.06);box-shadow:0 0 34px rgba(0,229,255,.55)}
+.btn-big{background:linear-gradient(90deg,#ff8a2a,var(--orange));border:none;color:#1a0d00;font-weight:700;font-size:17px;
+  letter-spacing:1.5px;padding:15px 34px;border-radius:12px;cursor:pointer;
+  box-shadow:0 0 26px rgba(255,122,26,.45);transition:.2s}
+.btn-big:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(255,122,26,.65)}
+.vol{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
+.vol input{accent-color:var(--cyan);width:110px}
+.gear{background:none;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:16px}
+.gear:hover{color:var(--cyan);border-color:var(--cyan)}
+.stream-config{max-width:560px;margin:16px auto 0;padding:16px;border:1px dashed var(--border);border-radius:12px;
+  background:var(--panel);display:none;text-align:left}
+.stream-config.open{display:block}
+.stream-config label{font-size:14px;color:var(--muted);letter-spacing:1px}
+.stream-config input{width:100%;margin-top:8px;padding:11px 12px;border-radius:8px;border:1px solid var(--border);
+  background:#080812;color:var(--text);font-size:14px}
+.stream-config button{margin-top:10px;background:var(--cyan);border:none;color:#04222a;font-weight:700;
+  padding:10px 18px;border-radius:8px;cursor:pointer}
+.stream-config .hint{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 300px;gap:26px;max-width:1180px;margin:0 auto;padding:10px 20px 30px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+h2.sec{font-family:'Orbitron';font-size:20px;letter-spacing:3px;margin:26px 0 16px;
+  color:var(--text);text-shadow:0 0 14px rgba(0,229,255,.35)}
+h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-right:10px;vertical-align:middle;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));box-shadow:0 0 10px var(--cyan)}
+
+/* PROGRAMAS */
+.prog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.prog-grid{grid-template-columns:repeat(2,1fr)}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.25s}
+.card:hover{transform:translateY(-4px);border-color:var(--magenta);box-shadow:0 8px 30px rgba(255,47,214,.18)}
+.thumb{height:110px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:13px;
+  letter-spacing:2px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;padding:10px}
+.t1{background:linear-gradient(135deg,#0aa2c0,#7b2ff7)}
+.t2{background:linear-gradient(135deg,#ff2fd6,#7b2ff7)}
+.t3{background:linear-gradient(135deg,#ff7a1a,#ff2f6d)}
+.t4{background:linear-gradient(135deg,#00e5ff,#0077ff)}
+.t5{background:linear-gradient(135deg,#7b2ff7,#2f6bff)}
+.t6{background:linear-gradient(135deg,#ff2f6d,#ff7a1a)}
+.card .info{padding:12px 14px}
+.card .info b{letter-spacing:1px;font-size:15px}
+.card .info p{color:var(--muted);font-size:13px;margin-top:4px}
+
+/* SIDEBAR */
+.side{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px}
+.side h3{font-family:'Orbitron';font-size:14px;letter-spacing:2px;margin-bottom:14px;color:var(--cyan)}
+.ev{border-left:3px solid var(--magenta);padding:8px 0 8px 12px;margin-bottom:12px}
+.ev b{font-size:14px;letter-spacing:.5px}
+.ev p{color:var(--muted);font-size:13px}
+.ep{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.ep .n{width:38px;height:38px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-weight:700;background:linear-gradient(135deg,rgba(0,229,255,.25),rgba(255,47,214,.25));border:1px solid var(--border)}
+.ep p{font-size:13px;color:var(--muted)}
+.ep b{color:var(--text);font-size:14px}
+
+/* CHAT */
+.chat-sec{max-width:1180px;margin:0 auto;padding:10px 20px 40px}
+.chat-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;
+  box-shadow:0 0 40px rgba(0,229,255,.06)}
+.chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+  border-bottom:1px solid var(--border);background:var(--panel2)}
+.chat-head b{font-family:'Orbitron';font-size:15px;letter-spacing:2px}
+.chat-head b .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#39ff6a;
+  box-shadow:0 0 10px #39ff6a;margin-right:8px;animation:pulse 1.6s infinite}
+.bot-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.switch{position:relative;width:40px;height:22px;background:#2a2a3d;border-radius:999px;cursor:pointer;transition:.2s;border:1px solid var(--border)}
+.switch.on{background:rgba(0,229,255,.35);border-color:var(--cyan)}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.switch.on::after{left:20px}
+#messages{height:340px;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+#messages::-webkit-scrollbar{width:8px}
+#messages::-webkit-scrollbar-thumb{background:#2a2a3d;border-radius:8px}
+.msg{max-width:82%;padding:9px 13px;border-radius:12px;background:#16162a;border:1px solid rgba(255,255,255,.05);
+  font-size:15px;line-height:1.35;animation:fadein .25s}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}}
+.msg .nick{font-weight:700;font-size:13px;letter-spacing:.5px;margin-bottom:2px}
+.msg .time{font-size:11px;color:var(--muted);margin-left:8px;font-weight:400}
+.msg.bot{border-left:3px solid var(--magenta)}
+.msg.me{align-self:flex-end;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25)}
+.typing{font-size:13px;color:var(--muted);font-style:italic;min-height:20px;padding:0 18px}
+.chat-input{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--border);background:var(--panel2)}
+.chat-input input{background:#080812;border:1px solid var(--border);border-radius:10px;color:var(--text);
+  padding:12px;font-size:15px;font-family:inherit}
+#nick{width:150px;flex:none}
+#msgtext{flex:1}
+.chat-input input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.25)}
+.btn-send{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;color:#04222a;font-weight:700;
+  padding:0 22px;border-radius:10px;cursor:pointer;font-size:15px;letter-spacing:1px}
+.btn-send:hover{filter:brightness(1.1)}
+.conn{font-size:12px;color:var(--muted);padding:8px 18px;border-top:1px solid var(--border)}
+.conn.ok{color:#39ff6a}.conn.err{color:#ff5b5b}
+.nick-gate{padding:44px 24px;text-align:center}
+.nick-gate h4{font-family:'Orbitron';letter-spacing:2px;font-size:16px;margin-bottom:6px}
+.nick-gate p{color:var(--muted);font-size:14px;margin-bottom:18px}
+.nick-gate .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.nick-gate input{background:#080812;border:1px solid var(--border);border-radius:10px;color:var(--text);
+  padding:12px 14px;font-size:16px;font-family:inherit;width:240px;text-align:center}
+.nick-gate input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.25)}
+.nick-gate button{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;color:#04222a;font-weight:700;
+  padding:12px 28px;border-radius:10px;cursor:pointer;font-size:15px;letter-spacing:1px}
+.nick-gate button:hover{filter:brightness(1.1)}
+#chatMain{display:none}
+#chatMain.open{display:block}
+.nick-change{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline}
+.nick-change:hover{color:var(--cyan)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--muted);font-size:14px}
+footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
+</style>
+</head>
+<body id="inicio">
+
+<header>
+  <nav class="nav">
+    <div class="logo">RADIO INTENSA</div>
+    <div class="navlinks">
+      <a href="#inicio" class="active">INICIO</a>
+      <a href="#episodios">PODCASTS</a>
+      <a href="#programas">PROGRAMACIÓN</a>
+      <a href="#contacto">CONTACTO</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-logo">RADIO<br>INTENSA</div>
+  <div><span class="live-badge"><span class="live-dot"></span>EN VIVO</span></div>
+  <canvas id="wave"></canvas>
+  <div class="player">
+    <button class="btn-play" id="playBtn" title="Reproducir / Pausar">▶</button>
+    <button class="btn-big" id="bigPlay">REPRODUCIR AHORA</button>
+    <div class="vol">VOL <input type="range" id="vol" min="0" max="100" value="80"></div>
+    <button class="gear" id="gearBtn" title="Configurar URL del stream">⚙</button>
+  </div>
+  <div class="stream-config" id="streamConfig">
+    <label>URL DEL STREAM (Zeno / RadioBoss)</label>
+    <input type="text" id="streamUrl" placeholder="https://stream.zeno.fm/...">
+    <button id="saveStream">Guardar</button>
+    <div class="hint">Pegá acá la URL de tu stream y apretá Guardar. Queda guardada en este navegador.</div>
+  </div>
+</section>
+
+<div class="layout">
+  <div>
+    <h2 class="sec" id="programas">PROGRAMAS</h2>
+    <div class="prog-grid">
+      <!-- Tarjetas de ejemplo: reemplazá nombres y descripciones por los reales -->
+      <div class="card"><div class="thumb t1">MAÑANAS<br>INTENSAS</div><div class="info"><b>Mañanas Intensas</b><p>Lun a Vie · 8 a 12 hs</p></div></div>
+      <div class="card"><div class="thumb t2">LA<br>PREVIA</div><div class="info"><b>La Previa</b><p>Lun a Vie · 18 a 20 hs</p></div></div>
+      <div class="card"><div class="thumb t3">NOCHE<br>DE ROCK</div><div class="info"><b>Noche de Rock</b><p>Vie · 22 a 00 hs</p></div></div>
+      <div class="card"><div class="thumb t4">HABLANDO<br>CLARO</div><div class="info"><b>Hablando Claro</b><p>Sáb · 10 a 12 hs</p></div></div>
+      <div class="card"><div class="thumb t5">CUMBIA Y<br>FIESTA</div><div class="info"><b>Cumbia y Fiesta</b><p>Sáb · 22 a 02 hs</p></div></div>
+      <div class="card"><div class="thumb t6">EL<br>RESUMEN</div><div class="info"><b>El Resumen</b><p>Dom · 20 a 21 hs</p></div></div>
+    </div>
+  </div>
+  <aside>
+    <div class="side">
+      <h3>PRÓXIMOS EVENTOS</h3>
+      <div class="ev"><b>Transmisión en vivo</b><p>Vie 9 oct · 20:00 hs<br>Río Cuarto, Córdoba</p></div>
+      <div class="ev"><b>Programa especial</b><p>Vie 9 oct · 22:30 hs<br>Río Cuarto, Córdoba</p></div>
+      <div class="ev"><b>Domingo intenso</b><p>Dom 11 oct · 23:00 hs<br>Buenos Aires</p></div>
+    </div>
+    <div class="side" id="episodios">
+      <h3>ÚLTIMOS EPISODIOS</h3>
+      <div class="ep"><div class="n">▶</div><div><b>Episodio 42</b><p>Mañanas Intensas</p></div></div>
+      <div class="ep"><div class="n">▶</div><div><b>Episodio 41</b><p>Noche de Rock</p></div></div>
+      <div class="ep"><div class="n">▶</div><div><b>Episodio 40</b><p>Hablando Claro</p></div></div>
+    </div>
+  </aside>
+</div>
+
+<section class="chat-sec">
+  <h2 class="sec">CHAT EN VIVO</h2>
+  <div class="chat-box">
+    <div class="chat-head">
+      <b><span class="dot"></span>CHAT DE LA RADIO</b>
+      <label class="bot-toggle">Oyentes simulados <span class="switch on" id="botSwitch"></span></label>
+      <button class="nick-change" id="changeNick" style="display:none">cambiar nick</button>
+    </div>
+    <div class="nick-gate" id="nickGate">
+      <h4>BIENVENIDO AL CHAT</h4>
+      <p>Elegí un nick para empezar a escribir</p>
+      <div class="row">
+        <input type="text" id="nick" placeholder="Tu nick" maxlength="20">
+        <button id="joinBtn">Entrar</button>
+      </div>
+    </div>
+    <div id="chatMain">
+      <div id="messages"></div>
+      <div class="typing" id="typing"></div>
+      <div class="chat-input">
+        <input type="text" id="msgtext" placeholder="Escribí tu mensaje..." maxlength="300">
+        <button class="btn-send" id="sendBtn">Enviar</button>
+      </div>
+    </div>
+    <div class="conn" id="connStatus">Conectando...</div>
+  </div>
+</section>
+
+<footer id="contacto">
+  <div class="flogo">RADIO INTENSA</div>
+  <p>Río Cuarto, Córdoba, Argentina · Todos los derechos reservados</p>
+</footer>
+
+<script>
+/* ============ CONFIG ============ */
+const SUPABASE_URL = "https://lhatspnvxujisxyigvbp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ============ PLAYER ============ */
+const audio = new Audio();
+audio.preload = "none";
+const playBtn = document.getElementById("playBtn");
+const bigPlay = document.getElementById("bigPlay");
+let playing = false;
+
+function getStreamUrl(){ return localStorage.getItem("ri_stream_url") || ""; }
+function setPlaying(p){
+  playing = p;
+  playBtn.textContent = p ? "⏸" : "▶";
+  bigPlay.textContent = p ? "PAUSAR" : "REPRODUCIR AHORA";
+}
+function togglePlay(){
+  const url = getStreamUrl();
+  if(!url){ document.getElementById("streamConfig").classList.add("open");
+    document.getElementById("streamUrl").focus(); return; }
+  if(audio.src !== url) audio.src = url;
+  if(playing){ audio.pause(); setPlaying(false); }
+  else { audio.play().then(()=>setPlaying(true)).catch(()=>{ setPlaying(false); }); }
+}
+playBtn.onclick = togglePlay; bigPlay.onclick = togglePlay;
+document.getElementById("vol").oninput = e => audio.volume = e.target.value/100;
+audio.volume = 0.8;
+audio.onended = ()=>setPlaying(false); audio.onpause = ()=>setPlaying(false);
+
+document.getElementById("gearBtn").onclick = ()=>{
+  const c = document.getElementById("streamConfig");
+  c.classList.toggle("open");
+  document.getElementById("streamUrl").value = getStreamUrl();
+};
+document.getElementById("saveStream").onclick = ()=>{
+  const v = document.getElementById("streamUrl").value.trim();
+  localStorage.setItem("ri_stream_url", v);
+  document.getElementById("streamConfig").classList.remove("open");
+  if(v) togglePlay();
+};
+
+/* ============ WAVEFORM ============ */
+const cv = document.getElementById("wave"), ctx = cv.getContext("2d");
+function sizeWave(){ cv.width = cv.clientWidth; cv.height = 110; }
+window.addEventListener("resize", sizeWave); sizeWave();
+const bars = new Array(90).fill(0).map(()=>Math.random());
+(function drawWave(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const n = bars.length, bw = cv.width/n;
+  for(let i=0;i<n;i++){
+    const target = playing ? (0.25 + Math.random()*0.75) : 0.06;
+    bars[i] += (target - bars[i])*0.25;
+    const h = bars[i]*cv.height;
+    const g = ctx.createLinearGradient(0,cv.height/2-h/2,0,cv.height/2+h/2);
+    g.addColorStop(0,"#00e5ff"); g.addColorStop(1,"#ff2fd6");
+    ctx.fillStyle = g;
+    ctx.fillRect(i*bw+1, cv.height/2-h/2, Math.max(1,bw-2), h);
+  }
+  requestAnimationFrame(drawWave);
+})();
+
+/* ============ CHAT ============ */
+const messagesEl = document.getElementById("messages");
+const typingEl = document.getElementById("typing");
+const connEl = document.getElementById("connStatus");
+const nickInput = document.getElementById("nick");
+const textInput = document.getElementById("msgtext");
+const nickGate = document.getElementById("nickGate");
+const chatMain = document.getElementById("chatMain");
+const changeNickBtn = document.getElementById("changeNick");
+function getNick(){ return (localStorage.getItem("ri_nick")||"").trim(); }
+function showChat(){
+  nickGate.style.display = "none";
+  chatMain.classList.add("open");
+  changeNickBtn.style.display = "";
+  textInput.placeholder = "Escribí tu mensaje como " + getNick();
+}
+function showGate(){
+  chatMain.classList.remove("open");
+  nickGate.style.display = "";
+  changeNickBtn.style.display = "none";
+  nickInput.value = getNick();
+  setTimeout(()=>nickInput.focus(), 50);
+}
+document.getElementById("joinBtn").onclick = ()=>{
+  const n = nickInput.value.trim();
+  if(!n){ nickInput.focus(); return; }
+  localStorage.setItem("ri_nick", n);
+  showChat();
+  textInput.focus();
+};
+nickInput.addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("joinBtn").click(); });
+changeNickBtn.onclick = showGate;
+if(getNick()) showChat(); else showGate();
+const seen = new Set();
+const botNicks = new Set(["Lau de Quilmes","El Tano","Meli_Rock","JorgitoRC","Vane_Noche","Dieguito_LP","Bebo"]);
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function fmtTime(ts){
+  try{ return new Date(ts).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}); }
+  catch(e){ return ""; }
+}
+function addMsg(m){
+  if(seen.has(m.id)) return; seen.add(m.id);
+  const div = document.createElement("div");
+  const isBot = botNicks.has(m.nick);
+  const isMe = m.nick === (localStorage.getItem("ri_nick")||"").trim() && !isBot;
+  div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
+  const colors = {"Lau de Quilmes":"#ff2fd6","El Tano":"#00e5ff","Meli_Rock":"#ff7a1a","JorgitoRC":"#39ff6a","Vane_Noche":"#b78bff","Dieguito_LP":"#ffd23f","Bebo":"#00e5ff"};
+  div.innerHTML = '<div class="nick" style="color:'+(colors[m.nick]||"#eef0ff")+'">'+esc(m.nick)+
+    '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+esc(m.text)+"</div>";
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+async function loadMessages(){
+  const { data, error } = await sb.from("messages").select("*").order("created_at",{ascending:true}).limit(120);
+  if(error){ connEl.textContent = "Error de conexión: "+error.message; connEl.className="conn err"; return; }
+  connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
+  data.forEach(addMsg);
+}
+async function sendMessage(){
+  const nick = getNick() || "Anónimo";
+  const text = textInput.value.trim();
+  if(!text) return;
+  textInput.value = "";
+  const { error } = await sb.from("messages").insert({nick, text});
+  if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; }
+}
+document.getElementById("sendBtn").onclick = sendMessage;
+textInput.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
+
+sb.channel("chat-live").on("postgres_changes",
+  {event:"INSERT", schema:"public", table:"messages"},
+  payload => addMsg(payload.new)
+).subscribe(status=>{
+  if(status==="SUBSCRIBED"){ connEl.textContent="Conectado · chat en vivo"; connEl.className="conn ok"; }
+});
+loadMessages();
+setInterval(loadMessages, 10000); /* respaldo por si realtime se demora */
+
+/* ============ OYENTES SIMULADOS ============ */
+const personas = [
+  {nick:"Lau de Quilmes", msgs:[
+    "Hola gente! ¿Cómo andan?",
+    "¿Cómo se llama el tema que sonó recién?",
+    "¿Pueden mandar un saludo para mi vieja que los escucha siempre?",
+    "Aguante la Intensa, los escucho todas las noches"]},
+  {nick:"El Tano", msgs:[
+    "Buenas noches, Radio Intensa!",
+    "¿A qué hora arranca el programa de la noche?",
+    "¿Pasan algo de rock nacional?",
+    "Saludos desde Río Cuarto, capos"]},
+  {nick:"Meli_Rock", msgs:[
+    "Recién llego, ¿qué me perdí?",
+    "Un tema de Los Redondos porfa!",
+    "¿Quién está conduciendo ahora?",
+    "Este programa es lo más"]},
+  {nick:"JorgitoRC", msgs:[
+    "Hola a todos, los escucho desde el laburo",
+    "¿Cómo hago para pedir un tema?",
+    "¿El sábado hay programa en vivo?",
+    "Manden un saludo para los pibes del barrio!"]},
+  {nick:"Vane_Noche", msgs:[
+    "Buenas! ¿Me dedican un tema?",
+    "¿Pasan cumbia para bailar un rato?",
+    "Los escucho mientras cocino, genios",
+    "¿Repiten el programa de ayer?"]},
+  {nick:"Dieguito_LP", msgs:[
+    "Presente desde La Plata!",
+    "¿Tienen podcast de los programas?",
+    "Qué buen tema el anterior",
+    "Saludos a todos los oyentes"]}
+];
+const botSwitch = document.getElementById("botSwitch");
+let botsOn = localStorage.getItem("ri_bots") !== "off";
+botSwitch.classList.toggle("on", botsOn);
+botSwitch.onclick = ()=>{
+  botsOn = !botsOn;
+  localStorage.setItem("ri_bots", botsOn ? "on" : "off");
+  botSwitch.classList.toggle("on", botsOn);
+};
+
+/* Elección de líder: solo una pestaña publica los bots */
+const tabId = Math.random().toString(36).slice(2);
+function amLeader(){
+  try{
+    const raw = localStorage.getItem("ri_bot_leader");
+    const now = Date.now();
+    if(!raw) return true;
+    const l = JSON.parse(raw);
+    return (now - l.ts > 15000) || l.id === tabId;
+  }catch(e){ return true; }
+}
+function claimLeadership(){
+  try{ localStorage.setItem("ri_bot_leader", JSON.stringify({id:tabId, ts:Date.now()})); }catch(e){}
+}
+setInterval(()=>{ if(botsOn && amLeader()) claimLeadership(); }, 5000);
+
+function botLoop(){
+  const delay = 25000 + Math.random()*40000;
+  setTimeout(async ()=>{
+    try{
+      if(botsOn && amLeader()){
+        claimLeadership();
+        const p = personas[Math.floor(Math.random()*personas.length)];
+        const msg = p.msgs[Math.floor(Math.random()*p.msgs.length)];
+        typingEl.textContent = p.nick + " está escribiendo...";
+        await new Promise(r=>setTimeout(r, 2000 + Math.random()*2500));
+        typingEl.textContent = "";
+        await sb.from("messages").insert({nick:p.nick, text:msg});
+      }
+    }catch(e){}
+    botLoop();
+  }, delay);
+}
+setTimeout(botLoop, 12000);
+</script>
+</body>
+</html>
