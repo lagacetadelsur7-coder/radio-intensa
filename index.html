@@ -178,6 +178,10 @@ footer .social a{border:1px solid var(--border);padding:8px 22px;border-radius:9
   letter-spacing:1px;transition:.2s;color:var(--text)}
 footer .social a:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 14px rgba(0,229,255,.3)}
 footer .copy{font-size:12px}
+footer .gerencia{font-size:14px;letter-spacing:1.5px;color:var(--text);margin:4px 0 2px}
+footer .visits{display:inline-flex;align-items:center;gap:8px;margin:12px 0 2px;padding:8px 22px;border-radius:999px;
+  border:1px solid var(--border);background:rgba(0,229,255,.05);font-size:14px;letter-spacing:1px}
+footer .visits span{font-family:'Orbitron';color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.5)}
 footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
 </style>
@@ -282,6 +286,8 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
 <footer id="contacto">
   <div class="flogo">RADIO INTENSA</div>
   <div class="alma">ALMAFUERTE MEDIOS Y CONTENIDOS</div>
+  <div class="gerencia">Lali Mitre y César R. Moyano · Gerencia General</div>
+  <div class="visits"><span id="visitCount">···</span>&nbsp;visitas</div>
   <div class="social">
     <a href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener">Instagram</a>
     <a href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener">YouTube</a>
@@ -509,6 +515,15 @@ function botLoop(){
   }, delay);
 }
 setTimeout(botLoop, 12000);
+
+/* ============ CONTADOR DE VISITAS ============ */
+(async ()=>{
+  try{
+    const { data, error } = await sb.rpc("bump_visits");
+    if(!error && data != null)
+      document.getElementById("visitCount").textContent = Number(data).toLocaleString("es-AR");
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
