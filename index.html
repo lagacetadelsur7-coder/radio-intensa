@@ -398,7 +398,7 @@ nickInput.addEventListener("keydown", e=>{ if(e.key==="Enter") document.getEleme
 changeNickBtn.onclick = showGate;
 showGate();
 const seen = new Set();
-const botNicks = new Set(["Lau de Quilmes","El Tano","Meli_Rock","JorgitoRC","Vane_Noche","Dieguito_LP","Bebo"]);
+const botNicks = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY"]);
 
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function fmtTime(ts){
@@ -411,7 +411,7 @@ function addMsg(m){
   const isBot = botNicks.has(m.nick);
   const isMe = m.nick === getNick() && !isBot;
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
-  const colors = {"Lau de Quilmes":"#ff2fd6","El Tano":"#00e5ff","Meli_Rock":"#ff7a1a","JorgitoRC":"#39ff6a","Vane_Noche":"#b78bff","Dieguito_LP":"#ffd23f","Bebo":"#00e5ff"};
+  const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofi_MX":"#ff7a1a","Andrés_CO":"#39ff6a","Cami_CL":"#b78bff","Lucía_ES":"#ffd23f","Diego_PE":"#ff5f8f","Valen_UY":"#7df9ff"};
   div.innerHTML = '<div class="nick" style="color:'+(colors[m.nick]||"#eef0ff")+'">'+esc(m.nick)+
     '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+esc(m.text)+"</div>";
   messagesEl.appendChild(div);
@@ -444,40 +444,70 @@ loadMessages();
 setInterval(loadMessages, 10000); /* respaldo por si realtime se demora */
 
 /* ============ PARTICIPANTES AUTOMÁTICOS ============ */
+/* Detecta qué programa está al aire según la hora argentina */
+function programaActual(){
+  try{
+    const fmt = new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",weekday:"short",hour:"numeric",minute:"numeric",hour12:false});
+    const parts = {};
+    fmt.formatToParts(new Date()).forEach(p=>{parts[p.type]=p.value;});
+    const dias = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    const d = dias[parts.weekday];
+    const h = (parseInt(parts.hour,10)%24) + parseInt(parts.minute,10)/60;
+    if(d===5 && h>=20 && h<21) return "Alma Libre";
+    if(d===5 && h>=22.5 && h<23.5) return "Vecinos";
+    if(d===0 && h>=23 && h<23.84) return "Arenas del Tiempo";
+    if(d===1 && h>=14 && h<15) return "So Ham";
+    if(d===2 && h>=22.5 && h<23.5) return "Mucho por Vivir";
+    if(d===3 && h>=17 && h<18) return "El Diván";
+  }catch(e){}
+  return null;
+}
+function progName(){ return programaActual() || "la radio"; }
+
 const personas = [
-  {nick:"Lau de Quilmes", msgs:[
-    "Hola gente! ¿Cómo andan?",
-    "¿Cómo se llama el tema que sonó recién?",
-    "¿Pueden mandar un saludo para mi vieja que los escucha siempre?",
-    "Aguante la Intensa, los escucho todas las noches"]},
-  {nick:"El Tano", msgs:[
-    "Buenas noches, Radio Intensa!",
-    "¿A qué hora arranca el programa de la noche?",
-    "¿Pasan algo de rock nacional?",
-    "Saludos desde Río Cuarto, capos"]},
-  {nick:"Meli_Rock", msgs:[
-    "Recién llego, ¿qué me perdí?",
-    "Un tema de Los Redondos porfa!",
-    "¿Quién está conduciendo ahora?",
-    "Este programa es lo más"]},
-  {nick:"JorgitoRC", msgs:[
-    "Hola a todos, los escucho desde el laburo",
-    "¿Cómo hago para pedir un tema?",
-    "¿El sábado hay programa en vivo?",
-    "Manden un saludo para los pibes del barrio!"]},
-  {nick:"Vane_Noche", msgs:[
-    "Buenas! ¿Me dedican un tema?",
-    "¿Pasan cumbia para bailar un rato?",
-    "Los escucho mientras cocino, genios",
-    "¿Repiten el programa de ayer?"]},
-  {nick:"Dieguito_LP", msgs:[
-    "Presente desde La Plata!",
-    "¿Tienen podcast de los programas?",
-    "Qué buen tema el anterior",
-    "Saludos a todos los oyentes"]}
+  {nick:"Lau de Quilmes", pais:"Argentina", msgs:[
+    "¡Qué buen programa {prog} hoy, che!",
+    "Saludos gente, acá desde Quilmes escuchando {prog}",
+    "Felicitaciones por {prog}, cada vez mejor",
+    "¿Alguien más escuchando {prog} desde el laburo?"]},
+  {nick:"JorgitoRC", pais:"Argentina", msgs:[
+    "Aguante Río Cuarto y aguante {prog}",
+    "Acá firme escuchando {prog}, como siempre",
+    "Qué grande {prog}, saludos a todos los oyentes",
+    "¿Pasan un tema para los pibes del barrio?"]},
+  {nick:"Sofi_MX", pais:"México", msgs:[
+    "¡Qué onda! Saludos desde Guadalajara, me encanta {prog}",
+    "Órale, qué buen programa {prog}, felicidades",
+    "Acá en México escuchando {prog}, ¡está padrísimo!",
+    "¿Cómo se llamó la canción que acaban de pasar?"]},
+  {nick:"Andrés_CO", pais:"Colombia", msgs:[
+    "Parce, qué buen programa {prog}",
+    "Saludos desde Medellín, {prog} la rompe",
+    "¿Qué más gente? ¿Cómo les va con {prog}?",
+    "Felicitaciones por {prog}, se escucha bacano"]},
+  {nick:"Cami_CL", pais:"Chile", msgs:[
+    "¡Hola! Acá desde Santiago escuchando {prog}, bacán",
+    "Felicitaciones por {prog}, se escucha filete",
+    "Saludos a todos desde Chile, ¿cachai lo bueno que está {prog}?",
+    "¿Pueden mandar un saludo para mi mamá que los escucha?"]},
+  {nick:"Lucía_ES", pais:"España", msgs:[
+    "¡Hola desde Barcelona! {prog} mola un montón",
+    "Qué guay {prog}, saludos desde España",
+    "Felicidades por el programa, se escucha genial",
+    "Acá en Madrid ya es de noche y {prog} me acompaña"]},
+  {nick:"Diego_PE", pais:"Perú", msgs:[
+    "¡Qué tal gente! Desde Lima escuchando {prog}",
+    "Chévere {prog} hoy, saludos",
+    "Un saludo para todos desde Perú",
+    "¿Tienen el programa de ayer para escucharlo de nuevo?"]},
+  {nick:"Valen_UY", pais:"Uruguay", msgs:[
+    "Bo, qué bueno {prog} hoy",
+    "Saludos desde Montevideo, ta buenísimo {prog}",
+    "Felicitaciones por el programa",
+    "¿Quién conduce {prog}? ¡Un capo!"]}
 ];
 /* Respuestas automáticas cuando un oyente real escribe */
-const botNickSet = new Set(["Lau de Quilmes","El Tano","Meli_Rock","JorgitoRC","Vane_Noche","Dieguito_LP","Bebo"]);
+const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY"]);
 let lastAutoReply = 0;
 window.maybeAutoReply = function(m){
   try{
@@ -487,29 +517,36 @@ window.maybeAutoReply = function(m){
     if(now - lastAutoReply < 90000) return;
     const t = (m.text || "").toLowerCase();
     let pool = null;
-    if(/hola|buenas|buen d[ií]a|qué tal|que tal/.test(t)) pool = [
+    if(/hola|buenas|buen d[ií]a|qué tal|que tal|qué onda|que onda/.test(t)) pool = [
       "¡Hola {n}! ¿Cómo andás?",
-      "Buenas, bienvenido al chat",
+      "Buenas {n}, bienvenido al chat",
       "Holaa {n}, ¿de dónde nos escuchás?"];
     else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(t)) pool = [
       "¿Cuál tema decís {n}? Yo también lo quiero saber",
-      "Temazo el que sonó recién, ¿no?"];
+      "Temazo el que sonó recién en {prog}, ¿no?"];
     else if(/saludo/.test(t)) pool = [
       "¡Saludos para vos también {n}!",
-      "¡Qué grande, saludos!"];
-    else if(/gracias/.test(t)) pool = ["De nada!", "¡Un placer!"];
+      "¡Qué grande {n}! Saludos desde {pais}"];
+    else if(/gracias/.test(t)) pool = ["¡De nada {n}!", "¡Un placer!"];
+    else if(/felicit|felicidades|genial|excelente|lo m[aá]s/.test(t)) pool = [
+      "¡Totalmente! {prog} es lo más",
+      "Sí, se nota el laburo que hay detrás de {prog}"];
     else if(/\?/.test(t)) pool = [
-      "Buena pregunta {n}, a ver qué dicen los conductores",
+      "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
       "Seguro lo responden al aire en un rato"];
     else if(Math.random() < 0.22) pool = [
       "Totalmente de acuerdo",
       "Jaja, muy bueno",
-      "Aguante la Intensa"];
+      "Aguante {prog}",
+      "Qué bueno que somos varios escuchando"];
     if(!pool) return;
     lastAutoReply = now;
     const p = personas[Math.floor(Math.random()*personas.length)];
-    const text = pool[Math.floor(Math.random()*pool.length)].replaceAll("{n}", m.nick);
+    const text = pool[Math.floor(Math.random()*pool.length)]
+      .replaceAll("{n}", m.nick)
+      .replaceAll("{prog}", progName())
+      .replaceAll("{pais}", p.pais || "");
     setTimeout(async ()=>{
       try{
         typingEl.textContent = p.nick + " está escribiendo...";
@@ -559,7 +596,7 @@ function botLoop(){
         typingEl.textContent = p.nick + " está escribiendo...";
         await new Promise(r=>setTimeout(r, 2000 + Math.random()*2500));
         typingEl.textContent = "";
-        await sb.from("messages").insert({nick:p.nick, text:msg});
+        await sb.from("messages").insert({nick:p.nick, text:msg.replaceAll("{prog}", progName())});
       }
     }catch(e){}
     botLoop();
