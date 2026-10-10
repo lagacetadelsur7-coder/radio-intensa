@@ -218,6 +218,10 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .pk-g{width:88px;height:66px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border)}
 .pk-g:hover{border-color:var(--cyan)}
 .pk-s{cursor:pointer;padding:4px}
+.pk-search{display:flex;gap:8px;margin-bottom:10px}
+.pk-search input{flex:1;background:#0d0d20;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px 12px;font-size:14px;font-family:inherit}
+.pk-search input:focus{outline:none;border-color:var(--cyan)}
+.pk-search button{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;border-radius:10px;padding:0 16px;font-size:16px;cursor:pointer}
 .stk{display:inline-block;font-weight:800;font-size:15px;letter-spacing:1px;padding:8px 16px;border-radius:999px;margin-top:4px}
 .stk-vivo{background:#1a0505;border:2px solid #ff3b3b;color:#ff6b6b;animation:stkPulse 1.2s infinite}
 .stk-intensa{background:linear-gradient(45deg,#4b0082,#9400d3);border:2px solid var(--cyan);color:#fff;animation:stkGlow 1.6s infinite}
@@ -459,6 +463,9 @@ const GIF_URLS = [
   "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
 ];
 const GIFSET = new Set(GIF_URLS);
+const GIPHY_KEY = ""; /* Cé: pegar acá la clave gratis de developers.giphy.com */
+function giphyThumb(g){ return (g.images && g.images.fixed_width_small && g.images.fixed_width_small.url) || ""; }
+function giphyFull(g){ return (g.images && g.images.fixed_height && g.images.fixed_height.url) || g.url; }
 const STICKERS = {
   ":vivo:": '<span class="stk stk-vivo">🔴 EN VIVO</span>',
   ":intensa:": '<span class="stk stk-intensa">⚡INTENSA⚡</span>',
@@ -1047,8 +1054,27 @@ function togglePicker(mode){
     pickerEl.innerHTML = '<div class="pk-grid">'+EMOJIS.map(e=>'<span class="pk-e" data-e="'+e+'">'+e+'</span>').join("")+'</div>';
     pickerEl.querySelectorAll(".pk-e").forEach(sp=>{ sp.onclick=function(){ insertAtCursor(sp.getAttribute("data-e")); pickerEl.style.display="none"; pickerMode=null; }; });
   }else if(mode==="gif"){
-    pickerEl.innerHTML = '<div class="pk-grid">'+GIF_URLS.map(u=>'<img class="pk-g" src="'+u+'" loading="lazy" alt="GIF">').join("")+'</div>';
-    pickerEl.querySelectorAll(".pk-g").forEach(im=>{ im.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=im.src; sendMessage(); }; });
+    if(GIPHY_KEY){
+      pickerEl.innerHTML = '<div class="pk-search"><input type="text" id="giphyQ" placeholder="Buscar GIFs..."><button id="giphyGo">🔍</button></div><div class="pk-grid" id="giphyRes"></div>';
+      const res = document.getElementById("giphyRes");
+      const paint = function(list){
+        res.innerHTML = list.map(g=>{ const full=giphyFull(g); GIFSET.add(full); return '<img class="pk-g" data-full="'+full+'" src="'+giphyThumb(g)+'" loading="lazy" alt="GIF">'; }).join("") || '<p style="color:var(--muted);font-size:13px">Sin resultados</p>';
+        res.querySelectorAll(".pk-g").forEach(im=>{ im.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=im.getAttribute("data-full"); sendMessage(); }; });
+      };
+      const search = async function(q){
+        try{
+          const url = "https://api.giphy.com/v1/gifs/"+(q?"search?q="+encodeURIComponent(q)+"&":"trending?")+"api_key="+GIPHY_KEY+"&limit=12&lang=es&rating=g";
+          const r = await fetch(url); const d = await r.json();
+          paint(d.data||[]);
+        }catch(e){ res.innerHTML = '<p style="color:var(--muted);font-size:13px">No se pudo buscar, probá de nuevo</p>'; }
+      };
+      document.getElementById("giphyGo").onclick = function(){ search(document.getElementById("giphyQ").value.trim()); };
+      document.getElementById("giphyQ").addEventListener("keydown", function(e){ if(e.key==="Enter") search(document.getElementById("giphyQ").value.trim()); });
+      search("");
+    }else{
+      pickerEl.innerHTML = '<div class="pk-grid">'+GIF_URLS.map(u=>'<img class="pk-g" src="'+u+'" loading="lazy" alt="GIF">').join("")+'</div>';
+      pickerEl.querySelectorAll(".pk-g").forEach(im=>{ im.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=im.src; sendMessage(); }; });
+    }
   }else{
     pickerEl.innerHTML = '<div class="pk-grid">'+Object.keys(STICKERS).map(k=>'<div class="pk-s" data-k="'+k+'">'+STICKERS[k]+'</div>').join("")+'</div>';
     pickerEl.querySelectorAll(".pk-s").forEach(d=>{ d.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=d.getAttribute("data-k"); sendMessage(); }; });
