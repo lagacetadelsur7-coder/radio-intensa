@@ -1045,7 +1045,7 @@ function togglePicker(mode){
   pickerMode = mode;
   if(mode==="emoji"){
     pickerEl.innerHTML = '<div class="pk-grid">'+EMOJIS.map(e=>'<span class="pk-e" data-e="'+e+'">'+e+'</span>').join("")+'</div>';
-    pickerEl.querySelectorAll(".pk-e").forEach(sp=>{ sp.onclick=function(){ insertAtCursor(sp.getAttribute("data-e")); }; });
+    pickerEl.querySelectorAll(".pk-e").forEach(sp=>{ sp.onclick=function(){ insertAtCursor(sp.getAttribute("data-e")); pickerEl.style.display="none"; pickerMode=null; }; });
   }else if(mode==="gif"){
     pickerEl.innerHTML = '<div class="pk-grid">'+GIF_URLS.map(u=>'<img class="pk-g" src="'+u+'" loading="lazy" alt="GIF">').join("")+'</div>';
     pickerEl.querySelectorAll(".pk-g").forEach(im=>{ im.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=im.src; sendMessage(); }; });
