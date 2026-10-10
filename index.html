@@ -104,8 +104,10 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
   #messages{height:300px}
   h2.sec{font-size:17px}
 }
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.25s}
-.card:hover{transform:translateY(-4px);border-color:var(--magenta);box-shadow:0 8px 30px rgba(255,47,214,.18)}
+.card{background:var(--panel);border:2px solid var(--magenta);border-radius:14px;overflow:hidden;transition:.25s;
+  box-shadow:0 0 12px rgba(255,47,214,.28)}
+.card:hover,.card:active{transform:translateY(-4px);border-color:var(--cyan);
+  box-shadow:0 8px 30px rgba(0,229,255,.35),0 0 18px rgba(0,229,255,.45)}
 .thumb{height:110px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:13px;
   letter-spacing:2px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;padding:10px}
 .t1{background:linear-gradient(135deg,#0aa2c0,#7b2ff7)}
