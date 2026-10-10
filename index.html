@@ -327,15 +327,6 @@ footer .visits{display:inline-flex;align-items:center;gap:8px;margin:12px 0 2px;
 footer .visits span{font-family:'Orbitron';color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.5)}
 footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
-/* Estela del mouse */
-.mouse-trail{position:fixed;z-index:9998;pointer-events:none;user-select:none;
-  font-size:11px;font-weight:700;letter-spacing:1px;opacity:.85;white-space:nowrap;
-  transform:translate(-50%,-50%);animation:trailFloat .9s ease-out forwards;
-  text-shadow:0 0 8px currentColor}
-@keyframes trailFloat{
-  0%{opacity:.85;transform:translate(-50%,-50%) scale(.8)}
-  100%{opacity:0;transform:translate(-50%,-150%) scale(1.15)}
-}
 /* Clima en grilla horizontal compacta */
 .clima-wide{max-width:1180px;margin:0 auto;padding:0 20px}
 .clima-wide .side{margin-bottom:14px}
@@ -1456,28 +1447,6 @@ setInterval(youtubeTick, 60000);
 
 /* La música callada: misma imagen en grilla y en eventos */
 (function(){ const a=document.getElementById("imgMusicaCallada"), b=document.getElementById("evMusicaCallada"); if(a&&b&&a.src) b.src=a.src; })();
-
-/* ============ ESTELA DEL MOUSE "intensa" ============ */
-(function(){
-  try{
-    if(window.matchMedia && matchMedia("(pointer:coarse)").matches) return;
-    let last = 0, count = 0, ci = 0;
-    const colors = ["#00e5ff","#ff2fd6","#ffd75e"];
-    document.addEventListener("mousemove", function(e){
-      const now = Date.now();
-      if(now - last < 90 || count > 25) return;
-      last = now; count++;
-      const s = document.createElement("span");
-      s.textContent = "intensa";
-      s.className = "mouse-trail";
-      s.style.left = e.clientX + "px";
-      s.style.top = e.clientY + "px";
-      s.style.color = colors[ci++ % colors.length];
-      document.body.appendChild(s);
-      setTimeout(function(){ s.remove(); count--; }, 950);
-    }, {passive:true});
-  }catch(e){}
-})();
 
 /* ============ EMOJIS / GIFS / STICKERS ============ */
 const EMOJIS = ["😂","🤣","❤️","👍","👏","🔥","🎉","😮","😢","🙏","💪","😍","😎","👋","💯","⭐","✨","🥳","🎵","🎶","📻","🎧","🎤","💃","🕺","👀","🤔","😱","🎊","💖"];
