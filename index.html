@@ -276,6 +276,12 @@ img{-webkit-user-drag:none}
 .pc-h{font-size:14px;color:var(--cyan);font-weight:600;margin:2px 0}
 .pc-c{font-size:13px;color:#cfd2ff}
 .pc-l{font-size:12px;color:#9aa0c7;margin-top:2px}
+/* Horóscopo */
+.horo-card{background:linear-gradient(135deg,#241a08,#1a1030);border:2px solid #d4a017;border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(212,160,23,.35)}
+.horo-k{font-size:11px;letter-spacing:2px;color:#ffd75e;font-weight:700;margin-bottom:6px}
+.horo-s{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
+.horo-t{font-size:14px;color:#f0e6c8;line-height:1.45}
 /* CHAT: avatares */
 .msg .ava{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:22px;border:2px solid rgba(255,255,255,.18);box-shadow:0 2px 8px rgba(0,0,0,.35)}
@@ -570,6 +576,12 @@ function renderBody(m){
       '<div class="pc-h">'+esc(f[2]||"")+'</div>'+
       (f[3]?'<div class="pc-c">'+esc(f[3])+'</div>':"")+
       (f[4]?'<div class="pc-l">\u{0001F4CD} '+esc(f[4])+'</div>':"")+'</div>';
+  }
+  if(tx.indexOf("[HOROSCOPO]")===0){
+    const f=tx.slice(11).split("|");
+    return '<div class="horo-card"><div class="horo-k">\u{0001F52E} HOR\u00d3SCOPO \u00b7 RADIO INTENSA</div>'+
+      '<div class="horo-s">'+esc(f[1]||"")+" "+esc(f[0]||"")+'</div>'+
+      '<div class="horo-t">'+esc(f[2]||"")+'</div></div>';
   }
   if(GIFSET.has(tx)) return '<img class="chat-gif" src="'+tx+'" alt="GIF" loading="lazy">';
   if(STICKERS[tx]) return STICKERS[tx];
@@ -1202,6 +1214,50 @@ function carteleraTick(){
 }
 setInterval(carteleraTick, 60000);
 setTimeout(carteleraTick, 15000);
+
+/* ============ HORÓSCOPO CADA 15 MIN ============ */
+const HOROSCOPO=[
+["Aries","\u2648","Aries: arranc\u00e1 el d\u00eda con todo. Tu energ\u00eda abre caminos, pero cont\u00e1 hasta tres antes de responder. \u{0001F525}"],
+["Tauro","\u2649","Tauro: la calma es tu superpoder hoy. Eso que esper\u00e1s est\u00e1 m\u00e1s cerca de lo que cre\u00e9s. \u{0001F33F}"],
+["G\u00e9minis","\u264a","G\u00e9minis: d\u00eda ideal para conversar. Una charla pendiente se resuelve si la encar\u00e1s con humor. \u{0001F4AC}"],
+["C\u00e1ncer","\u264b","C\u00e1ncer: tu sensibilidad hoy es un radar. Escuch\u00e1 a tu coraz\u00f3n y llam\u00e1 a esa persona que extra\u00f1\u00e1s. \u{0001F319}"],
+["Leo","\u264c","Leo: tu carisma abre puertas hoy. Dec\u00ed lo que sent\u00eds sin miedo, alguien te escucha con atenci\u00f3n. \u{0001F981}"],
+["Virgo","\u264d","Virgo: el orden te da paz, pero dej\u00e1 lugar para lo imprevisto: ah\u00ed est\u00e1 la magia. \u2728"],
+["Libra","\u264e","Libra: busc\u00e1 el equilibrio sin postergarte. Decir que no tambi\u00e9n es cuidarte. \u2696\ufe0f"],
+["Escorpio","\u264f","Escorpio: tu intuici\u00f3n hoy no falla. Confi\u00e1 en esa primera corazonada. \u{0001F52E}"],
+["Sagitario","\u2650","Sagitario: el d\u00eda pide aventura, aunque sea chiquita. Sal\u00ed de la rutina y respir\u00e1 otro aire. \u{0001F3F9}"],
+["Capricornio","\u2651","Capricornio: paso a paso se llega lejos. Hoy un esfuerzo silencioso da sus frutos. \u26f0\ufe0f"],
+["Acuario","\u2652","Acuario: tu originalidad inspira. Compart\u00ed esa idea loca, alguien la estaba esperando. \u{0001F4A1}"],
+["Piscis","\u2653","Piscis: so\u00f1\u00e1 en grande pero anot\u00e1 los sue\u00f1os. Hoy la inspiraci\u00f3n te visita temprano. \u{0001F30A}"],
+["Rata","\u{0001F42D}","Rata (hor\u00f3scopo chino): tu astucia es tu aliada. Un detalle peque\u00f1o te trae una gran alegr\u00eda hoy."],
+["Buey","\u{0001F402}","Buey (hor\u00f3scopo chino): la constancia vence. Segu\u00ed firme que la recompensa llega antes de lo pensado."],
+["Tigre","\u{0001F42F}","Tigre (hor\u00f3scopo chino): tu valent\u00eda contagia. Animate a ese paso que ven\u00eds postergando."],
+["Conejo","\u{0001F430}","Conejo (hor\u00f3scopo chino): la dulzura abre corazones. Hoy tu ternura desarma cualquier tensi\u00f3n."],
+["Drag\u00f3n","\u{0001F409}","Drag\u00f3n (hor\u00f3scopo chino): tu magnetismo est\u00e1 en su pico. Gran d\u00eda para pedir lo que merec\u00e9s."],
+["Serpiente","\u{0001F40D}","Serpiente (hor\u00f3scopo chino): observ\u00e1 antes de actuar. Tu sabidur\u00eda silenciosa te pone un paso adelante."],
+["Caballo","\u{0001F434}","Caballo (hor\u00f3scopo chino): corr\u00e9 hacia lo que quer\u00e9s, pero mir\u00e1 el camino. La meta est\u00e1 cerca."],
+["Cabra","\u{0001F410}","Cabra (hor\u00f3scopo chino): tu creatividad florece. Regalate un momento de arte o m\u00fasica hoy."],
+["Mono","\u{0001F435}","Mono (hor\u00f3scopo chino): el humor te salva el d\u00eda. Re\u00edte de los imprevistos y todo se acomoda."],
+["Gallo","\u{0001F413}","Gallo (hor\u00f3scopo chino): hacete ver. Hoy tu presencia no pasa desapercibida, usala a tu favor."],
+["Perro","\u{0001F415}","Perro (hor\u00f3scopo chino): tu lealtad vuelve multiplicada. Alguien te demuestra cu\u00e1nto te valora."],
+["Cerdo","\u{0001F416}","Cerdo (hor\u00f3scopo chino): disfrut\u00e1 sin culpa. Hoy la vida te invita a celebrar lo simple."]
+];
+function horoscopoTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==7) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_horoscopo")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0, h=HOROSCOPO[idx%HOROSCOPO.length];
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[HOROSCOPO]"+h[0]+"|"+h[1]+"|"+h[2]});
+    try{ localStorage.setItem("ri_horoscopo", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+setInterval(horoscopoTick, 60000);
 
 /* La música callada: misma imagen en grilla y en eventos */
 (function(){ const a=document.getElementById("imgMusicaCallada"), b=document.getElementById("evMusicaCallada"); if(a&&b&&a.src) b.src=a.src; })();
