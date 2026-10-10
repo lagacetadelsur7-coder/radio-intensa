@@ -986,6 +986,11 @@ function trackReal(m){
   }catch(e){}
 }
 function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+/* Anti-repetición GLOBAL: ningún nick repite texto de otro (regla de Cé) */
+const _botUsedNorm = [];
+function normTxt(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1\u00fc ]/gi," ").replace(/\s+/g," ").trim(); }
+function botDup(s){ const n = normTxt(s); return n.length > 10 && _botUsedNorm.indexOf(n) >= 0; }
+function botMark(s){ const n = normTxt(s); if(n.length > 10){ _botUsedNorm.push(n); if(_botUsedNorm.length > 30) _botUsedNorm.shift(); } }
 function pickFresh(p){           /* evita repetir las últimas 6 frases de cada nick */
   const n = p.msgs.length;
   p._used = p._used || [];
@@ -1105,6 +1110,8 @@ window.maybeAutoReply = function(m){
       .replaceAll("{n}", m.nick)
       .replaceAll("{prog}", progName())
       .replaceAll("{pais}", per.pais || "");
+    if(botDup(text)){ const alt = pickReply(pool).replaceAll("{n}", m.nick).replaceAll("{prog}", progName()).replaceAll("{pais}", per.pais || ""); if(!botDup(alt)) text = alt; }
+    botMark(text);
     if(/^lali$/i.test(m.nick||"")) text = text.replace(/\bbienvenido\b/g, "bienvenida");
     setTimeout(async ()=>{
       try{
@@ -1159,18 +1166,34 @@ function botLoop(){
   const delay = 30000 + Math.random()*45000;
   setTimeout(async ()=>{
     try{
-      if(botsOn && amLeader() && Date.now() - lastHumanTs < 30*60*1000){
+      if(botsOn && amLeader()){
         claimLeadership();
+        const humanActive = Date.now() - lastHumanTs < 30*60*1000;
+        let doPost = humanActive, ambientMsg = null;
+        if(!humanActive){
+          let lastAmb = 0;
+          try{ lastAmb = parseInt(localStorage.getItem("ri_ambient_ts")||"0",10)||0; }catch(e){}
+          if(Date.now() - lastAmb > 12*60*1000 && Math.random() < 0.3){
+            doPost = true; ambientMsg = pickFrom(AMBIENT_MSGS);
+            try{ localStorage.setItem("ri_ambient_ts", String(Date.now())); }catch(e){}
+          }
+        }
+        if(doPost){
         const act0 = getActive().length ? getActive() : personas;
         let p = pickFrom(act0);
         if(p.nick === lastBotNick) p = pickFrom(act0);
         lastBotNick = p.nick;
-        let msg = contextualMsg(p) || pickFresh(p);
-        msg = msg.replaceAll("{prog}", progName());
+        let msg = null;
+        for(let att=0; att<5; att++){
+          const cand = (ambientMsg || contextualMsg(p) || pickFresh(p)).replaceAll("{prog}", progName());
+          if(!botDup(cand) || att===4){ msg = cand; break; }
+        }
+        botMark(msg);
         typingEl.textContent = p.nick + " está escribiendo...";
         await new Promise(r=>setTimeout(r, 2000 + Math.random()*2500));
         typingEl.textContent = "";
         await sb.from("messages").insert({nick:p.nick, text:msg});
+        }
       }
     }catch(e){}
     botLoop();
