@@ -604,14 +604,14 @@ function renderBody(m){
   if(tx.indexOf("[SEMANARIO]")===0){
     const f=tx.slice(11).split("|");
     return '<div class="mens-card"><div class="mens-k">\u{0001F4F0} EL MENSAJERO NOTICIAS</div>'+
-      '<div class="mens-t">'+esc(f[0]||"")+'</div>'+
+      '<div class="mens-t">'+linkify(esc(f[0]||""))+'</div>'+
       '<a class="mens-a" href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener">\u{0001F4F0} Leer el semanario</a>'+
       '<div class="mens-u"><a href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener">el-mensajero-noticias.vercel.app</a></div></div>';
   }
   if(tx.indexOf("[YOUTUBE]")===0){
     const f=tx.slice(9).split("|");
     return '<div class="yt-card"><div class="yt-k">\u25b6\ufe0f YOUTUBE \u00b7 RADIO INTENSA</div>'+
-      '<div class="yt-t">'+esc(f[0]||"")+'</div>'+
+      '<div class="yt-t">'+linkify(esc(f[0]||""))+'</div>'+
       '<a class="yt-a" href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener">\u25b6\ufe0f Suscribirme</a>'+
       '<div class="yt-u"><a href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener">youtube.com/@intensaradio</a></div></div>';
   }
@@ -1314,7 +1314,7 @@ function semanarioTick(){
     let st={}; try{ st=JSON.parse(localStorage.getItem("ri_semanario")||"{}"); }catch(e){ st={}; }
     if(st.slot===slot) return;
     const idx=st.idx||0;
-    sb.from("messages").insert({nick:"Radio Intensa", text:"[SEMANARIO]"+SEMANARIO_MSGS[idx%SEMANARIO_MSGS.length]});
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[SEMANARIO]"+SEMANARIO_MSGS[idx%SEMANARIO_MSGS.length]+" https://el-mensajero-noticias.vercel.app/"});
     try{ localStorage.setItem("ri_semanario", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
   }catch(e){}
 }
@@ -1337,7 +1337,7 @@ function youtubeTick(){
     let st={}; try{ st=JSON.parse(localStorage.getItem("ri_youtube")||"{}"); }catch(e){ st={}; }
     if(st.slot===slot) return;
     const idx=st.idx||0;
-    sb.from("messages").insert({nick:"Radio Intensa", text:"[YOUTUBE]"+YOUTUBE_MSGS[idx%YOUTUBE_MSGS.length]});
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[YOUTUBE]"+YOUTUBE_MSGS[idx%YOUTUBE_MSGS.length]+" https://www.youtube.com/@intensaradio"});
     try{ localStorage.setItem("ri_youtube", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
   }catch(e){}
 }
