@@ -509,7 +509,9 @@ const personas = [
     "¿Mañana repiten {prog}? Me lo perdí ayer",
     "Saludos a todos los que están prendidos a {prog}",
     "Qué buena selección musical hoy en {prog}",
-    "¿Alguien sabe a qué hora termina {prog} hoy?"]},
+    "¿Alguien sabe a qué hora termina {prog} hoy?",
+    "¿Vieron el anuncio que hicieron en {prog}?",
+    "Acá esperando {prog}, ¿falta mucho para que empiece?"]},
   {nick:"JorgitoRC", pais:"Argentina", msgs:[
     "Aguante Río Cuarto y aguante {prog}",
     "Acá firme escuchando {prog}, como siempre",
@@ -520,7 +522,9 @@ const personas = [
     "¿Quién más de Córdoba escuchando {prog}?",
     "Qué bueno que {prog} hable de lo nuestro",
     "Saludos para mi vieja que escucha {prog} conmigo",
-    "El otro día me perdí {prog}, ¿lo suben a algún lado?"]},
+    "El otro día me perdí {prog}, ¿lo suben a algún lado?",
+    "¿Pasan cumbia en {prog}?",
+    "Qué grande la gente de {prog}, siempre presentes"]},
   {nick:"Sofi_MX", pais:"México", msgs:[
     "¡Qué onda! Saludos desde Guadalajara, me encanta {prog}",
     "Órale, qué buen programa {prog}, felicidades",
@@ -531,7 +535,9 @@ const personas = [
     "Qué chido que {prog} ponga de todo un poco",
     "Órale con el tema que sonó, ¿alguien sabe cómo se llama?",
     "Desde acá les mando buena vibra a los de {prog}",
-    "¿Tienen redes donde suban lo mejor de {prog}?"]},
+    "¿Tienen redes donde suban lo mejor de {prog}?",
+    "¿Qué están cenando mientras escuchan {prog}? Yo tacos",
+    "Me encanta el acento de los de {prog}"]},
   {nick:"Andrés_CO", pais:"Colombia", msgs:[
     "Parce, qué buen programa {prog}",
     "Saludos desde Medellín, {prog} la rompe",
@@ -542,7 +548,9 @@ const personas = [
     "¿Quién conduce {prog}? Tiene buena energía",
     "Saludos parce, qué chimba de programa",
     "¿Mañana a qué hora va {prog}? No me lo quiero perder",
-    "Qué bacano que se escuchen desde tantos países"]},
+    "Qué bacano que se escuchen desde tantos países",
+    "¿Escucharon el tema nuevo que pusieron en {prog}?",
+    "Parce, ¿{prog} es en vivo o grabado?"]},
   {nick:"Cami_CL", pais:"Chile", msgs:[
     "¡Hola! Acá desde Santiago escuchando {prog}, bacán",
     "Felicitaciones por {prog}, se escucha filete",
@@ -553,7 +561,9 @@ const personas = [
     "Saludos desde Valpo, prendida a {prog}",
     "¿A qué hora termina {prog}? Me tengo que levantar temprano",
     "Qué filete {prog}, no me lo pierdo nunca",
-    "¿Alguien más de Chile por acá escuchando {prog}?"]},
+    "¿Alguien más de Chile por acá escuchando {prog}?",
+    "¿Les gusta el horario de {prog}?",
+    "Acá tomando once con {prog} de fondo"]},
   {nick:"Lucía_ES", pais:"España", msgs:[
     "¡Hola desde Barcelona! {prog} mola un montón",
     "Qué guay {prog}, saludos desde España",
@@ -564,7 +574,9 @@ const personas = [
     "Saludos desde España, ¿alguien más por Europa?",
     "Qué guay que se pueda escuchar {prog} desde tan lejos",
     "¿El programa de mañana de qué va? Contadme",
-    "Felicidades a los conductores de {prog}, qué arte"]},
+    "Felicidades a los conductores de {prog}, qué arte",
+    "¿Cuántas horas de diferencia hay con Argentina?",
+    "Me flipa {prog}, en serio"]},
   {nick:"Diego_PE", pais:"Perú", msgs:[
     "¡Qué tal gente! Desde Lima escuchando {prog}",
     "Chévere {prog} hoy, saludos",
@@ -575,7 +587,9 @@ const personas = [
     "Saludos gente, ¿qué les pareció {prog} hoy?",
     "¿Pasan saludos al aire en {prog}?",
     "Qué buena onda {prog}, se escucha clarito hasta acá",
-    "¿Alguien sabe si {prog} tiene podcast?"]},
+    "¿Alguien sabe si {prog} tiene podcast?",
+    "¿Qué tal el audio? Se escucha perfecto hasta acá",
+    "Un abrazo a todos los de {prog}"]},
   {nick:"Valen_UY", pais:"Uruguay", msgs:[
     "Bo, qué bueno {prog} hoy",
     "Saludos desde Montevideo, ta buenísimo {prog}",
@@ -586,7 +600,9 @@ const personas = [
     "¿Viste lo que comentaron en {prog}? Muy cierto",
     "Ta, me encantó el programa de hoy",
     "Saludos bo, ¿alguien más de Uruguay por acá?",
-    "¿A qué hora arranca {prog} mañana?"]}
+    "¿A qué hora arranca {prog} mañana?",
+    "¿Toman mate escuchando {prog}? Yo sí",
+    "Bo, qué nivel {prog} hoy"]}
 ];
 /* Respuestas automáticas cuando un oyente real escribe */
 const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY"]);
@@ -620,6 +636,12 @@ function pickReply(pool){        /* evita repetir respuestas recientes */
   if(recentReplies.length > 10) recentReplies.shift();
   return m;
 }
+/* Extrae palabras distintivas del mensaje para responder con coherencia */
+function keywordsOf(txt){
+  const stop = new Set("que,de,la,el,en,y,los,las,una,con,por,para,como,esta,estan,muy,mas,pero,hola,buenas,gracias,eso,esto,del,mi,tu,su,nos,les,tienen,tiene,pueden,puede,quieren,quiere,estoy,estamos,ahora,hoy,ayer,aca,alla,ahi,cuando,donde,cual,quien,porque,tambien,solo,este,esta,estos,estas,ese,esa,programa,radio,tema,cancion,musica,saludo,saludos,noche,dia,tarde,lindo,linda,bueno,buena,genial,grande,chido,bacan,chevere,filete,mola,padre".split(","));
+  return txt.toLowerCase().replace(/[¿?¡!.,;:()"]/g,"").split(/\s+/)
+    .filter(w=>w.length>4 && !stop.has(w)).slice(0,2);
+}
 /* Mensaje coherente con lo que se está hablando en el chat */
 function contextualMsg(p){
   if(recentChat.length && Math.random() < 0.38){
@@ -638,6 +660,12 @@ function contextualMsg(p){
       "¿Cuál tema decís "+nick+"? Yo también lo quiero saber",
       "Temazo el que sonó, ¿no "+nick+"?"]);
     if(/saludo/.test(tl)) return "¡Saludos para vos también "+nick+"!";
+    const kws = keywordsOf(txt);
+    if(kws.length) return pickFrom([
+      "¿Lo de "+kws[0]+" lo comentaron en "+progName()+"?",
+      "Jaja, "+kws[0]+", qué bueno "+nick,
+      "Contame más de eso de "+kws[0]+", "+nick,
+      "Mirá vos, "+kws[0]+", no sabía"]);
     return pickFrom([
       nick+" tiene razón",
       "Jaja, lo que dijo "+nick,
@@ -686,6 +714,10 @@ window.maybeAutoReply = function(m){
     else if(/programa|radio/.test(t)) pool = [
       "¿Cuál es tu programa favorito {n}?",
       "Yo no me pierdo {prog}"];
+    else if(/jaja+|\u0001f602|\u0001f923/.test(t)) pool = [
+      "Jaja, ¿qué pasó {n}?",
+      "Jajaja, me hiciste reír {n}",
+      "¿De qué se ríen? Contá {n}"];
     else if(/\?/.test(t)) pool = [
       "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
@@ -709,6 +741,16 @@ window.maybeAutoReply = function(m){
         await new Promise(r=>setTimeout(r, 1500 + Math.random()*2000));
         typingEl.textContent = "";
         await sb.from("messages").insert({nick:per.nick, text});
+        if(Math.random() < 0.3){
+          const p2 = pickFrom(personas.filter(x=>x.nick !== per.nick));
+          const t2 = pickFrom([
+            "Jaja, "+per.nick+" siempre con la posta",
+            "Tal cual "+per.nick,
+            "Coincido con "+per.nick+", "+m.nick+" tiene razón"]);
+          setTimeout(async ()=>{
+            try{ await sb.from("messages").insert({nick:p2.nick, text:t2}); }catch(e){}
+          }, 9000 + Math.random()*9000);
+        }
       }catch(e){}
     }, 4000 + Math.random()*6000);
   }catch(e){}
