@@ -139,13 +139,13 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
   background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0))}
 #messages::-webkit-scrollbar{width:8px}
 #messages::-webkit-scrollbar-thumb{background:#2a2a3d;border-radius:8px}
-.msg{max-width:82%;padding:10px 14px;border-radius:12px;background:#23233e;border:1px solid rgba(255,255,255,.1);
+.msg{display:flex;gap:10px;align-items:flex-start;max-width:82%;padding:10px 14px;border-radius:12px;background:#23233e;border:1px solid rgba(255,255,255,.1);
   font-size:16px;line-height:1.4;color:#f4f6ff;animation:fadein .25s;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}}
 .msg .nick{font-weight:800;font-size:14px;letter-spacing:.8px;margin-bottom:3px;text-shadow:0 0 10px currentColor}
 .msg .time{font-size:11px;color:var(--muted);margin-left:8px;font-weight:400}
 .msg.bot{border-left:3px solid var(--magenta)}
-.msg.me{align-self:flex-end;background:rgba(0,229,255,.14);border:1px solid rgba(0,229,255,.4)}
+.msg.me{align-self:flex-end;flex-direction:row-reverse;background:rgba(0,229,255,.14);border:1px solid rgba(0,229,255,.4)}
 .typing{font-size:13px;color:var(--muted);font-style:italic;min-height:20px;padding:0 18px}
 .chat-input{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--border);background:var(--panel2)}
 .chat-input input{background:#080812;border:1px solid var(--border);border-radius:10px;color:var(--text);
@@ -230,6 +230,13 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 @keyframes stkPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes stkGlow{0%,100%{box-shadow:0 0 8px rgba(0,229,255,.4)}50%{box-shadow:0 0 20px rgba(0,229,255,.9)}}
 @keyframes stkBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* CHAT: avatares */
+.msg .ava{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:22px;border:2px solid rgba(255,255,255,.18);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.msg .mbody{flex:1;min-width:0}
+.grow{margin-top:14px;display:flex;gap:10px;justify-content:center;align-items:center;color:var(--muted);font-size:14px}
+.gbtn{font-size:24px;background:#1a1a2e;border:2px solid var(--border);border-radius:12px;padding:6px 14px;cursor:pointer;line-height:1}
+.gbtn.sel{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.45)}
 /* FOOTER */
 footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--muted);font-size:14px}
 footer .alma{font-family:'Orbitron';font-size:13px;letter-spacing:2px;color:var(--magenta);margin:8px 0 2px;
@@ -335,6 +342,7 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
         <input type="text" id="nick" placeholder="Tu nick" maxlength="20">
         <button id="joinBtn">Entrar</button>
       </div>
+      <div class="grow"><span>Soy:</span><button type="button" class="gbtn" data-g="m">👦</button><button type="button" class="gbtn" data-g="f">👧</button></div>
     </div>
     <div id="chatMain">
       <div id="messages"></div>
@@ -434,6 +442,7 @@ function showGate(){
   changeNickBtn.style.display = "none";
   nickInput.value = getNick();
 }
+document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); }; });
 document.getElementById("joinBtn").onclick = ()=>{
   const n = nickInput.value.trim();
   if(!n){ nickInput.focus(); return; }
@@ -445,6 +454,17 @@ nickInput.addEventListener("keydown", e=>{ if(e.key==="Enter") document.getEleme
 changeNickBtn.onclick = showGate;
 showGate();
 const seen = new Set();
+const botGender = {"Lau de Quilmes":"f","JorgitoRC":"m","Sofi_MX":"f","Andr\u00e9s_CO":"m","Cami_CL":"f","Luc\u00eda_ES":"f","Diego_PE":"m","Valen_UY":"m","Pame_AR":"f","Rulo_MX":"m","Nico_CO":"m","Trini_CL":"f","Iker_ES":"m","Camila_PE":"f"};
+const M_FACES = ["\u{1F468}","\u{1F9D4}","\u{1F468}\u200D\u{1F9B1}","\u{1F468}\u200D\u{1F9B0}","\u{1F471}\u200D\u2642\uFE0F","\u{1F9D1}\u200D\u{1F9B0}"];
+const F_FACES = ["\u{1F469}","\u{1F469}\u200D\u{1F9B1}","\u{1F469}\u200D\u{1F9B0}","\u{1F471}\u200D\u2640\uFE0F","\u{1F469}\u200D\u{1F9B3}","\u{1F9D1}\u200D\u{1F9B3}"];
+const N_FACES = ["\u{1F9D1}","\u{1F642}","\u{1F60E}","\u{1F920}","\u{1F98A}","\u{1F431}","\u{1F43C}","\u{1F981}"];
+let myGender = "";
+function faceFor(nick, g){
+  const pool = g==="f" ? F_FACES : g==="m" ? M_FACES : N_FACES;
+  let h = 0;
+  for(let i=0;i<nick.length;i++){ h = (h*31 + nick.codePointAt(i)) >>> 0; }
+  return pool[h % pool.length];
+}
 const botNicks = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE"]);
 
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -495,8 +515,12 @@ function addMsg(m){
   const isMe = m.nick === getNick() && !isBot;
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
   const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofi_MX":"#ff7a1a","Andrés_CO":"#39ff6a","Cami_CL":"#b78bff","Lucía_ES":"#ffd23f","Diego_PE":"#ff5f8f","Valen_UY":"#7df9ff","Pame_AR":"#ff9f1c","Rulo_MX":"#39ff6a","Nico_CO":"#ffd23f","Trini_CL":"#ee334e","Iker_ES":"#ff5d5d","Camila_PE":"#ff70a6"};
-  div.innerHTML = '<div class="nick" style="color:'+(colors[m.nick]||"#eef0ff")+'">'+esc(m.nick)+
-    '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+renderBody(m)+"</div>";
+  const g = botGender[m.nick] || (m.nick===myNick ? myGender : "");
+  const face = faceFor(m.nick, g);
+  const ncol = colors[m.nick]||"#eef0ff";
+  div.innerHTML = '<div class="ava" style="background:linear-gradient(135deg,'+ncol+'66,#14142a)">'+face+'</div>'+
+    '<div class="mbody"><div class="nick" style="color:'+ncol+'">'+esc(m.nick)+
+    '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+renderBody(m)+"</div></div>";
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   if(botNicks.has(m.nick)) lastBot = {nick:m.nick, text:m.text};
