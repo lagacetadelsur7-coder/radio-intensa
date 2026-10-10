@@ -251,6 +251,14 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .nickbar input.need{border-color:#ff3b5c;box-shadow:0 0 14px rgba(255,59,92,.6);animation:shake .3s}
 .nickbar .gbtn{font-size:19px;padding:5px 11px}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+/* Protección anti-copia */
+body{-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+img{-webkit-user-drag:none}
+#protToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a2e;
+  border:1px solid var(--magenta);color:#fff;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:600;
+  opacity:0;pointer-events:none;transition:.3s;z-index:9999;box-shadow:0 0 18px rgba(255,47,214,.4)}
+#protToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 /* CHAT: avatares */
 .msg .ava{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:22px;border:2px solid rgba(255,255,255,.18);box-shadow:0 2px 8px rgba(0,0,0,.35)}
@@ -449,6 +457,25 @@ function getNick(){ return nickInput.value.trim(); }
 document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); }; });
 nickInput.addEventListener("input", ()=>{ nickInput.classList.remove("need"); });
 const seen = new Set();
+/* ===== Protección anti-copia ===== */
+(function(){
+  const toast = document.createElement("div");
+  toast.id = "protToast"; toast.textContent = "\u{1F512} Contenido protegido \u00b7 Radio Intensa";
+  document.body.appendChild(toast);
+  let tt = null;
+  function aviso(){ toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>toast.classList.remove("show"), 1800); }
+  document.addEventListener("contextmenu", e=>{ e.preventDefault(); aviso(); });
+  document.addEventListener("dragstart", e=>e.preventDefault());
+  document.addEventListener("copy", e=>{ const el=e.target; if(!(el&&(el.tagName==="INPUT"||el.tagName==="TEXTAREA"))) { e.preventDefault(); aviso(); } });
+  document.addEventListener("keydown", e=>{
+    const el = e.target, inField = el && (el.tagName==="INPUT"||el.tagName==="TEXTAREA");
+    if(e.key==="F12"){ e.preventDefault(); aviso(); return; }
+    if((e.ctrlKey||e.metaKey) && !inField){
+      const k = e.key.toLowerCase();
+      if(["u","s","p"].includes(k) || ((e.shiftKey) && ["i","j","c"].includes(k))){ e.preventDefault(); aviso(); }
+    }
+  });
+})();
 const botGender = {"Lau de Quilmes":"f","JorgitoRC":"m","Sofi_MX":"f","Andr\u00e9s_CO":"m","Cami_CL":"f","Luc\u00eda_ES":"f","Diego_PE":"m","Valen_UY":"m","Pame_AR":"f","Rulo_MX":"m","Nico_CO":"m","Trini_CL":"f","Iker_ES":"m","Camila_PE":"f"};
 const M_FACES = ["\u{1F468}","\u{1F9D4}","\u{1F468}\u200D\u{1F9B1}","\u{1F468}\u200D\u{1F9B0}","\u{1F471}\u200D\u2642\uFE0F","\u{1F9D1}\u200D\u{1F9B0}"];
 const F_FACES = ["\u{1F469}","\u{1F469}\u200D\u{1F9B1}","\u{1F469}\u200D\u{1F9B0}","\u{1F471}\u200D\u2640\uFE0F","\u{1F469}\u200D\u{1F9B3}","\u{1F9D1}\u200D\u{1F9B3}"];
