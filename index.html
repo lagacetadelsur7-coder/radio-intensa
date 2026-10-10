@@ -30,15 +30,17 @@ header{position:sticky;top:0;z-index:50;background:rgba(7,7,15,.88);backdrop-fil
   background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 12px rgba(0,229,255,.45))}
 .logo-img{width:38px;height:38px;border-radius:50%;flex:none;border:2px solid #7df9ff;
-  box-shadow:0 0 10px rgba(0,229,255,.9),0 0 26px rgba(0,229,255,.5),0 0 60px rgba(0,229,255,.25);
   animation:logoNeon 2.8s ease-in-out infinite}
-@keyframes logoNeon{0%,100%{box-shadow:0 0 8px rgba(0,229,255,.7),0 0 22px rgba(0,229,255,.4),0 0 50px rgba(0,229,255,.2)}
-  50%{box-shadow:0 0 14px rgba(0,229,255,1),0 0 36px rgba(0,229,255,.65),0 0 80px rgba(0,229,255,.35)}}
+@keyframes logoNeon{0%,100%{border-color:#7df9ff;
+    box-shadow:0 0 10px rgba(0,229,255,.9),0 0 26px rgba(0,229,255,.5),0 0 60px rgba(0,229,255,.25)}
+  50%{border-color:#ff7ae0;
+    box-shadow:0 0 10px rgba(255,47,214,.9),0 0 26px rgba(255,47,214,.5),0 0 60px rgba(255,47,214,.25)}}
 .hero-img{width:150px;height:150px;border-radius:50%;margin:0 auto 18px;display:block;border:3px solid #7df9ff;
-  box-shadow:0 0 18px rgba(0,229,255,.9),0 0 55px rgba(0,229,255,.5),0 0 110px rgba(0,229,255,.28),0 0 30px rgba(255,47,214,.4);
   animation:logoGlow 4s ease-in-out infinite}
-@keyframes logoGlow{0%,100%{box-shadow:0 0 14px rgba(0,229,255,.7),0 0 45px rgba(0,229,255,.4),0 0 90px rgba(0,229,255,.22),0 0 26px rgba(255,47,214,.35)}
-  50%{box-shadow:0 0 24px rgba(0,229,255,1),0 0 70px rgba(0,229,255,.6),0 0 130px rgba(0,229,255,.35),0 0 40px rgba(255,47,214,.55)}}
+@keyframes logoGlow{0%,100%{border-color:#7df9ff;
+    box-shadow:0 0 18px rgba(0,229,255,.9),0 0 55px rgba(0,229,255,.5),0 0 110px rgba(0,229,255,.28)}
+  50%{border-color:#ff7ae0;
+    box-shadow:0 0 18px rgba(255,47,214,.9),0 0 55px rgba(255,47,214,.5),0 0 110px rgba(255,47,214,.28)}}
 .navlinks{display:flex;gap:26px;font-weight:600;letter-spacing:1.5px;font-size:14px}
 .navlinks a{color:var(--muted);transition:.2s}
 .navlinks a:hover,.navlinks a.active{color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.7)}
