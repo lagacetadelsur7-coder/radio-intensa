@@ -95,6 +95,11 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .prog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 @media(max-width:700px){.prog-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){
+  .chat-input{flex-wrap:wrap;gap:8px;padding:10px 12px}
+  .chat-input input{order:1;flex:1 1 auto;min-width:0}
+  .btn-send{order:2;flex:none;padding:10px 16px;font-size:14px}
+  .tool-btn{order:3;padding:8px 10px;font-size:16px}
+  .nickbar{padding:10px 12px 0}
   .nav{flex-direction:column;gap:10px;padding:12px 16px}
   .navlinks{gap:16px;font-size:12px;flex-wrap:wrap;justify-content:center}
   .hero{padding:36px 16px 30px}
