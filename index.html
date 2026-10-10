@@ -130,8 +130,11 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 
 /* CHAT */
 .chat-sec{max-width:1180px;margin:0 auto;padding:10px 20px 40px}
-.chat-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;
-  box-shadow:0 0 40px rgba(0,229,255,.06)}
+.chat-box{background:var(--panel);border:2px solid var(--magenta);border-radius:16px;overflow:hidden;
+  box-shadow:0 0 18px rgba(255,47,214,.65),0 0 55px rgba(255,47,214,.28),inset 0 0 30px rgba(255,47,214,.05);
+  animation:neonPulse 2.6s ease-in-out infinite}
+@keyframes neonPulse{0%,100%{box-shadow:0 0 14px rgba(255,47,214,.5),0 0 44px rgba(255,47,214,.22),inset 0 0 30px rgba(255,47,214,.05)}
+  50%{box-shadow:0 0 26px rgba(255,47,214,.85),0 0 80px rgba(255,47,214,.4),inset 0 0 30px rgba(255,47,214,.08)}}
 .chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
   border-bottom:1px solid var(--border);background:var(--panel2)}
 .chat-head b{font-family:'Orbitron';font-size:15px;letter-spacing:2px}
