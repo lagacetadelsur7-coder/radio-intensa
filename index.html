@@ -288,11 +288,9 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
       <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div><b>Mucho por Vivir</b><p>Mar · 22:30 hs<br>Río Cuarto, Córdoba</p></div></div>
       <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div><b>El Diván</b><p>Mié · 17:00 hs<br>Río Cuarto, Córdoba</p></div></div>
     </div>
-    <div class="side" id="episodios">
-      <h3>ÚLTIMOS EPISODIOS</h3>
-      <div class="ep"><div class="n">▶</div><div><b>Episodio 42</b><p>Mañanas Intensas</p></div></div>
-      <div class="ep"><div class="n">▶</div><div><b>Episodio 41</b><p>Noche de Rock</p></div></div>
-      <div class="ep"><div class="n">▶</div><div><b>Episodio 40</b><p>Hablando Claro</p></div></div>
+    <div class="side" id="clima">
+      <h3>EL CLIMA</h3>
+      <div id="climaList"><div class="ep"><div class="n">🌤️</div><div><b>Cargando clima...</b><p></p></div></div></div>
     </div>
   </aside>
 </div>
@@ -475,6 +473,47 @@ sb.channel("chat-live").on("postgres_changes",
   if(status==="SUBSCRIBED"){ connEl.textContent="Conectado · chat en vivo"; connEl.className="conn ok"; }
 });
 loadMessages();
+loadClima();
+
+/* ============ CLIMA EN VIVO (Open-Meteo, sin clave) ============ */
+const CIUDADES = [
+  {n:"Río Cuarto", f:"🇦🇷", lat:-33.13, lon:-64.35},
+  {n:"Ciudad de México", f:"🇲🇽", lat:19.43, lon:-99.13},
+  {n:"Bogotá", f:"🇨🇴", lat:4.71, lon:-74.07},
+  {n:"Santiago", f:"🇨🇱", lat:-33.45, lon:-70.67},
+  {n:"Madrid", f:"🇪🇸", lat:40.42, lon:-3.70},
+  {n:"Lima", f:"🇵🇪", lat:-12.05, lon:-77.04},
+  {n:"Montevideo", f:"🇺🇾", lat:-34.90, lon:-56.16}
+];
+function climaIcon(code){
+  if(code === 0) return ["☀️","Despejado"];
+  if(code <= 3) return ["⛅","Parcialmente nublado"];
+  if(code <= 48) return ["🌫️","Niebla"];
+  if(code <= 57) return ["🌦️","Llovizna"];
+  if(code <= 67) return ["🌧️","Lluvia"];
+  if(code <= 77) return ["🌨️","Nieve / granizo"];
+  if(code <= 82) return ["🌧️","Chaparrones"];
+  if(code <= 86) return ["🌨️","Nieve"];
+  return ["⛈️","Tormenta"];
+}
+async function loadClima(){
+  try{
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=" + CIUDADES.map(c=>c.lat).join(",")
+      + "&longitude=" + CIUDADES.map(c=>c.lon).join(",")
+      + "&current=temperature_2m,weather_code&timezone=auto";
+    const r = await fetch(url);
+    const data = await r.json();
+    const arr = Array.isArray(data) ? data : [data];
+    document.getElementById("climaList").innerHTML = CIUDADES.map((c,i)=>{
+      const cur = arr[i] && arr[i].current;
+      if(!cur) return "";
+      const ic = climaIcon(cur.weather_code);
+      return '<div class="ep"><div class="n">'+ic[0]+'</div><div><b>'+c.f+' '+c.n+' · '+Math.round(cur.temperature_2m)+'°</b><p>'+ic[1]+'</p></div></div>';
+    }).join("");
+  }catch(e){
+    document.getElementById("climaList").innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Clima no disponible</b><p>Reintentá en un rato</p></div></div>';
+  }
+}
 setInterval(loadMessages, 10000); /* respaldo por si realtime se demora */
 
 /* ============ PARTICIPANTES AUTOMÁTICOS ============ */
