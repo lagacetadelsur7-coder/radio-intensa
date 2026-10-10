@@ -267,6 +267,10 @@ img{-webkit-user-drag:none}
 .gbtn{font-size:24px;background:#1a1a2e;border:2px solid var(--border);border-radius:12px;padding:6px 14px;cursor:pointer;line-height:1}
 .gbtn.sel{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.45)}
 /* FOOTER */
+.amc-foot{width:84px;height:84px;border-radius:50%;display:block;margin:12px auto;border:2px solid #ffd23f;
+  animation:amcNeon 3s ease-in-out infinite}
+@keyframes amcNeon{0%,100%{box-shadow:0 0 10px rgba(255,210,63,.65),0 0 28px rgba(255,210,63,.35),0 0 60px rgba(255,210,63,.18)}
+  50%{box-shadow:0 0 16px rgba(255,210,63,.95),0 0 44px rgba(255,210,63,.55),0 0 90px rgba(255,210,63,.3)}}
 footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--muted);font-size:14px}
 footer .alma{font-family:'Orbitron';font-size:13px;letter-spacing:2px;color:var(--magenta);margin:8px 0 2px;
   text-shadow:0 0 10px rgba(255,47,214,.4)}
@@ -390,6 +394,7 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
 <footer id="contacto">
   <div class="flogo">RADIO INTENSA</div>
   <div class="alma">ALMAFUERTE MEDIOS Y CONTENIDOS</div>
+  <img class="amc-foot" src="https://files.catbox.moe/lvxfzc.jpg" alt="Almafuerte medios y contenidos">
   <div class="gerencia">Lali Mitre y César R. Moyano · Gerencia General</div>
   <div class="visits"><span id="visitCount">···</span>&nbsp;visitas</div>
   <p class="copy">Río Cuarto, Córdoba, Argentina · Copyright © 2025 Radio Intensa · Todos los derechos reservados</p>
