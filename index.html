@@ -1085,10 +1085,11 @@ window.maybeAutoReply = function(m){
     lastAutoReply = now;
     const actA = getActive().length ? getActive() : personas;
     const per = actA[Math.floor(Math.random()*actA.length)];
-    const text = pickReply(pool)
+    let text = pickReply(pool)
       .replaceAll("{n}", m.nick)
       .replaceAll("{prog}", progName())
       .replaceAll("{pais}", per.pais || "");
+    if(/^lali$/i.test(m.nick||"")) text = text.replace(/\bbienvenido\b/g, "bienvenida");
     setTimeout(async ()=>{
       try{
         typingEl.textContent = per.nick + " está escribiendo...";
