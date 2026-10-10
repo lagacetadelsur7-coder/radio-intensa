@@ -59,12 +59,11 @@ header{position:sticky;top:0;z-index:50;background:rgba(7,7,15,.88);backdrop-fil
 @keyframes pulse{50%{opacity:.35}}
 #wave{display:block;margin:14px auto 6px;max-width:640px;width:100%;height:110px}
 .player{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:8px;flex-wrap:wrap}
-.btn-play{width:74px;height:74px;border-radius:50%;border:2px solid var(--magenta);background:rgba(255,47,214,.12);
-  color:#ff7ae0;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 24px rgba(255,47,214,.45),inset 0 0 18px rgba(255,47,214,.15);transition:.2s;
-  animation:playNeon 2.4s ease-in-out infinite}
-@keyframes playNeon{0%,100%{box-shadow:0 0 18px rgba(255,47,214,.35),inset 0 0 18px rgba(255,47,214,.12)}
-  50%{box-shadow:0 0 38px rgba(255,47,214,.7),inset 0 0 22px rgba(255,47,214,.2)}}
+.btn-play{width:74px;height:74px;border-radius:50%;border:2px solid var(--magenta);background:rgba(0,229,255,.14);
+  color:var(--cyan);font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.2s;animation:playNeon 2.4s ease-in-out infinite}
+@keyframes playNeon{0%,100%{box-shadow:0 0 18px rgba(255,47,214,.35),inset 0 0 18px rgba(0,229,255,.14)}
+  50%{box-shadow:0 0 38px rgba(255,47,214,.7),inset 0 0 24px rgba(0,229,255,.25)}}
 .btn-play:hover{transform:scale(1.06)}
 .btn-big{background:linear-gradient(90deg,#ff2fd6,#c4009e);border:2px solid var(--cyan);color:#fff;font-weight:700;font-size:17px;
   letter-spacing:1.5px;padding:15px 34px;border-radius:12px;cursor:pointer;
