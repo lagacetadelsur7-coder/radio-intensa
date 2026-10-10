@@ -957,9 +957,14 @@ function getActive(){
 const recentChat = [];          /* últimos mensajes de oyentes reales */
 let lastBot = null;             /* último mensaje de un bot */
 let lastBotNick = "";
+/* Los nicks solo interactúan cuando hay humanos en el chat (regla de Cé) */
+let lastHumanTs = 0;
+try{ lastHumanTs = parseInt(localStorage.getItem("ri_human_ts")||"0",10)||0; }catch(e){}
 function trackReal(m){
   try{
     if(!m || botNickSet.has(m.nick)) return;
+    lastHumanTs = Date.now();
+    try{ localStorage.setItem("ri_human_ts", String(lastHumanTs)); }catch(e){}
     recentChat.push({nick:m.nick, text:String(m.text||"").slice(0,140)});
     if(recentChat.length > 8) recentChat.shift();
   }catch(e){}
@@ -1137,7 +1142,7 @@ function botLoop(){
   const delay = 30000 + Math.random()*45000;
   setTimeout(async ()=>{
     try{
-      if(botsOn && amLeader()){
+      if(botsOn && amLeader() && Date.now() - lastHumanTs < 30*60*1000){
         claimLeadership();
         const act0 = getActive().length ? getActive() : personas;
         let p = pickFrom(act0);
