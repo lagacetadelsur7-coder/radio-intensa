@@ -84,7 +84,7 @@ header{position:sticky;top:0;z-index:50;background:rgba(7,7,15,.88);backdrop-fil
 .stream-config .hint{font-size:13px;color:var(--muted);margin-top:8px}
 
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:1fr 300px;gap:26px;max-width:1180px;margin:0 auto;padding:10px 20px 30px}
+.layout{display:grid;grid-template-columns:1fr 300px;gap:26px;max-width:1180px;margin:0 auto;padding:10px 20px 12px}
 @media(max-width:900px){.layout{grid-template-columns:1fr}}
 h2.sec{font-family:'Orbitron';font-size:20px;letter-spacing:3px;margin:26px 0 16px;
   color:var(--text);text-shadow:0 0 14px rgba(0,229,255,.35)}
@@ -142,7 +142,7 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .ep b{color:var(--text);font-size:14px}
 
 /* CHAT */
-.chat-sec{max-width:1180px;margin:0 auto;padding:10px 20px 40px}
+.chat-sec{max-width:1180px;margin:0 auto;padding:0 20px 40px}
 .chat-box{background:var(--panel);border:2px solid var(--magenta);border-radius:16px;overflow:hidden;
   box-shadow:0 0 18px rgba(255,47,214,.65),0 0 55px rgba(255,47,214,.28),inset 0 0 30px rgba(255,47,214,.05);
   animation:neonPulse 2.6s ease-in-out infinite}
@@ -337,7 +337,11 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   100%{opacity:0;transform:translate(-50%,-150%) scale(1.15)}
 }
 /* Clima en grilla horizontal compacta */
-#climaList{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.clima-wide{max-width:1180px;margin:0 auto;padding:0 20px}
+.clima-wide .side{margin-bottom:14px}
+#climaList{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+@media(max-width:900px){#climaList{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:640px){#climaList{grid-template-columns:repeat(2,1fr)}}
 .clima-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
   border-radius:10px;padding:8px 6px;text-align:center}
 .clima-card b{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -418,11 +422,14 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
       <div class="ev"><img id="evMusicaCallada" alt="La música callada"><div><b>La música callada</b><p>Mié · 22:00 hs<br>Villa Mercedes, San Luis, Argentina</p></div></div>
       <div class="ev"><img src="https://files.catbox.moe/zjojal.webp" alt="Deja Vu"><div><b>Deja Vu</b><p>Con César Moyano<br>Próximamente · Río Cuarto, Córdoba, Argentina</p></div></div>
     </div>
-    <div class="side" id="clima">
-      <h3>EL CLIMA</h3>
-      <div id="climaList"><div class="ep"><div class="n">🌤️</div><div><b>Cargando clima...</b><p></p></div></div></div>
-    </div>
   </aside>
+</div>
+
+<div class="clima-wide">
+  <div class="side" id="clima">
+    <h3>EL CLIMA</h3>
+    <div id="climaList"><div class="ep"><div class="n">🌤️</div><div><b>Cargando clima...</b><p></p></div></div></div>
+  </div>
 </div>
 
 <section class="chat-sec">
