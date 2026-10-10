@@ -463,6 +463,8 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
         <button class="tool-btn" id="emojiBtn" title="Emojis">😊</button>
         <button class="tool-btn" id="gifBtn" title="GIFs">GIF</button>
         <button class="tool-btn" id="stkBtn" title="Stickers">✨</button>
+        <button class="tool-btn" id="imgBtn" title="Subir imagen">📷</button>
+        <input type="file" id="imgFile" accept="image/*" style="display:none">
         <input type="text" id="msgtext" placeholder="Escribí tu mensaje..." maxlength="300">
         <button class="btn-send" id="sendBtn">Enviar</button>
       </div>
@@ -614,6 +616,11 @@ function linkify(s){
     return '<a class="chat-link'+(yt?' yt':'')+'" href="'+href+'" target="_blank" rel="noopener">'+(yt?'▶ ':'')+label+'</a>'+end;
   });
 }
+function imgDirect(u){
+  if(!/^https?:\/\/\S+$/i.test(u)) return null;
+  if(/\.(jpe?g|png|webp|gif)(\?|&|#|$)/i.test(u)) return u;
+  return null;
+}
 function gifDirect(u){
   if(!/^https?:\/\/\S+$/i.test(u)) return null;
   if(/\.(gif|webp)(\?|&|#|$)/i.test(u)) return u;
@@ -656,6 +663,8 @@ function renderBody(m){
   if(STICKERS[tx]) return STICKERS[tx];
   const gd = gifDirect(tx);
   if(gd) return '<img class="chat-gif" src="'+esc(gd)+'" alt="GIF" loading="lazy">';
+  const im = imgDirect(tx);
+  if(im) return '<img class="chat-gif" src="'+esc(im)+'" alt="Imagen" loading="lazy">';
   return linkify(esc(m.text));
 }
 function addMsg(m){
@@ -692,6 +701,48 @@ async function sendMessage(){
   if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; }
 }
 document.getElementById("sendBtn").onclick = sendMessage;
+/* ============ SUBIR IMAGEN AL CHAT ============ */
+function compressImage(file){
+  return new Promise(function(res, rej){
+    const img = new Image();
+    img.onload = function(){
+      const MAX = 1280;
+      let w = img.width, h = img.height;
+      if(Math.max(w,h) > MAX){ const r = MAX/Math.max(w,h); w = Math.round(w*r); h = Math.round(h*r); }
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      c.toBlob(function(b){ b ? res(b) : rej(new Error("compress")); }, "image/jpeg", 0.72);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+document.getElementById("imgBtn").onclick = function(){
+  if(!getNick()){ nickInput.classList.add("need"); nickInput.focus(); return; }
+  document.getElementById("imgFile").click();
+};
+document.getElementById("imgFile").addEventListener("change", async function(e){
+  const f = e.target.files[0]; e.target.value = "";
+  if(!f) return;
+  if(!f.type || f.type.indexOf("image/") !== 0){ alert("Eleg\u00ed un archivo de imagen."); return; }
+  const nick = getNick();
+  if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
+  try{
+    connEl.textContent = "Subiendo imagen\u2026"; connEl.className = "conn";
+    const blob = await compressImage(f);
+    const path = "chat/" + Date.now() + "-" + Math.random().toString(36).slice(2,8) + ".jpg";
+    const up = await sb.storage.from("chat-images").upload(path, blob, {contentType:"image/jpeg"});
+    if(up.error) throw up.error;
+    const pub = sb.storage.from("chat-images").getPublicUrl(path);
+    const ins = await sb.from("messages").insert({nick: nick, text: pub.data.publicUrl});
+    if(ins.error) throw ins.error;
+    connEl.textContent = "Conectado \u00b7 chat en vivo"; connEl.className = "conn ok";
+  }catch(err){
+    connEl.textContent = "No se pudo subir la imagen. Prob\u00e1 de nuevo.";
+    connEl.className = "conn err";
+  }
+});
 textInput.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
 
 sb.channel("chat-live").on("postgres_changes",
