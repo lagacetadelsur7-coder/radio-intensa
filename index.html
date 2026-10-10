@@ -473,17 +473,21 @@ function fmtTime(ts){
   catch(e){ return ""; }
 }
 const GIF_URLS = [
-  "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif",
-  "https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif",
-  "https://media.giphy.com/media/gVoBC0SuaHStq/giphy.gif",
-  "https://media.giphy.com/media/3o6Zt8zb1rIh94wQXS/giphy.gif",
-  "https://media.giphy.com/media/3o7buirYcmV5n4K0S8/giphy.gif",
-  "https://media.giphy.com/media/5GoM13oB6r3wI/giphy.gif",
-  "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif",
-  "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
-];
+  "https://media2.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/l3q2XhfQ8oCkm1Ts4/200w.gif",
+  "https://media2.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/Rgn6cUfaN5zW/200w.gif",
+  "https://media1.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/tqfS3mgQU28ko/200w.gif",
+  "https://media2.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/4oMoIbIQrvCjm/200w.gif",
+  "https://media0.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/IxNY0oGrkuEEPMlWfT/200w.gif",
+  "https://media0.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/89x4osEodHEoo/200w.gif",
+  "https://media1.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/1wqqayNeXCcankfYhN/200w.gif",
+  "https://media4.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/udiIFmPkJQzkI/200w.gif",
+  "https://media2.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/Y4JWY6TRZInpYUe9T2/200w.gif",
+  "https://media3.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/xThtar0e9kO3WkwQ1O/200w.gif",
+  "https://media4.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/RNcZfSefdn2Iq1SdZI/200w.gif",
+  "https://media0.giphy.com/media/v1.Y2lkPTFiNmFhZWUwazdiOHNuNzhtNTU4N2x1cndua3dvc3ZkbmIwczN0OWVpNjNrNXJ3byZlcD12MV9naWZzJmN0PWc/blSTtZehjAZ8I/200w.gif"
+]; /* 12 GIFs verificados 2026-10-10: aplausos, música, risas, radio vintage, fiesta */
 const GIFSET = new Set(GIF_URLS);
-const GIPHY_KEY = ""; /* Cé: pegar acá la clave gratis de developers.giphy.com */
+const GIPHY_KEY = "qKuAMvC7RRGQ6TY8Z97aNh3a9HwQnVv8"; /* clave de Cé - no compartir */
 function giphyThumb(g){ return (g.images && g.images.fixed_width_small && g.images.fixed_width_small.url) || ""; }
 function giphyFull(g){ return (g.images && g.images.fixed_height && g.images.fixed_height.url) || g.url; }
 const STICKERS = {
