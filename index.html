@@ -321,7 +321,7 @@ const playBtn = document.getElementById("playBtn");
 const bigPlay = document.getElementById("bigPlay");
 let playing = false;
 
-function getStreamUrl(){ return localStorage.getItem("ri_stream_url") || ""; }
+function getStreamUrl(){ return localStorage.getItem("ri_stream_url") || "https://stream.zeno.fm/oyazo5oex4ytv"; }
 function setPlaying(p){
   playing = p;
   playBtn.textContent = p ? "⏸" : "▶";
@@ -611,6 +611,10 @@ function botLoop(){
   }, delay);
 }
 setTimeout(botLoop, 12000);
+
+/* ============ ABRIR SIEMPRE ARRIBA ============ */
+if("scrollRestoration" in history){ history.scrollRestoration = "manual"; }
+window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
 
 /* ============ CONTADOR DE VISITAS ============ */
 (async ()=>{
