@@ -162,9 +162,11 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .nick-gate h4{font-family:'Orbitron';letter-spacing:2px;font-size:16px;margin-bottom:6px}
 .nick-gate p{color:var(--muted);font-size:14px;margin-bottom:18px}
 .nick-gate .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.nick-gate input{background:#080812;border:1px solid var(--border);border-radius:10px;color:var(--text);
-  padding:12px 14px;font-size:16px;font-family:inherit;width:240px;text-align:center}
-.nick-gate input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.25)}
+.nick-gate input{background:linear-gradient(180deg,#15152c,#0d0d20);border:2px solid var(--cyan);border-radius:12px;color:#fff;
+  padding:13px 14px;font-size:17px;font-weight:700;font-family:inherit;width:240px;text-align:center;letter-spacing:1px;
+  box-shadow:0 0 18px rgba(0,229,255,.25)}
+.nick-gate input::placeholder{color:#7fe7ff;opacity:.85;letter-spacing:2px;font-weight:600}
+.nick-gate input:focus{outline:none;border-color:var(--magenta);box-shadow:0 0 22px rgba(255,45,149,.4)}
 .nick-gate button{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;color:#04222a;font-weight:700;
   padding:12px 28px;border-radius:10px;cursor:pointer;font-size:15px;letter-spacing:1px}
 .nick-gate button:hover{filter:brightness(1.1)}
