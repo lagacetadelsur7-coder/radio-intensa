@@ -732,9 +732,9 @@ document.getElementById("imgFile").addEventListener("change", async function(e){
     connEl.textContent = "Subiendo imagen\u2026"; connEl.className = "conn";
     const blob = await compressImage(f);
     const path = "chat/" + Date.now() + "-" + Math.random().toString(36).slice(2,8) + ".jpg";
-    const up = await sb.storage.from("chat-images").upload(path, blob, {contentType:"image/jpeg"});
+    const up = await sb.storage.from("chat-imagenes").upload(path, blob, {contentType:"image/jpeg"});
     if(up.error) throw up.error;
-    const pub = sb.storage.from("chat-images").getPublicUrl(path);
+    const pub = sb.storage.from("chat-imagenes").getPublicUrl(path);
     const ins = await sb.from("messages").insert({nick: nick, text: pub.data.publicUrl});
     if(ins.error) throw ins.error;
     connEl.textContent = "Conectado \u00b7 chat en vivo"; connEl.className = "conn ok";
