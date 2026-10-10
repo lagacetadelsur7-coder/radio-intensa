@@ -123,7 +123,10 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .card .info p{color:var(--muted);font-size:13px;margin-top:4px}
 
 /* SIDEBAR */
-.side{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px}
+.side{background:var(--panel);border:2px solid var(--magenta);border-radius:14px;padding:18px;margin-bottom:20px;
+  animation:sideNeon 3s ease-in-out infinite}
+@keyframes sideNeon{0%,100%{box-shadow:0 0 10px rgba(255,47,214,.35),0 0 30px rgba(255,47,214,.15)}
+  50%{box-shadow:0 0 18px rgba(255,47,214,.6),0 0 55px rgba(255,47,214,.28)}}
 .side h3{font-family:'Orbitron';font-size:14px;letter-spacing:2px;margin-bottom:14px;color:var(--cyan)}
 .ev{border-left:3px solid var(--magenta);padding:8px 0 8px 12px;margin-bottom:12px}
 .ev b{font-size:14px;letter-spacing:.5px}
