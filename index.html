@@ -336,6 +336,15 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   0%{opacity:.85;transform:translate(-50%,-50%) scale(.8)}
   100%{opacity:0;transform:translate(-50%,-150%) scale(1.15)}
 }
+/* Clima en grilla horizontal compacta */
+#climaList{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.clima-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;padding:8px 6px;text-align:center}
+.clima-card b{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-main{display:flex;align-items:center;justify-content:center;gap:6px;margin:3px 0}
+.cc-ic{font-size:22px;line-height:1}
+.cc-temp{font-size:20px;font-weight:800;color:var(--cyan)}
+.clima-card p{font-size:11px;color:var(--muted);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body id="inicio">
@@ -393,7 +402,7 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
       <div class="card"><img class="thumb-img" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div class="info"><b>So Ham</b><p>Lun · 14 a 15 hs</p></div></div>
       <div class="card"><img class="thumb-img" src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div class="info"><b>Mucho por Vivir</b><p>Mar · 22:30 a 23:30 hs</p></div></div>
       <div class="card"><img class="thumb-img" src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div class="info"><b>El Diván</b><p>Mié · 17 a 18 hs</p></div></div>
-      <div class="card"><img class="thumb-img" id="imgMusicaCallada" src="https://files.catbox.moe/1eiu5b.jpg" alt="La música callada"><div class="info"><b>La música callada</b><p>Mié · 22 hs</p></div></div>
+      <div class="card"><img class="thumb-img" id="imgMusicaCallada" src="https://files.catbox.moe/0yee2x.jpg" alt="La música callada"><div class="info"><b>La música callada</b><p>Mié · 22 hs</p></div></div>
       <div class="card"><img class="thumb-img" src="https://files.catbox.moe/zjojal.webp" alt="Deja Vu"><div class="info"><b>Deja Vu</b><p>Con César Moyano · Próximamente</p></div></div>
     </div>
   </div>
@@ -714,7 +723,7 @@ async function loadClima(){
         const cur = arr[i] && arr[i].current;
         if(!cur) return "";
         const ic = climaIcon(cur.weather_code);
-        return '<div class="ep"><div class="n">'+ic[0]+'</div><div><b>'+c.f+' '+c.n+' · '+Math.round(cur.temperature_2m)+'°</b><p>'+ic[1]+'</p></div></div>';
+        return '<div class="clima-card"><b>'+c.f+' '+c.n+'</b><div class="cc-main"><span class="cc-ic">'+ic[0]+'</span><span class="cc-temp">'+Math.round(cur.temperature_2m)+'°</span></div><p>'+ic[1]+'</p></div>';
       }).join("");
       return;
     }catch(e){ await new Promise(r=>setTimeout(r,1500)); }
@@ -727,7 +736,7 @@ async function loadClima(){
       const d = await r.json();
       const cur = d.current_condition[0];
       const ic = wttrIcon(cur.weatherCode);
-      rows.push('<div class="ep"><div class="n">'+ic[0]+'</div><div><b>'+c.f+' '+c.n+' · '+cur.temp_C+'°</b><p>'+ic[1]+'</p></div></div>');
+      rows.push('<div class="clima-card"><b>'+c.f+' '+c.n+'</b><div class="cc-main"><span class="cc-ic">'+ic[0]+'</span><span class="cc-temp">'+cur.temp_C+'°</span></div><p>'+ic[1]+'</p></div>');
     }
     list.innerHTML = rows.join("");
     return;
