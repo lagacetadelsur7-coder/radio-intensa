@@ -267,6 +267,7 @@ img{-webkit-user-drag:none}
 /* Cartelera oficial */
 .prog-card{background:linear-gradient(135deg,#1c1030,#101a30);border:2px solid var(--magenta);border-radius:12px;
   padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(255,47,214,.35)}
+.pc-img{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block}
 .pc-k{font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:700;margin-bottom:6px}
 .pc-falta{font-size:15px;font-weight:800;color:#ff7ae0;margin-bottom:4px}
 .pc-n{font-size:18px;font-weight:800;color:#fff}
@@ -559,7 +560,7 @@ function renderBody(m){
   const tx=(m.text||"").trim();
   if(tx.indexOf("[CARTELERA]")===0){
     const f=tx.slice(11).split("|");
-    return '<div class="prog-card"><div class="pc-k">\u{0001F4FB} CARTELERA \u00b7 RADIO INTENSA</div>'+
+    return '<div class="prog-card">'+ (f[5]?'<img class="pc-img" src="'+esc(f[5])+'" alt="" loading="lazy">':"")+ '<div class="pc-k">\u{0001F4FB} CARTELERA \u00b7 RADIO INTENSA</div>'+
       '<div class="pc-falta">'+esc(f[0]||"")+'</div>'+
       '<div class="pc-n">'+esc(f[1]||"")+'</div>'+
       '<div class="pc-h">'+esc(f[2]||"")+'</div>'+
@@ -1125,13 +1126,13 @@ setTimeout(botLoop, 12000);
 
 /* ===== CARTELERA OFICIAL: avisos de programas ===== */
 const CARTELERA = [
-  {n:"Alma Libre", d:5, h:20, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
-  {n:"Vecinos", d:5, h:22, mi:30, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
-  {n:"Arenas del Tiempo", d:0, h:23, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
-  {n:"So Ham", d:1, h:14, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
-  {n:"Mucho por Vivir", d:2, h:22, mi:30, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
-  {n:"El Div\u00e1n", d:3, h:17, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
-  {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis"}
+  {n:"Alma Libre", d:5, h:20, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba", img:"https://static.wixstatic.com/media/cef22d_811ad8260abd4b5e9f793f595fc3ae22~mv2.jpg"},
+  {n:"Vecinos", d:5, h:22, mi:30, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba", img:"https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png"},
+  {n:"Arenas del Tiempo", d:0, h:23, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba", img:"https://static.wixstatic.com/media/cef22d_26a5822a60a948bcb26235d13f30143b~mv2.gif"},
+  {n:"So Ham", d:1, h:14, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba", img:"https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg"},
+  {n:"Mucho por Vivir", d:2, h:22, mi:30, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba", img:"https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg"},
+  {n:"El Div\u00e1n", d:3, h:17, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba", img:"https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png"},
+  {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis", img:"https://files.catbox.moe/bvocye.jpg"}
 ];
 const DIAS_N = ["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"];
 function fmtFalta(ms){
@@ -1163,7 +1164,7 @@ function carteleraTick(){
         const key = p.n + "|" + Math.round((nowMs+diff)/86400000);
         if(nowMs - (last[key]||0) >= 15*60000){
           const hh = String(p.h).padStart(2,"0"), mm2 = String(p.mi).padStart(2,"0");
-          const txt = "[CARTELERA]"+fmtFalta(diff)+"|"+p.n+"|"+DIAS_N[p.d]+" "+hh+":"+mm2+" hs|"+p.cond+"|"+p.lug;
+          const txt = "[CARTELERA]"+fmtFalta(diff)+"|"+p.n+"|"+DIAS_N[p.d]+" "+hh+":"+mm2+" hs|"+p.cond+"|"+p.lug+"|"+p.img;
           sb.from("messages").insert({nick:"Radio Intensa", text:txt});
           last[key] = nowMs; changed = true;
         }
