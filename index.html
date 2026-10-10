@@ -180,6 +180,24 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .marquee-track .sep{color:var(--magenta);text-shadow:0 0 10px rgba(255,47,214,.5)}
 @keyframes mscroll{to{transform:translateX(-50%)}}
 
+/* BOTONES SOCIALES PROTAGONISTAS */
+.social-hero{text-align:center;padding:36px 20px 8px}
+.social-hero h2{font-family:'Orbitron';letter-spacing:3px;font-size:19px;margin-bottom:6px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
+.social-hero p{color:var(--muted);font-size:14px;margin-bottom:20px}
+.social-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.sbtn{display:inline-flex;align-items:center;gap:10px;padding:15px 34px;border-radius:999px;
+  font-weight:700;font-size:17px;color:#fff;text-decoration:none;transition:transform .15s;
+  box-shadow:0 4px 24px rgba(0,0,0,.45)}
+.sbtn:hover{transform:translateY(-3px) scale(1.04)}
+.sbtn.ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+  box-shadow:0 4px 26px rgba(220,39,103,.5)}
+.sbtn.yt{background:linear-gradient(45deg,#ff1a1a,#b30000);
+  box-shadow:0 4px 26px rgba(255,26,26,.45)}
+.sbtn.mp{background:linear-gradient(45deg,#00b1ea,#007eb5);
+  box-shadow:0 4px 26px rgba(0,177,234,.5);animation:mpPulse 2.2s infinite}
+@keyframes mpPulse{0%,100%{box-shadow:0 4px 26px rgba(0,177,234,.5)}50%{box-shadow:0 4px 40px rgba(0,177,234,.9)}}
+.sbtn .ico{font-size:21px}
 /* FOOTER */
 footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--muted);font-size:14px}
 footer .alma{font-family:'Orbitron';font-size:13px;letter-spacing:2px;color:var(--magenta);margin:8px 0 2px;
@@ -236,6 +254,16 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   <span>Bienvenidos a Intensa</span><span class="sep">✦</span><span>Almafuerte medios y contenidos</span><span class="sep">✦</span>
   <span>Bienvenidos a Intensa</span><span class="sep">✦</span><span>Almafuerte medios y contenidos</span><span class="sep">✦</span>
 </div></div>
+
+<section class="social-hero">
+  <h2>SEGUINOS · MIRANOS · COLABORÁ</h2>
+  <p>La comunidad de Intensa crece con vos</p>
+  <div class="social-btns">
+    <a class="sbtn ig" href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener"><span class="ico">📷</span>Instagram</a>
+    <a class="sbtn yt" href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener"><span class="ico">▶</span>YouTube</a>
+    <a class="sbtn mp" href="http://link.mercadopago.com.ar/radiointensa" target="_blank" rel="noopener"><span class="ico">💙</span>Colaborar</a>
+  </div>
+</section>
 
 <div class="layout">
   <div>
@@ -300,11 +328,6 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   <div class="alma">ALMAFUERTE MEDIOS Y CONTENIDOS</div>
   <div class="gerencia">Lali Mitre y César R. Moyano · Gerencia General</div>
   <div class="visits"><span id="visitCount">···</span>&nbsp;visitas</div>
-  <div class="social">
-    <a href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener">Instagram</a>
-    <a href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener">YouTube</a>
-    <a href="http://link.mercadopago.com.ar/radiointensa" target="_blank" rel="noopener">Colaborar</a>
-  </div>
   <p class="copy">Río Cuarto, Córdoba, Argentina · Copyright © 2025 Radio Intensa · Todos los derechos reservados</p>
 </footer>
 
