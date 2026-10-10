@@ -499,23 +499,59 @@ function climaIcon(code){
   return ["⛈️","Tormenta"];
 }
 async function loadClima(){
-  try{
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=" + CIUDADES.map(c=>c.lat).join(",")
-      + "&longitude=" + CIUDADES.map(c=>c.lon).join(",")
-      + "&current=temperature_2m,weather_code&timezone=auto";
-    const r = await fetch(url);
-    const data = await r.json();
-    const arr = Array.isArray(data) ? data : [data];
-    document.getElementById("climaList").innerHTML = CIUDADES.map((c,i)=>{
-      const cur = arr[i] && arr[i].current;
-      if(!cur) return "";
-      const ic = climaIcon(cur.weather_code);
-      return '<div class="ep"><div class="n">'+ic[0]+'</div><div><b>'+c.f+' '+c.n+' · '+Math.round(cur.temperature_2m)+'°</b><p>'+ic[1]+'</p></div></div>';
-    }).join("");
-  }catch(e){
-    document.getElementById("climaList").innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Clima no disponible</b><p>Reintentá en un rato</p></div></div>';
+  const list = document.getElementById("climaList");
+  /* Intento 1: Open-Meteo (las 7 ciudades en una sola llamada), con reintentos */
+  for(let i=0;i<3;i++){
+    try{
+      const url = "https://api.open-meteo.com/v1/forecast?latitude=" + CIUDADES.map(c=>c.lat).join(",")
+        + "&longitude=" + CIUDADES.map(c=>c.lon).join(",")
+        + "&current=temperature_2m,weather_code&timezone=auto";
+      const r = await fetch(url);
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const data = await r.json();
+      const arr = Array.isArray(data) ? data : [data];
+      if(!arr[0] || !arr[0].current) throw new Error("sin datos");
+      list.innerHTML = CIUDADES.map((c,i)=>{
+        const cur = arr[i] && arr[i].current;
+        if(!cur) return "";
+        const ic = climaIcon(cur.weather_code);
+        return '<div class="ep"><div class="n">'+ic[0]+'</div><div><b>'+c.f+' '+c.n+' · '+Math.round(cur.temperature_2m)+'°</b><p>'+ic[1]+'</p></div></div>';
+      }).join("");
+      return;
+    }catch(e){ await new Promise(r=>setTimeout(r,1500)); }
   }
+  /* Intento 2: fuente alternativa (wttr.in), ciudad por ciudad */
+  try{
+    const rows = [];
+    for(const c of CIUDADES){
+      const r = await fetch("https://wttr.in/"+encodeURIComponent(c.n)+"?format=j1");
+      const d = await r.json();
+      const cur = d.current_condition[0];
+      const ic = wttrIcon(cur.weatherCode);
+      rows.push('<div class="ep"><div class="n">'+ic[0]+'</div><div><b>'+c.f+' '+c.n+' · '+cur.temp_C+'°</b><p>'+ic[1]+'</p></div></div>');
+    }
+    list.innerHTML = rows.join("");
+    return;
+  }catch(e){}
+  /* Sin conexión a los servicios: botón para reintentar a mano */
+  list.innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Clima no disponible</b><p><a href="#" id="climaRetry" style="color:var(--cyan);text-decoration:underline">🔄 Tocá para reintentar</a></p></div></div>';
+  document.getElementById("climaRetry").onclick = function(e){ e.preventDefault(); list.innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Cargando clima...</b><p></p></div></div>'; loadClima(); };
 }
+function wttrIcon(code){
+  code = parseInt(code,10);
+  if(code===113) return ["☀️","Despejado"];
+  if(code===116) return ["⛅","Parcialmente nublado"];
+  if(code===119||code===122) return ["☁️","Nublado"];
+  if(code===143||code===248||code===260) return ["🌫️","Niebla"];
+  if([266,281,284,293,296,353].indexOf(code)!==-1) return ["🌦️","Llovizna / lluvia leve"];
+  if([299,302,305,308,311,356,359].indexOf(code)!==-1) return ["🌧️","Lluvia"];
+  if([362,365,374,377].indexOf(code)!==-1) return ["🌨️","Aguanieve / granizo"];
+  if([179,227,230,323,326,329,332,335,338,368,371].indexOf(code)!==-1) return ["❄️","Nieve"];
+  if([200,386,389,392,395].indexOf(code)!==-1) return ["⛈️","Tormenta"];
+  return ["🌤️","—"];
+}
+/* Si el clima no cargó, reintenta solo cada 90 segundos */
+setInterval(function(){ const el=document.getElementById("climaList"); if(el && /no disponible/i.test(el.innerHTML)) loadClima(); }, 90000);
 setInterval(loadMessages, 10000); /* respaldo por si realtime se demora */
 
 /* ============ PARTICIPANTES AUTOMÁTICOS ============ */
