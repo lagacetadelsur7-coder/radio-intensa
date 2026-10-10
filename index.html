@@ -264,6 +264,15 @@ img{-webkit-user-drag:none}
   border:1px solid var(--magenta);color:#fff;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:600;
   opacity:0;pointer-events:none;transition:.3s;z-index:9999;box-shadow:0 0 18px rgba(255,47,214,.4)}
 #protToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Cartelera oficial */
+.prog-card{background:linear-gradient(135deg,#1c1030,#101a30);border:2px solid var(--magenta);border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(255,47,214,.35)}
+.pc-k{font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:700;margin-bottom:6px}
+.pc-falta{font-size:15px;font-weight:800;color:#ff7ae0;margin-bottom:4px}
+.pc-n{font-size:18px;font-weight:800;color:#fff}
+.pc-h{font-size:14px;color:var(--cyan);font-weight:600;margin:2px 0}
+.pc-c{font-size:13px;color:#cfd2ff}
+.pc-l{font-size:12px;color:#9aa0c7;margin-top:2px}
 /* CHAT: avatares */
 .msg .ava{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:22px;border:2px solid rgba(255,255,255,.18);box-shadow:0 2px 8px rgba(0,0,0,.35)}
@@ -492,12 +501,13 @@ const F_FACES = ["\u{1F469}","\u{1F469}\u200D\u{1F9B1}","\u{1F469}\u200D\u{1F9B0
 const N_FACES = ["\u{1F9D1}","\u{1F642}","\u{1F60E}","\u{1F920}","\u{1F98A}","\u{1F431}","\u{1F43C}","\u{1F981}"];
 let myGender = "";
 function faceFor(nick, g){
+  if(nick==="Radio Intensa") return "\u{0001F4FB}";
   const pool = g==="f" ? F_FACES : g==="m" ? M_FACES : N_FACES;
   let h = 0;
   for(let i=0;i<nick.length;i++){ h = (h*31 + nick.codePointAt(i)) >>> 0; }
   return pool[h % pool.length];
 }
-const botNicks = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE"]);
+const botNicks = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE","Radio Intensa"]);
 
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function fmtTime(ts){
@@ -547,6 +557,15 @@ function gifDirect(u){
 }
 function renderBody(m){
   const tx=(m.text||"").trim();
+  if(tx.indexOf("[CARTELERA]")===0){
+    const f=tx.slice(11).split("|");
+    return '<div class="prog-card"><div class="pc-k">\u{0001F4FB} CARTELERA \u00b7 RADIO INTENSA</div>'+
+      '<div class="pc-falta">'+esc(f[0]||"")+'</div>'+
+      '<div class="pc-n">'+esc(f[1]||"")+'</div>'+
+      '<div class="pc-h">'+esc(f[2]||"")+'</div>'+
+      (f[3]?'<div class="pc-c">'+esc(f[3])+'</div>':"")+
+      (f[4]?'<div class="pc-l">\u{0001F4CD} '+esc(f[4])+'</div>':"")+'</div>';
+  }
   if(GIFSET.has(tx)) return '<img class="chat-gif" src="'+tx+'" alt="GIF" loading="lazy">';
   if(STICKERS[tx]) return STICKERS[tx];
   const gd = gifDirect(tx);
@@ -559,7 +578,7 @@ function addMsg(m){
   const isBot = botNicks.has(m.nick);
   const isMe = m.nick === getNick() && !isBot;
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
-  const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofi_MX":"#ff7a1a","Andrés_CO":"#39ff6a","Cami_CL":"#b78bff","Lucía_ES":"#ffd23f","Diego_PE":"#ff5f8f","Valen_UY":"#7df9ff","Pame_AR":"#ff9f1c","Rulo_MX":"#39ff6a","Nico_CO":"#ffd23f","Trini_CL":"#ee334e","Iker_ES":"#ff5d5d","Camila_PE":"#ff70a6"};
+  const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofi_MX":"#ff7a1a","Andrés_CO":"#39ff6a","Cami_CL":"#b78bff","Lucía_ES":"#ffd23f","Diego_PE":"#ff5f8f","Valen_UY":"#7df9ff","Pame_AR":"#ff9f1c","Rulo_MX":"#39ff6a","Nico_CO":"#ffd23f","Trini_CL":"#ee334e","Iker_ES":"#ff5d5d","Camila_PE":"#ff70a6","Radio Intensa":"#ff2fd6"};
   const g = botGender[m.nick] || (m.nick===getNick() ? myGender : "");
   const face = faceFor(m.nick, g);
   const ncol = colors[m.nick]||"#eef0ff";
@@ -883,7 +902,7 @@ const personas = [
     "Acá con un emoliente escuchando {prog}"]}
 ];
 /* Respuestas automáticas cuando un oyente real escribe */
-const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE"]);
+const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE","Radio Intensa"]);
 /* Rotación de nicks: no siempre están los mismos.
    REGULARS: Cé pasa la lista de nicks que deben estar casi siempre. */
 const REGULARS = [];
@@ -933,6 +952,7 @@ function pickReply(pool){        /* evita repetir respuestas recientes */
 }
 /* Extrae palabras distintivas del mensaje para responder con coherencia */
 function keywordsOf(txt){
+  if(txt.toLowerCase().indexOf("[cartelera]")>=0) return [];
   const stop = new Set("que,de,la,el,en,y,los,las,una,con,por,para,como,esta,estan,muy,mas,pero,hola,buenas,gracias,eso,esto,del,mi,tu,su,nos,les,tienen,tiene,pueden,puede,quieren,quiere,estoy,estamos,ahora,hoy,ayer,aca,alla,ahi,cuando,donde,cual,quien,porque,tambien,solo,este,esta,estos,estas,ese,esa,programa,radio,tema,cancion,musica,saludo,saludos,noche,dia,tarde,lindo,linda,bueno,buena,genial,grande,chido,bacan,chevere,filete,mola,padre".split(","));
   return txt.toLowerCase().replace(/[¿?¡!.,;:()"]/g,"").split(/\s+/)
     .filter(w=>w.length>4 && !stop.has(w) && w.indexOf("http")!==0 && w.charAt(0)!==":").slice(0,2);
@@ -1102,6 +1122,58 @@ function botLoop(){
   }, delay);
 }
 setTimeout(botLoop, 12000);
+
+/* ===== CARTELERA OFICIAL: avisos de programas ===== */
+const CARTELERA = [
+  {n:"Alma Libre", d:5, h:20, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
+  {n:"Vecinos", d:5, h:22, mi:30, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
+  {n:"Arenas del Tiempo", d:0, h:23, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
+  {n:"So Ham", d:1, h:14, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
+  {n:"Mucho por Vivir", d:2, h:22, mi:30, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
+  {n:"El Div\u00e1n", d:3, h:17, mi:0, cond:"", lug:"R\u00edo Cuarto, C\u00f3rdoba"},
+  {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis"}
+];
+const DIAS_N = ["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"];
+function fmtFalta(ms){
+  if(ms <= 90000) return "\u00a1AHORA EN VIVO!";
+  const m = Math.round(ms/60000);
+  if(m >= 115) return "En 2 horas";
+  if(m >= 60){ const mm = m-60; return "En 1 hora" + (mm>3 ? " y "+mm+" min" : ""); }
+  if(m <= 1) return "En 1 minuto";
+  return "En " + m + " minutos";
+}
+function carteleraTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt = new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",
+      weekday:"short",hour:"numeric",minute:"numeric",hour12:false});
+    const pp = {}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    const dias = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    const dow = dias[pp.weekday], curMs = (parseInt(pp.hour,10)%24)*3600000 + parseInt(pp.minute,10)*60000;
+    const nowMs = Date.now();
+    let last = {};
+    try{ last = JSON.parse(localStorage.getItem("ri_cartelera")||"{}"); }catch(e){}
+    let changed = false;
+    CARTELERA.forEach(p=>{
+      const dd = (p.d - dow + 7) % 7;
+      let diff = dd*86400000 + (p.h*3600 + p.mi*60)*1000 - curMs;
+      if(diff < -5*60000) diff += 7*86400000;
+      if(diff <= 2*3600000 && diff > -5*60000){
+        const key = p.n + "|" + Math.round((nowMs+diff)/86400000);
+        if(nowMs - (last[key]||0) >= 15*60000){
+          const hh = String(p.h).padStart(2,"0"), mm2 = String(p.mi).padStart(2,"0");
+          const txt = "[CARTELERA]"+fmtFalta(diff)+"|"+p.n+"|"+DIAS_N[p.d]+" "+hh+":"+mm2+" hs|"+p.cond+"|"+p.lug;
+          sb.from("messages").insert({nick:"Radio Intensa", text:txt});
+          last[key] = nowMs; changed = true;
+        }
+      }
+    });
+    if(changed){ try{ localStorage.setItem("ri_cartelera", JSON.stringify(last)); }catch(e){} }
+  }catch(e){}
+}
+setInterval(carteleraTick, 60000);
+setTimeout(carteleraTick, 15000);
 
 /* La música callada: misma imagen en grilla y en eventos */
 (function(){ const a=document.getElementById("imgMusicaCallada"), b=document.getElementById("evMusicaCallada"); if(a&&b&&a.src) b.src=a.src; })();
