@@ -172,8 +172,7 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .nick-gate button{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;color:#04222a;font-weight:700;
   padding:12px 28px;border-radius:10px;cursor:pointer;font-size:15px;letter-spacing:1px}
 .nick-gate button:hover{filter:brightness(1.1)}
-#chatMain{display:none}
-#chatMain.open{display:block}
+#chatMain{display:block}
 .nick-change{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline}
 .nick-change:hover{color:var(--cyan)}
 
@@ -232,6 +231,15 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 @keyframes stkPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes stkGlow{0%,100%{box-shadow:0 0 8px rgba(0,229,255,.4)}50%{box-shadow:0 0 20px rgba(0,229,255,.9)}}
 @keyframes stkBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* CHAT: barra de nick siempre visible */
+.nickbar{display:flex;gap:8px;align-items:center;padding:10px 18px 0}
+.nickbar input{flex:1;background:#080812;border:2px solid var(--cyan);border-radius:10px;color:#fff;
+  padding:9px 12px;font-size:14px;font-family:inherit;letter-spacing:1px;font-weight:600}
+.nickbar input::placeholder{color:#7fe7ff;opacity:.85}
+.nickbar input:focus{outline:none;border-color:var(--magenta);box-shadow:0 0 14px rgba(255,45,149,.35)}
+.nickbar input.need{border-color:#ff3b5c;box-shadow:0 0 14px rgba(255,59,92,.6);animation:shake .3s}
+.nickbar .gbtn{font-size:19px;padding:5px 11px}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 /* CHAT: avatares */
 .msg .ava{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:22px;border:2px solid rgba(255,255,255,.18);box-shadow:0 2px 8px rgba(0,0,0,.35)}
@@ -337,21 +345,16 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
   <div class="chat-box">
     <div class="chat-head">
       <b><span class="dot"></span>CHAT DE LA RADIO</b>
-      <button class="nick-change" id="changeNick" style="display:none">cambiar nick</button>
-    </div>
-    <div class="nick-gate" id="nickGate">
-      <h4>BIENVENIDO AL CHAT</h4>
-      <p>Elegí un nick para empezar a escribir</p>
-      <div class="row">
-        <input type="text" id="nick" placeholder="Tu nick" maxlength="20">
-        <button id="joinBtn">Entrar</button>
-      </div>
-      <div class="grow"><span>Soy:</span><button type="button" class="gbtn" data-g="m">👦</button><button type="button" class="gbtn" data-g="f">👧</button></div>
     </div>
     <div id="chatMain">
       <div id="messages"></div>
       <div class="typing" id="typing"></div>
       <div class="picker" id="picker"></div>
+      <div class="nickbar">
+        <input type="text" id="nick" placeholder="Tu nick" maxlength="20">
+        <button type="button" class="gbtn" data-g="m" title="Hombre">👦</button>
+        <button type="button" class="gbtn" data-g="f" title="Mujer">👧</button>
+      </div>
       <div class="chat-input">
         <button class="tool-btn" id="emojiBtn" title="Emojis">😊</button>
         <button class="tool-btn" id="gifBtn" title="GIFs">GIF</button>
@@ -429,34 +432,10 @@ const typingEl = document.getElementById("typing");
 const connEl = document.getElementById("connStatus");
 const nickInput = document.getElementById("nick");
 const textInput = document.getElementById("msgtext");
-const nickGate = document.getElementById("nickGate");
 const chatMain = document.getElementById("chatMain");
-const changeNickBtn = document.getElementById("changeNick");
-let myNick = "";
-function getNick(){ return myNick; }
-function showChat(){
-  nickGate.style.display = "none";
-  chatMain.classList.add("open");
-  changeNickBtn.style.display = "";
-  textInput.placeholder = "Escribí tu mensaje como " + getNick();
-}
-function showGate(){
-  chatMain.classList.remove("open");
-  nickGate.style.display = "";
-  changeNickBtn.style.display = "none";
-  nickInput.value = getNick();
-}
+function getNick(){ return nickInput.value.trim(); }
 document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); }; });
-document.getElementById("joinBtn").onclick = ()=>{
-  const n = nickInput.value.trim();
-  if(!n){ nickInput.focus(); return; }
-  myNick = n;
-  showChat();
-  textInput.focus();
-};
-nickInput.addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("joinBtn").click(); });
-changeNickBtn.onclick = showGate;
-showGate();
+nickInput.addEventListener("input", ()=>{ nickInput.classList.remove("need"); });
 const seen = new Set();
 const botGender = {"Lau de Quilmes":"f","JorgitoRC":"m","Sofi_MX":"f","Andr\u00e9s_CO":"m","Cami_CL":"f","Luc\u00eda_ES":"f","Diego_PE":"m","Valen_UY":"m","Pame_AR":"f","Rulo_MX":"m","Nico_CO":"m","Trini_CL":"f","Iker_ES":"m","Camila_PE":"f"};
 const M_FACES = ["\u{1F468}","\u{1F9D4}","\u{1F468}\u200D\u{1F9B1}","\u{1F468}\u200D\u{1F9B0}","\u{1F471}\u200D\u2642\uFE0F","\u{1F9D1}\u200D\u{1F9B0}"];
@@ -532,7 +511,7 @@ function addMsg(m){
   const isMe = m.nick === getNick() && !isBot;
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
   const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofi_MX":"#ff7a1a","Andrés_CO":"#39ff6a","Cami_CL":"#b78bff","Lucía_ES":"#ffd23f","Diego_PE":"#ff5f8f","Valen_UY":"#7df9ff","Pame_AR":"#ff9f1c","Rulo_MX":"#39ff6a","Nico_CO":"#ffd23f","Trini_CL":"#ee334e","Iker_ES":"#ff5d5d","Camila_PE":"#ff70a6"};
-  const g = botGender[m.nick] || (m.nick===myNick ? myGender : "");
+  const g = botGender[m.nick] || (m.nick===getNick() ? myGender : "");
   const face = faceFor(m.nick, g);
   const ncol = colors[m.nick]||"#eef0ff";
   div.innerHTML = '<div class="ava" style="background:linear-gradient(135deg,'+ncol+'66,#14142a)">'+face+'</div>'+
@@ -550,9 +529,10 @@ async function loadMessages(){
   data.reverse().forEach(addMsg);
 }
 async function sendMessage(){
-  const nick = getNick() || "Anónimo";
+  const nick = getNick();
   const text = textInput.value.trim();
   if(!text) return;
+  if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
   textInput.value = "";
   const { error } = await sb.from("messages").insert({nick, text});
   if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; }
