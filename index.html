@@ -292,6 +292,20 @@ img{-webkit-user-drag:none}
   padding:8px 18px;border-radius:999px;text-decoration:none;box-shadow:0 0 12px rgba(255,47,214,.5)}
 .mens-u{margin-top:8px;font-size:13px;word-break:break-all}
 .mens-u a{color:var(--cyan);text-decoration:underline}
+/* Promo Instagram */
+.ig-card{background:linear-gradient(135deg,#2a0d2a,#1a0d2a);border:2px solid #e1306c;border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(225,48,108,.35)}
+.ig-k{font-size:11px;letter-spacing:2px;color:#ff7ab8;font-weight:700;margin-bottom:6px}
+.ig-t{font-size:14px;color:#ffe8f2;line-height:1.45;margin-bottom:10px}
+.ig-a{display:inline-block;background:linear-gradient(45deg,#f09433,#e1306c,#833ab4);color:#fff;font-weight:800;font-size:14px;
+  padding:8px 18px;border-radius:999px;text-decoration:none;box-shadow:0 0 12px rgba(225,48,108,.5)}
+.ig-u{margin-top:8px;font-size:13px;word-break:break-all}
+.ig-u a{color:#ff7ab8;text-decoration:underline}
+/* Promo Radio */
+.radio-card{background:linear-gradient(135deg,#0d1b2a,#2a0d2a);border:2px solid var(--magenta);border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(255,47,214,.35)}
+.radio-k{font-size:11px;letter-spacing:2px;color:var(--magenta);font-weight:700;margin-bottom:6px}
+.radio-t{font-size:14px;color:#f2e8ff;line-height:1.45;margin-bottom:10px}
 /* Promo YouTube */
 .yt-card{background:linear-gradient(135deg,#2a0d0d,#1a0d1a);border:2px solid #ff2a2a;border-radius:12px;
   padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(255,42,42,.35)}
@@ -671,6 +685,18 @@ function renderBody(m){
       '<div class="mens-t">'+linkify(esc(f[0]||""))+'</div>'+
       '<a class="mens-a" href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener">\u{0001F4F0} Leer el semanario</a>'+
       '<div class="mens-u"><a href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener">el-mensajero-noticias.vercel.app</a></div></div>';
+  }
+  if(tx.indexOf("[INSTAGRAM]")===0){
+    const f=tx.slice(11).split("|");
+    return '<div class="ig-card"><div class="ig-k">\u{0001F4F7} INSTAGRAM \u00b7 RADIO INTENSA</div>'+
+      '<div class="ig-t">'+linkify(esc(f[0]||""))+'</div>'+
+      '<a class="ig-a" href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener">\u{0001F4F7} Seguinos</a>'+
+      '<div class="ig-u"><a href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener">instagram.com/intensaradio24.7</a></div></div>';
+  }
+  if(tx.indexOf("[RADIO]")===0){
+    const f=tx.slice(7).split("|");
+    return '<div class="radio-card"><div class="radio-k">\u{0001F4FB} RADIO INTENSA EN VIVO</div>'+
+      '<div class="radio-t">'+linkify(esc(f[0]||""))+'</div></div>';
   }
   if(tx.indexOf("[YOUTUBE]")===0){
     const f=tx.slice(9).split("|");
@@ -1515,6 +1541,52 @@ function youtubeTick(){
   }catch(e){}
 }
 setInterval(youtubeTick, 60000);
+
+/* ============ PROMO INSTAGRAM CADA 15 MIN ============ */
+const INSTAGRAM_MSGS=[
+"¡Seguinos en Instagram! Fotos, novedades y todo lo de Radio Intensa.",
+"¿Ya nos seguís en Instagram? ¡Sumate a la comunidad de Intensa!",
+"En nuestro Instagram te enterás de todo antes que nadie. ¡Seguinos!"
+];
+function instagramTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==14) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_instagram")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0;
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[INSTAGRAM]"+INSTAGRAM_MSGS[idx%INSTAGRAM_MSGS.length]});
+    try{ localStorage.setItem("ri_instagram", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+setInterval(instagramTick, 60000);
+
+/* ============ PROMO RADIO CADA 15 MIN ============ */
+const RADIO_MSGS=[
+"¿Ya estás escuchando en vivo? ¡Subí el volumen que Radio Intensa no para!",
+"Radio Intensa, tu compañía de todos los días. ¡Compartila con tus amigos!",
+"Estamos en vivo las 24 horas. ¡Quedate, que lo mejor está por venir!"
+];
+function radioTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==2) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_radio")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0;
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[RADIO]"+RADIO_MSGS[idx%RADIO_MSGS.length]});
+    try{ localStorage.setItem("ri_radio", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+setInterval(radioTick, 60000);
 
 /* La música callada: misma imagen en grilla y en eventos */
 (function(){ const a=document.getElementById("imgMusicaCallada"), b=document.getElementById("evMusicaCallada"); if(a&&b&&a.src) b.src=a.src; })();
