@@ -628,6 +628,17 @@ function followUpCands(ht, firstNick, humanNick){
   return shuffle(cands.slice());
 }
 /* Elige la respuesta del 2do nick evitando repetir palabras de la 1ra respuesta */
+/* Funciones faltantes para evitar repeticiones entre bots */
+function contentWords(s){
+  return String(s||"").toLowerCase().replace(/[^a-z0-9áéíóúñü ]/gi," ").split(/\s+/).filter(w=>w.length>2);
+}
+function sharesWords(a, b, ignore, min){
+  const wa = new Set(contentWords(a).filter(w=>!ignore.has(w)));
+  const wb = new Set(contentWords(b).filter(w=>!ignore.has(w)));
+  let n = 0;
+  wa.forEach(w=>{ if(wb.has(w)) n++; });
+  return n >= (min||2);
+}
 function pickFollowUp(ht, firstNick, humanNick, firstText){
   const ignore = new Set(contentWords(humanNick+" "+firstNick));
   const cands = followUpCands(ht, firstNick, humanNick);
