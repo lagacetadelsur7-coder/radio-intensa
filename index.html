@@ -1192,9 +1192,12 @@ window.maybeAutoReply = function(m){
     const isThread = !!(directedNick || threadNick);
     if(!isThread && now - lastAutoReply < 90000) return;
     if(isThread && now - lastAutoReply < 15000) return;
-    let pool = null;
-    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)){
-      const first = !greetedHumans.has(m.nick); greetedHumans.add(m.nick);
+    const cp = countryPoolFor(m);
+    const ctx = cp ? cp.ctx : humanCtx(m.nick);
+    const mentioned = cp ? cp.mentioned : null;
+    let pool = cp ? cp.pool : null;
+    if(mentioned && pool) {} else if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)){
+      const first = !greetedHumans.has(m.nick) && !ctx.askedWhere; greetedHumans.add(m.nick);
       pool = first ? XR("hola", [
         "¡Hola {n}! ¿Cómo estás?",
         "Buenas {n}, bienvenido al chat",
@@ -1217,9 +1220,14 @@ window.maybeAutoReply = function(m){
       "¡Totalmente! {prog} es lo más",
       "Sí, se nota el laburo que hay detrás de {prog}",
       "Coincido {n}, {prog} la rompe"]);
-    else if(/d[oó]nde sos|d[oó]nde eres|de d[oó]nde|pa[ií]s/.test(t)) pool = XR("donde", [
-      "Yo soy de {pais}, ¿y {vos}?",
-      "Acá {pais} presente, ¿y {vos} de dónde {sos}?"]);
+    else if(/d[oó]nde sos|d[oó]nde eres|de d[oó]nde|pa[ií]s/.test(t)){
+      ctx.askedWhere = true;
+      if(ctx.country) pool = ["¿{vos} me habías dicho que eras de "+ctx.country+", no {n}?",
+        "Si no me equivoco {n}, {vos} sos de "+ctx.country+" ¿cierto?"];
+      else pool = XR("donde", [
+        "Yo soy de {pais}, ¿y {vos}?",
+        "Acá {pais} presente, ¿y {vos} de dónde {sos}?"]);
+    }
     else if(/programa|radio/.test(t)) pool = XR("programa", [
       "¿Cuál es tu programa favorito {n}?",
       "Yo no me pierdo {prog}"]);
@@ -1277,14 +1285,7 @@ window.maybeAutoReply = function(m){
     const actA = getActive().length ? getActive() : personas;
     const per = directedNick || threadNick || actA[Math.floor(Math.random()*actA.length)];
     lastConvo = {human: m.nick, bot: per.nick, ts: now};
-    const prof = ((window.NICK_PROFILES||{})[per.nick]) || {edad:"?", ocupa:"?"};
-    const esVos = /Argentina|Uruguay/.test(per.pais||"");
-    function fill(s){ return s.replaceAll("{n}", m.nick).replaceAll("{prog}", progName()).replaceAll("{pais}", per.pais || "").replaceAll("{edad}", prof.edad).replaceAll("{ocupa}", prof.ocupa).replaceAll("{vos}", esVos?"vos":"tú").replaceAll("{sos}", esVos?"sos":"eres").replaceAll("{escuchas}", esVos?"escuchás":"escuchas").replaceAll("{dices}", esVos?"decís":"dices").replaceAll("{tienes}", esVos?"tenés":"tienes"); }
-    let text = fill(pickReply(pool));
-    for(let ri=0; ri<3 && (!botTextDiverse(text) || botDup(text)); ri++){
-      const alt = fill(pickReply(pool));
-      if(botTextDiverse(alt) && !botDup(alt)){ text = alt; break; }
-    }
+    let text = buildBotText(m, per, pool);
     botMark(text); botTextPush(text);
     if(/^lali$/i.test(m.nick||"")) text = text.replace(/\bbienvenido\b/g, "bienvenida");
     setTimeout(async ()=>{
