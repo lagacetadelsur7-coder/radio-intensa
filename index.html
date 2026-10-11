@@ -1203,6 +1203,72 @@ let lastConvo=null;
 function findThreadNick(a,b,c){if(b)return null;if(lastConvo&&lastConvo.human===a&&(c-lastConvo.ts)<3e5)return personaByNick(lastConvo.bot);return null;}
 const COUNTRY_WORDS={"argentina":"Argentina","uruguay":"Uruguay","chile":"Chile","paraguay":"Paraguay","brasil":"Brasil","mexico":"México","méxico":"México","espana":"España","españa":"España","colombia":"Colombia","peru":"Perú","perú":"Perú","bolivia":"Bolivia","ecuador":"Ecuador","venezuela":"Venezuela"};
 function countryPoolFor(m){const t=(m.text||"").toLowerCase();let f=null;for(const k in COUNTRY_WORDS){try{if(new RegExp("(^|[^\\p{L}])"+_escRe(k)+"([^\\p{L}]|$)","iu").test(t)){f=COUNTRY_WORDS[k];break;}}catch(e){}}if(!f)return null;const c=humanCtx(m.nick);c.country=f;return{mentioned:f,ctx:c,pool:["¡Aguante "+f+", {n}! Saludos por allá","Qué bueno tener oyentes de "+f+" por acá, {n}","Saludos hasta "+f+", {n}, gracias por escuchar"]};}
+function _hashStr(s){ let h=0; s=String(s||""); for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h; }
+const _OCUPA_M=["mecánico","comerciante","docente","empleado","técnico","vendedor","estudiante","chofer"];
+const _OCUPA_F=["docente","comerciante","empleada","diseñadora","estudiante","vendedora","peluquera","enfermera"];
+function buildBotText(m, per, pool){
+  try{
+    const tpl = pickFrom(pool);
+    const pais = (per && per.pais) || "";
+    const voseo = /argentina|uruguay/i.test(pais);
+    const g = (typeof botGender!=="undefined" && per && botGender[per.nick]) || "m";
+    const h = _hashStr(per && per.nick);
+    const R = {
+      "{n}": m.nick, "{prog}": (typeof progName==="function"?progName():"la radio"), "{pais}": pais,
+      "{vos}": voseo?"vos":"tú", "{dices}": voseo?"decís":"dices",
+      "{escuchas}": voseo?"escuchás":"escuchas", "{sos}": voseo?"sos":"eres",
+      "{tienes}": voseo?"tenés":"tienes", "{edad}": 25+(h%20),
+      "{ocupa}": (g==="f"?_OCUPA_F:_OCUPA_M)[h%8]
+    };
+    let t = tpl;
+    for(const k in R){ t = t.split(k).join(String(R[k])); }
+    return t;
+  }catch(e){ try{ return pickFrom(pool); }catch(e2){ return ""; } }
+}
+function botTextPush(t){ try{ recentReplies.push(t); if(recentReplies.length>10) recentReplies.shift(); }catch(e){} }
+function botTextDiverse(t){
+  try{
+    const w = normTxt(t).split(" ").filter(x=>x.length>3);
+    if(w.length<3) return true;
+    for(const r of _botUsedNorm.slice(-12)){
+      const rs = new Set(r.split(" "));
+      let c = 0;
+      for(const x of w){ if(rs.has(x)) c++; }
+      if(c >= w.length*0.6) return false;
+    }
+    return true;
+  }catch(e){ return true; }
+}
+function pickFollowUp(hl, botNick, humanNick, botText){
+  if(Math.random()<0.35) return null;
+  return pickFrom([
+    "Coincido con "+botNick,
+    "Tal cual lo dice "+botNick,
+    "Bien ahí "+botNick+", yo pienso igual",
+    "Jaja "+botNick+" siempre tiene razón"
+  ]);
+}
+function pickJoke(){
+  try{ if(window.JOKES && window.JOKES.length) return pickFrom(window.JOKES); }catch(e){}
+  return null;
+}
+function contextualMsg(p){
+  try{
+    const h = new Date().getHours();
+    if(h>=5 && h<12 && Math.random()<0.25) return "Buen día gente, ¿quién más arranca la mañana con {prog}?";
+    if((h>=22 || h<5) && Math.random()<0.25) return "¿Quién más trasnochando con {prog}?";
+  }catch(e){}
+  return null;
+}
+function mentionNick(nick){
+  try{
+    const ti = document.getElementById("msgtext");
+    if(ti){ ti.value = "@"+nick+" "+ti.value; ti.focus(); }
+  }catch(e){}
+}
+function maybeSwapNicks(){
+  try{ if(Math.random()<0.12) setExpires = 0; }catch(e){}
+}
 const lastReplyByNick = {};
 const lastGreetByHuman = {};
 window.maybeAutoReply = function(m){
