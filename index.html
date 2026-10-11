@@ -515,6 +515,13 @@ const SUPABASE_KEY = "sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH";
 let sb = null;
 try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
 catch(e){ console.error("Supabase init failed:", e); }
+/* Reporte visible de errores JS para diagnóstico */
+window.addEventListener("error", function(ev){
+  try{
+    var el = document.getElementById("connStatus");
+    if(el){ el.textContent = "Error: " + (ev.message||"desconocido"); el.className = "conn err"; }
+  }catch(e){}
+});
 
 /* ============ PLAYER ============ */
 const audio = new Audio();
