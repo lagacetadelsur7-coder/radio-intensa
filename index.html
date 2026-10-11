@@ -161,7 +161,7 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .msg{display:flex;gap:10px;align-items:flex-start;max-width:82%;padding:10px 14px;border-radius:12px;background:#23233e;border:1px solid rgba(255,255,255,.1);
   font-size:16px;line-height:1.4;color:#f4f6ff;animation:fadein .25s;box-shadow:0 2px 10px rgba(0,0,0,.25)}
 @keyframes fadein{from{opacity:0;transform:translateY(6px)}}
-.msg .nick{font-weight:800;font-size:14px;letter-spacing:.8px;margin-bottom:3px;text-shadow:0 0 10px currentColor}
+.msg .nick{font-weight:800;font-size:14px;letter-spacing:.8px;margin-bottom:3px;text-shadow:0 0 10px currentColor}.msg .nick{cursor:pointer}.msg .nick:hover{text-decoration:underline}.msg .nick:active{opacity:.7}
 .msg .time{font-size:11px;color:var(--muted);margin-left:8px;font-weight:400}
 .msg.bot{border-left:3px solid var(--magenta)}
 .msg.me{align-self:flex-end;flex-direction:row-reverse;background:rgba(0,229,255,.14);border:1px solid rgba(0,229,255,.4)}
@@ -728,6 +728,9 @@ function addMsg(m){
     '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+renderBody(m)+"</div></div>";
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+  try{
+    div.querySelector(".nick").addEventListener("click", function(){ mentionNick(m.nick); });
+  }catch(e){}
   if(botNicks.has(m.nick)) lastBot = {nick:m.nick, text:m.text};
   else trackReal(m);
 }
@@ -737,6 +740,15 @@ async function loadMessages(){
   connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
   data.reverse().forEach(addMsg);
 }
+/* Tocar el nick de un mensaje lo arroba en el campo de texto para hablarle directo */
+window.mentionNick = function(nick){
+  try{
+    const at = "@"+nick+" ";
+    if(!textInput.value) textInput.value = at;
+    else if(textInput.value.indexOf(at) !== 0) textInput.value = at + textInput.value;
+    textInput.focus();
+  }catch(e){}
+};
 async function sendMessage(){
   const nick = getNick();
   const text = textInput.value.trim();
