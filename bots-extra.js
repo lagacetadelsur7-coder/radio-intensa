@@ -485,34 +485,58 @@ function radioTick(){
 /* OFF: las promos las publica el cron del servidor cada 15 min */
 
 /* Segundo nick: responde coherente con lo que dijo el humano, sin repetir lo mismo */
-function followUpFor(ht, firstNick, humanNick){
-  if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(ht)) return pickFrom([
-    "¡Hola "+humanNick+"! ¿De dónde nos escuchás?",
-    "Bienvenido "+humanNick+", qué bueno que te sumes"]);
-  if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(ht)) return pickFrom([
+/* Candidatos de respuesta del 2do nick, mezclados; el que llama filtra los que
+   repitan palabras de la respuesta del 1er nick (regla de Cé) */
+function followUpCands(ht, firstNick, humanNick){
+  let cands;
+  if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(ht)) cands = [
+    "¡Hola "+humanNick+"! Qué bueno verte por acá",
+    "Bienvenido "+humanNick+", ¿cómo andás?",
+    "¡Buenas "+humanNick+"! ¿Qué tal tu día?"];
+  else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(ht)) cands = [
     "Ese tema es tremendo, "+humanNick,
     "¿Cuál era? Yo llegué tarde jaja",
-    "A mí también me gustó ese tema"]);
-  if(/gracias/.test(ht)) return "¡De nada "+humanNick+"!";
-  if(/saludo/.test(ht)) return "¡Saludos "+humanNick+"!";
-  if(/\?/.test(ht)) return pickFrom([
+    "A mí también me gustó ese tema",
+    "¿Lo tenés en tu playlist, "+humanNick+"?"];
+  else if(/gracias/.test(ht)) cands = ["¡De nada "+humanNick+"!", "¡Un placer, "+humanNick+"!"];
+  else if(/saludo/.test(ht)) cands = ["¡Saludos "+humanNick+"!", "¡Abrazo grande, "+humanNick+"!"];
+  else if(/\?/.test(ht)) cands = [
     "Yo también quiero saber eso, "+humanNick,
     "Buena pregunta, a ver si la responden al aire",
-    "Me quedo a leer qué responden jaja"]);
-  if(/programa|radio/.test(ht)) return pickFrom([
+    "Me quedo a leer qué responden jaja",
+    "Ojalá lo aclaren en "+progName()];
+  else if(/programa|radio/.test(ht)) cands = [
     "Yo no me pierdo "+progName(),
-    "Este programa es lo más, "+humanNick]);
-  if(/jaja+|\u0001f602|\u0001f923/.test(ht)) return pickFrom([
+    "Este programa es lo más, "+humanNick,
+    "¿Cuál es tu momento favorito de "+progName()+", "+humanNick+"?"];
+  else if(/jaja+|\u0001f602|\u0001f923/.test(ht)) cands = [
     "Jajaja, ¿qué pasó?",
-    "Me sumo a la risa jaja"]);
-  const kws = keywordsOf(ht);
-  if(kws.length && Math.random() < 0.6) return pickFrom([
-    "Lo de "+kws[0]+" estuvo bueno, "+humanNick,
-    "¿Viste lo de "+kws[0]+"? Tremendo"]);
-  return pickFrom([
+    "Me sumo a la risa jaja",
+    "¿Me perdí el chiste? Contá de nuevo"];
+  else {
+    const kws = keywordsOf(ht);
+    cands = kws.length ? [
+      "Lo de "+kws[0]+" estuvo bueno, "+humanNick,
+      "¿Viste lo de "+kws[0]+"? Tremendo",
+      "No sabía eso de "+kws[0]+", "+humanNick] : [];
+  }
+  if(!cands.length) cands = [
     "Coincido con "+firstNick,
     "Tal cual dice "+firstNick,
-    humanNick+" tiene razón en eso"]);
+    humanNick+" tiene razón en eso"];
+  return shuffle(cands.slice());
+}
+/* Elige la respuesta del 2do nick evitando repetir palabras de la 1ra respuesta */
+function pickFollowUp(ht, firstNick, humanNick, firstText){
+  const ignore = new Set(contentWords(humanNick+" "+firstNick));
+  const cands = followUpCands(ht, firstNick, humanNick);
+  for(const c of cands){
+    if(!sharesWords(c, firstText, ignore, 2) && !botDup(c)) return c;
+  }
+  for(const c of cands){
+    if(!botDup(c)) return c;
+  }
+  return "Coincido con "+firstNick;
 }
 
 /* Chistes sin repetir: evita los últimos 40 usados */
