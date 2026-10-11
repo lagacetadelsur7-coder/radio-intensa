@@ -27,7 +27,7 @@ window.EXTRA_MSGS = {
 "¿Alguien más emocionado con {prog} hoy o soy solo yo?",
 "Desde el taller escuchando {prog}, me alegra la tarde",
 "¿Hacen sorteos en {prog}? Estaría bueno"],
-"Sofi_MX":[
+"Sofía Herrera":[
 "¡Órale! {prog} cada día me gusta más",
 "¿Ya escucharon el programa de ayer de {prog}? ¡Buenísimo!",
 "Saludos banda, ¿qué les pareció el tema de recién en {prog}?",
@@ -40,7 +40,7 @@ window.EXTRA_MSGS = {
 "La neta, {prog} es mi momento favorito del día",
 "Saludos desde el metro, con {prog} el viaje se pasa volando",
 "¿Qué les parece si pedimos mariachi en {prog}? jaja"],
-"Andrés_CO":[
+"Andrés":[
 "Parce, {prog} hoy está en otro nivel",
 "¿Escucharon la entrevista de recién en {prog}? ¡Brutal!",
 "Saludos desde Bogotá, {prog} suena increíble",
@@ -53,7 +53,7 @@ window.EXTRA_MSGS = {
 "Qué bacano el chat de {prog}, buena gente",
 "¿Ponen reguetón en {prog}? Sería brutal",
 "Un abrazo parce para todos los de {prog}"],
-"Cami_CL":[
+"Cami":[
 "¡Bacán {prog}! Cada día mejor, ¿cachai?",
 "¿Vieron lo que pasó recién en {prog}? ¡Qué risa!",
 "Saludos desde Conce, prendida a {prog}",
@@ -66,7 +66,7 @@ window.EXTRA_MSGS = {
 "¿Ponen cueca en {prog} para el 18? ¡Estaría bacán!",
 "Qué buena la energía de {prog} hoy",
 "¿Más gente de regiones escuchando {prog}? ¡Presentes!"],
-"Lucía_ES":[
+"Lucía Fernández":[
 "¡Qué guay {prog} hoy! No me lo pierdo",
 "¿Habéis escuchado lo de recién en {prog}? ¡Flipante!",
 "Saludos desde Sevilla, {prog} mola muchísimo",
@@ -79,7 +79,7 @@ window.EXTRA_MSGS = {
 "Me encanta el acento argentino de {prog}",
 "¿Ponen flamenco alguna vez en {prog}?",
 "Un beso enorme para todos los de {prog}"],
-"Diego_PE":[
+"Diego":[
 "¡Causa! {prog} hoy está chévere",
 "¿Escucharon el bloque de recién en {prog}? ¡Buenazo!",
 "Saludos desde Trujillo, {prog} se escucha clarito",
@@ -92,7 +92,7 @@ window.EXTRA_MSGS = {
 "Qué buena la conducción de {prog}, felicitaciones",
 "¿Alguien más escuchando {prog} desde el trabajo?",
 "Me vacila {prog}, siempre me alegra el día"],
-"Valen_UY":[
+"Valentín Sosa":[
 "¡Bo! {prog} hoy la rompe",
 "¿Viste lo de recién en {prog}? ¡Tremendo, bo!",
 "Saludos desde Canelones, prendido a {prog}",
@@ -105,7 +105,7 @@ window.EXTRA_MSGS = {
 "¿Ponen murga en {prog}? ¡Aguante el carnaval!",
 "Saludos bo a toda la barra de {prog}",
 "Ta, {prog} es lo mejor de mi día"],
-"Pame_AR":[
+"Pame":[
 "¡Che! Recién me sumo a {prog}, ¿de qué me perdí?",
 "¿Vieron qué bien se escucha {prog}? ¡Nivel profesional!",
 "Acá en el subte con {prog}, ¡qué buena compañía!",
@@ -118,7 +118,7 @@ window.EXTRA_MSGS = {
 "¿Pasan tango en {prog}? ¡Sería hermoso!",
 "Che, inviten a más gente a {prog}, ¡está buenísimo!",
 "Buenas noches {prog}, ¡qué lindo cerrar el día así!"],
-"Rulo_MX":[
+"Rulo":[
 "¡La neta! {prog} no decepciona nunca",
 "¿Ya oyeron lo de recién en {prog}? ¡Estuvo bueno!",
 "Saludos desde Monterrey, acá escuchando {prog}",
@@ -131,7 +131,7 @@ window.EXTRA_MSGS = {
 "¿Ponen banda en {prog}? ¡Estaría de lujo!",
 "Un saludo a toda la raza que escucha {prog}",
 "¿A poco {prog} lleva tanto tiempo al aire? ¡Felicidades!"],
-"Nico_CO":[
+"Nico Restrepo":[
 "¡Qué más pues! {prog} hoy está brutal",
 "¿Oyeron la historia de recién en {prog}? ¡Qué nota!",
 "Saludos desde Cali, {prog} suena de lujo",
@@ -144,7 +144,7 @@ window.EXTRA_MSGS = {
 "¿Ponen salsa en {prog}? ¡Eso sí sería chimba!",
 "Un abrazo a todos los parceros de {prog}",
 "Ese {prog} siempre me alegra la noche"],
-"Trini_CL":[
+"Trini":[
 "¡La raja {prog}! No me canso nunca",
 "¿Escucharon lo de recién en {prog}? ¡Me mató de risa!",
 "Saludos desde Antofagasta, acá con {prog}",
@@ -157,7 +157,7 @@ window.EXTRA_MSGS = {
 "¿Ponen rock chileno en {prog}? ¡Los Prisioneros!",
 "Un besito para todos los de {prog}",
 "¿Vieron cuánta gente hay hoy en {prog}? ¡Bacán!"],
-"Iker_ES":[
+"Iker":[
 "¡Qué pasa! {prog} hoy está guay guay",
 "¿Habéis pillado lo de recién en {prog}? ¡Buenísimo!",
 "Saludos desde Valencia, con {prog} a tope",
@@ -170,7 +170,7 @@ window.EXTRA_MSGS = {
 "¿Suenan Rosalía o algo así en {prog}?",
 "Un abrazo enorme para {prog} desde España",
 "¿Cuánta gente sois hoy en {prog}? ¡Mola!"],
-"Camila_PE":[
+"Camila Torres":[
 "¡Qué bonito {prog} hoy! Me encanta",
 "¿Escucharon lo lindo que estuvo {prog} recién?",
 "Saludos desde Cusco, {prog} me acompaña",
@@ -228,3 +228,27 @@ ambient:[
 "Saludos a los que recién se suman a {prog}",
 "¿Qué les pareció el programa de ayer?"]
 };
+
+/* Chistes sanos para el chat: salen cada tanto (12% de los mensajes de bots) */
+window.JOKES = [
+"¿Por qué la radio nunca se pierde? ¡Porque siempre está en sintonía! 😄",
+"Le dije a mi familia que la radio es mi segunda casa... ahora escucho con auriculares 😅",
+"¿Qué le dice un locutor a otro? ¡Nos escuchamos! 🎙️",
+"Mi vecino dice que escucho {prog} muy fuerte... ¡es que se merece volumen máximo! 🔊",
+"¿Por qué los pájaros cantan de mañana? ¡Porque escuchan {prog}! 🐦",
+"Dicen que la música amansa a las fieras... yo pongo {prog} y hasta mi suegra baila 💃",
+"¿Cuál es el colmo de un locutor? ¡Quedarse sin palabras! 😂",
+"Anoche soñé que conducía {prog}... desperté y seguía en el chat 😴",
+"Mi perro aúlla cada vez que suena su tema favorito en {prog} 🐕🎵",
+"¿Por qué el mate y {prog} son la pareja perfecta? ¡Porque los dos se comparten! 🧉",
+"¿Qué hace una radio en el gimnasio? ¡Hace sintonía fina! 💪📻",
+"Dicen que soy adicto a {prog}... ¡y tienen razón! 😎",
+"Mi despertador ahora es {prog}... ¡no hay mejor forma de arrancar el día! ⏰",
+"¿Por qué la luna escucha radio? ¡Porque le encanta {prog}! 🌙",
+"Ayer intenté cantar como en {prog}... mis vecinos me pidieron que solo escuche 🎤😅",
+"Estaba tan concentrado en {prog} que se me quemó la cena... ¡valió la pena! 🍳🔥",
+"¿Qué le dice el dial a la antena? ¡Qué buena recepción tenemos! 📡",
+"Si {prog} fuera persona, le pediría un autógrafo 😄",
+"¿En qué se parece {prog} al café? ¡En que sin ellos no arranco! ☕",
+"Le conté un chiste a {prog} por el chat... ¡todavía se están riendo! 🤣"
+];
