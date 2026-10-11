@@ -1212,7 +1212,7 @@ window.maybeAutoReply = function(m){
     const isGreeting = /hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t) && !mentioned;
     let cdMs = 90000, refTs = lastAutoReply;
     if(isGreeting){ /* cooldown propio por humano, no el global */ }
-    else if(isExplicitAt){ cdMs = 5000; refTs = lastReplyByNick[replyNickName] || 0; }
+    else if(isExplicitAt){ cdMs = 2000; refTs = lastReplyByNick[replyNickName] || 0; }
     else if(isThread){ cdMs = 15000; refTs = lastReplyByNick[replyNickName] || 0; }
     if(!isGreeting && now - refTs < cdMs) return;
     let pool = cp ? cp.pool : null;
