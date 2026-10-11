@@ -1362,7 +1362,8 @@ function botLoop(){
           if(!ambientMsg && Math.random() < 0.12 && window.JOKES && window.JOKES.length) cand = pickJoke();
           else cand = (ambientMsg || (!justReplied && contextualMsg(p)) || pickFresh(p));
           cand = cand.replaceAll("{prog}", progName());
-          if((!botDup(cand) && botTextDiverse(cand)) || att===4){ msg = cand; break; }
+          if(!botDup(cand) && botTextDiverse(cand)){ msg = cand; break; }
+          if(att===4 && !msg){ msg = null; }
         }
         if(msg) botTextPush(msg);
         botMark(msg);
