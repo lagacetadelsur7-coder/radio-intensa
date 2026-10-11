@@ -1321,7 +1321,7 @@ window.maybeAutoReply = function(m){
     setTimeout(async ()=>{
       try{
         typingEl.textContent = per.nick + " está escribiendo...";
-        await new Promise(r=>setTimeout(r, 1500 + Math.random()*2000));
+        await new Promise(r=>setTimeout(r, 800 + Math.random()*1200));
         typingEl.textContent = "";
         await sb.from("messages").insert({nick:per.nick, text});
         if(Math.random() < 0.25){
