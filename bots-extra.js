@@ -592,7 +592,7 @@ function followUpCands(ht, firstNick, humanNick){
   let cands;
   if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(ht)) cands = [
     "¡Hola "+humanNick+"! Qué bueno verte por acá",
-    "Bienvenido "+humanNick+", ¿cómo andás?",
+    "Bienvenido "+humanNick+", ¿cómo estás?",
     "¡Buenas "+humanNick+"! ¿Qué tal tu día?"];
   else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(ht)) cands = [
     "Ese tema es tremendo, "+humanNick,
@@ -758,7 +758,8 @@ function contextualMsg(p){
       "Me sumo a la duda de "+nick+" jaja"]);
     if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(tl)){
       const first = !greetedHumans.has(nick); greetedHumans.add(nick);
-      return first ? pickFrom(["¡Hola "+nick+"! Bienvenido","Buenas "+nick+", ¿de dónde nos escuchás?"])
+      const esVos = /Argentina|Uruguay/.test(p.pais||"");
+      return first ? pickFrom(["¡Hola "+nick+"! Bienvenido","Buenas "+nick+", ¿de dónde nos "+(esVos?"escuchás":"escuchas")+"?"])
                    : pickFrom(["¡Hola de nuevo "+nick+"!","¡Buenas "+nick+", qué bueno verte!"]);
     }
     if(/gracias/.test(tl)) return "¡De nada "+nick+"!";
