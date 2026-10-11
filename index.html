@@ -719,7 +719,7 @@ function addMsg(m){
   const isBot = botNicks.has(m.nick);
   const isMe = m.nick === getNick() && !isBot;
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
-  const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofía Herrera":"#ff7a1a","Andrés":"#39ff6a","Cami":"#b78bff","Lucía Fernández":"#ffd23f","Diego":"#ff5f8f","Valentín Sosa":"#7df9ff","Pame":"#ff9f1c","Rulo":"#39ff6a","Nico Restrepo":"#ffd23f","Trini":"#ee334e","Iker":"#ff5d5d","Camila Torres":"#ff70a6","Radio Intensa":"#ff2fd6"};
+  const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofía Herrera":"#ff7a1a","Andrés":"#39ff6a","Cami":"#b78bff","Lucía Fernández":"#ffd23f","Diego":"#ff5f8f","Valentín Sosa":"#7df9ff","Pame":"#ff9f1c","Rulo":"#39ff6a","Nico Restrepo":"#ffd23f","Trini":"#ee334e","Iker":"#ff5d5d","Camila Torres":"#ff70a6","Martín":"#4dff88","Sole":"#ff8ac2","Pablo Ríos":"#6ab8ff","Mica":"#ffd166","Facundo":"#c39bff","Radio Intensa":"#ff2fd6"};
   const g = botGender[m.nick] || (m.nick===getNick() ? myGender : "");
   const face = faceFor(m.nick, g);
   const ncol = colors[m.nick]||"#eef0ff";
@@ -1196,16 +1196,16 @@ window.maybeAutoReply = function(m){
     if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)){
       const first = !greetedHumans.has(m.nick); greetedHumans.add(m.nick);
       pool = first ? XR("hola", [
-        "¡Hola {n}! ¿Cómo andás?",
+        "¡Hola {n}! ¿Cómo estás?",
         "Buenas {n}, bienvenido al chat",
-        "Holaa {n}, ¿de dónde nos escuchás?",
+        "Holaa {n}, ¿de dónde nos {escuchas}?",
         "¡Buenas {n}! Qué bueno verte por acá"])
       : ["¡Hola de nuevo {n}!",
         "¡Buenas {n}, qué bueno verte por acá!",
         "Holaa {n} 👋"];
     }
     else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(t)) pool = XR("tema", [
-      "¿Cuál tema decís {n}? Yo también lo quiero saber",
+      "¿Cuál tema {dices} {n}? Yo también lo quiero saber",
       "Temazo el que sonó recién en {prog}, ¿no?",
       "¿Alguien anotó el nombre del tema que pide {n}?"]);
     else if(/saludo/.test(t)) pool = XR("saludo", [
@@ -1217,9 +1217,9 @@ window.maybeAutoReply = function(m){
       "¡Totalmente! {prog} es lo más",
       "Sí, se nota el laburo que hay detrás de {prog}",
       "Coincido {n}, {prog} la rompe"]);
-    else if(/d[oó]nde sos|de d[oó]nde|pa[ií]s/.test(t)) pool = XR("donde", [
-      "Yo soy de {pais}, ¿y vos {n}?",
-      "Acá {pais} presente, ¿y vos {n} de dónde?"]);
+    else if(/d[oó]nde sos|d[oó]nde eres|de d[oó]nde|pa[ií]s/.test(t)) pool = XR("donde", [
+      "Yo soy de {pais}, ¿y {vos}?",
+      "Acá {pais} presente, ¿y {vos} de dónde {sos}?"]);
     else if(/programa|radio/.test(t)) pool = XR("programa", [
       "¿Cuál es tu programa favorito {n}?",
       "Yo no me pierdo {prog}"]);
@@ -1253,11 +1253,11 @@ window.maybeAutoReply = function(m){
     else if(/qui[eé]n conduce|qui[eé]n est[aá]|quien es el/.test(t)) pool = [
       "Ahora está {prog} al aire, {n}",
       "Es el programa {prog}, {n}, ¡quedate escuchando!"];
-    else if(/cu[aá]ntos a[nñ]os|qu[eé] edad|edad ten[eé]s/.test(t)) pool = [
+    else if(/cu[aá]ntos a[nñ]os|qu[eé] edad|edad ten[eé]s|edad tienes/.test(t)) pool = [
       "Tengo {edad} años, {n}",
-      "Tengo {edad}, {n}, ¿y vos cuántos tenés?",
+      "Tengo {edad}, {n}, ¿y {vos} cuántos {tienes}?",
       "{edad} pirulos, {n} jaja"];
-    else if(/a qu[eé] te dedic[aá]s|en qu[eé] trabaj[aá]s|qu[eé] hac[eé]s de|tu trabajo/.test(t)) pool = [
+    else if(/a qu[eé] te dedic[aá]s|a que te dedicas|en qu[eé] trabaj[aá]s|en que trabajas|qu[eé] hac[eé]s|que haces|tu trabajo/.test(t)) pool = [
       "Soy {ocupa}, {n}",
       "Trabajo de {ocupa}, {n}, ¿y vos?"];
     else if(/\?/.test(t)) pool = XR("pregunta", [
@@ -1278,7 +1278,8 @@ window.maybeAutoReply = function(m){
     const per = directedNick || threadNick || actA[Math.floor(Math.random()*actA.length)];
     lastConvo = {human: m.nick, bot: per.nick, ts: now};
     const prof = ((window.NICK_PROFILES||{})[per.nick]) || {edad:"?", ocupa:"?"};
-    function fill(s){ return s.replaceAll("{n}", m.nick).replaceAll("{prog}", progName()).replaceAll("{pais}", per.pais || "").replaceAll("{edad}", prof.edad).replaceAll("{ocupa}", prof.ocupa); }
+    const esVos = /Argentina|Uruguay/.test(per.pais||"");
+    function fill(s){ return s.replaceAll("{n}", m.nick).replaceAll("{prog}", progName()).replaceAll("{pais}", per.pais || "").replaceAll("{edad}", prof.edad).replaceAll("{ocupa}", prof.ocupa).replaceAll("{vos}", esVos?"vos":"tú").replaceAll("{sos}", esVos?"sos":"eres").replaceAll("{escuchas}", esVos?"escuchás":"escuchas").replaceAll("{dices}", esVos?"decís":"dices").replaceAll("{tienes}", esVos?"tenés":"tienes"); }
     let text = fill(pickReply(pool));
     for(let ri=0; ri<3 && (!botTextDiverse(text) || botDup(text)); ri++){
       const alt = fill(pickReply(pool));
@@ -1609,5 +1610,6 @@ window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
   }catch(e){}
 })();
 </script>
+<script src="bots-ar.js"></script>
 </body>
 </html>
