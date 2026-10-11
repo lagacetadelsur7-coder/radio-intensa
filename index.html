@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="bots-extra.js"></script>
 <style>
 :root{
   --bg:#07070f; --panel:#0d0d1a; --panel2:#121224;
@@ -1069,6 +1070,10 @@ const personas = [
     "Qué programa tan bonito {prog}",
     "Acá con un emoliente escuchando {prog}"]}
 ];
+/* Mezcla las frases extra: 24 por nick, menos repetición */
+try{ if(window.EXTRA_MSGS) personas.forEach(function(p){ var e=window.EXTRA_MSGS[p.nick]; if(e&&e.length) p.msgs=p.msgs.concat(e); }); }catch(e){}
+/* Helper: suma respuestas extra por tema */
+function XR(k, arr){ try{ var x=window.EXTRA_REPLIES&&window.EXTRA_REPLIES[k]; if(x&&x.length) return arr.concat(x); }catch(e){} return arr; }
 /* Respuestas automáticas cuando un oyente real escribe */
 const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE","Radio Intensa"]);
 /* Rotación de nicks: no siempre están los mismos.
@@ -1077,11 +1082,23 @@ const REGULARS = [];
 let activeSet = [];
 let setExpires = 0;
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const tmp=a[i]; a[i]=a[j]; a[j]=tmp; } return a; }
+/* Rotación DIARIA (regla de Cé): cada día participan nicks distintos, intercalados */
+function daySeed(){ const d=new Date(); const s=new Date(d.getFullYear(),0,0); return d.getFullYear()*1000+Math.floor((d-s)/864e5); }
+function seededShuffle(a, seed){ let r=seed%2147483647; if(r<=0) r+=2147483646; const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ r=(r*16807)%2147483647; const j=r%(i+1); const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp; } return arr; }
+let dailySet = [], dailyDay = -1;
+function getDaily(){
+  const seed = daySeed();
+  if(dailyDay !== seed){
+    dailyDay = seed;
+    dailySet = seededShuffle(personas.filter(p=>REGULARS.indexOf(p.nick)===-1), seed).slice(0, 7+(seed%2));
+  }
+  return dailySet;
+}
 function getActive(){
   const now = Date.now();
   if(!activeSet.length || now > setExpires){
     const regs = personas.filter(p=>REGULARS.indexOf(p.nick) !== -1);
-    const rest = shuffle(personas.filter(p=>REGULARS.indexOf(p.nick) === -1));
+    const rest = shuffle(getDaily().slice());
     const n = 6 + Math.floor(Math.random()*3);
     activeSet = regs.concat(rest.slice(0, Math.max(0, n - regs.length)));
     setExpires = now + (18 + Math.random()*14)*60*1000;
@@ -1109,14 +1126,14 @@ function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 const _botUsedNorm = [];
 function normTxt(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1\u00fc ]/gi," ").replace(/\s+/g," ").trim(); }
 function botDup(s){ const n = normTxt(s); return n.length > 10 && _botUsedNorm.indexOf(n) >= 0; }
-function botMark(s){ const n = normTxt(s); if(n.length > 10){ _botUsedNorm.push(n); if(_botUsedNorm.length > 30) _botUsedNorm.shift(); } }
+function botMark(s){ const n = normTxt(s); if(n.length > 10){ _botUsedNorm.push(n); if(_botUsedNorm.length > 50) _botUsedNorm.shift(); } }
 function pickFresh(p){           /* evita repetir las últimas 6 frases de cada nick */
   const n = p.msgs.length;
   p._used = p._used || [];
   let idx = Math.floor(Math.random()*n), tries = 0;
   while(p._used.includes(idx) && tries < 15){ idx = Math.floor(Math.random()*n); tries++; }
   p._used.push(idx);
-  if(p._used.length > 6) p._used.shift();
+  if(p._used.length > 10) p._used.shift();
   return p.msgs[idx];
 }
 const recentReplies = [];
@@ -1137,7 +1154,7 @@ function keywordsOf(txt){
 }
 /* Mensaje coherente con lo que se está hablando en el chat */
 function contextualMsg(p){
-  if(recentChat.length && Math.random() < 0.38){
+  if(recentChat.length && Math.random() < 0.55){
     const last = recentChat[recentChat.length-1];
     const nick = last.nick, txt = last.text;
     const tl = txt.toLowerCase();
@@ -1153,6 +1170,17 @@ function contextualMsg(p){
       "¿Cuál tema decís "+nick+"? Yo también lo quiero saber",
       "Temazo el que sonó, ¿no "+nick+"?"]);
     if(/saludo/.test(tl)) return "¡Saludos para vos también "+nick+"!";
+    if(/en vivo|est[aá]n en vivo/.test(tl)) return pickFrom([
+      "Sí "+nick+", ¡estamos en vivo en "+progName()+"!",
+      "En vivo y en directo "+nick+", qué bueno que estés"]);
+    if(/qu[eé] programa|cu[aá]l programa/.test(tl)) return "Estamos con "+progName()+", "+nick;
+    if(/chau|adi[oó]s|me voy|nos vemos/.test(tl)) return pickFrom([
+      "¡Chau "+nick+"! Gracias por escuchar",
+      "Nos vemos "+nick+", ¡que andes bien!"]);
+    if(/donde queda|ubicaci[oó]n|direcci[oó]n/.test(tl)) return "Somos una radio online "+nick+", ¡nos escuchás desde donde estés!";
+    if(/felicit|genial|excelente|hermoso|b[aá]rbaro/.test(tl)) return pickFrom([
+      "¡Gracias "+nick+"! "+progName()+" es lo más",
+      "Qué bueno que te guste "+nick+", ¡gracias por estar!"]);
     const kws = keywordsOf(txt);
     if(kws.length) return pickFrom([
       "¿Lo de "+kws[0]+" lo comentaron en "+progName()+"?",
@@ -1183,38 +1211,38 @@ window.maybeAutoReply = function(m){
     if(now - lastAutoReply < 90000) return;
     const t = (m.text || "").toLowerCase();
     let pool = null;
-    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)) pool = [
+    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)) pool = XR("hola", [
       "¡Hola {n}! ¿Cómo andás?",
       "Buenas {n}, bienvenido al chat",
       "Holaa {n}, ¿de dónde nos escuchás?",
-      "¡Buenas {n}! Qué bueno verte por acá"];
-    else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(t)) pool = [
+      "¡Buenas {n}! Qué bueno verte por acá"]);
+    else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(t)) pool = XR("tema", [
       "¿Cuál tema decís {n}? Yo también lo quiero saber",
       "Temazo el que sonó recién en {prog}, ¿no?",
-      "¿Alguien anotó el nombre del tema que pide {n}?"];
-    else if(/saludo/.test(t)) pool = [
+      "¿Alguien anotó el nombre del tema que pide {n}?"]);
+    else if(/saludo/.test(t)) pool = XR("saludo", [
       "¡Saludos para vos también {n}!",
       "¡Qué grande {n}! Saludos desde {pais}",
-      "Saludos {n}, ¿de dónde sos?"];
-    else if(/gracias/.test(t)) pool = ["¡De nada {n}!", "¡Un placer!", "Para eso estamos {n}"];
-    else if(/felicit|felicidades|genial|excelente|lo m[aá]s/.test(t)) pool = [
+      "Saludos {n}, ¿de dónde sos?"]);
+    else if(/gracias/.test(t)) pool = XR("gracias", ["¡De nada {n}!", "¡Un placer!", "Para eso estamos {n}"]);
+    else if(/felicit|felicidades|genial|excelente|lo m[aá]s/.test(t)) pool = XR("felicit", [
       "¡Totalmente! {prog} es lo más",
       "Sí, se nota el laburo que hay detrás de {prog}",
-      "Coincido {n}, {prog} la rompe"];
-    else if(/d[oó]nde sos|de d[oó]nde|pa[ií]s/.test(t)) pool = [
+      "Coincido {n}, {prog} la rompe"]);
+    else if(/d[oó]nde sos|de d[oó]nde|pa[ií]s/.test(t)) pool = XR("donde", [
       "Yo soy de {pais}, ¿y vos {n}?",
-      "Acá {pais} presente, ¿y vos {n} de dónde?"];
-    else if(/programa|radio/.test(t)) pool = [
+      "Acá {pais} presente, ¿y vos {n} de dónde?"]);
+    else if(/programa|radio/.test(t)) pool = XR("programa", [
       "¿Cuál es tu programa favorito {n}?",
-      "Yo no me pierdo {prog}"];
-    else if(/jaja+|\u0001f602|\u0001f923/.test(t)) pool = [
+      "Yo no me pierdo {prog}"]);
+    else if(/jaja+|\u0001f602|\u0001f923/.test(t)) pool = XR("jaja", [
       "Jaja, ¿qué pasó {n}?",
       "Jajaja, me hiciste reír {n}",
-      "¿De qué se ríen? Contá {n}"];
-    else if(/\?/.test(t)) pool = [
+      "¿De qué se ríen? Contá {n}"]);
+    else if(/\?/.test(t)) pool = XR("pregunta", [
       "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
-      "Seguro lo responden al aire en un rato"];
+      "Seguro lo responden al aire en un rato"]);
     else if(Math.random() < 0.22) pool = [
       "Totalmente de acuerdo",
       "Jaja, muy bueno",
@@ -1328,7 +1356,7 @@ const CARTELERA = [
   {n:"So Ham", d:1, h:14, mi:0, cond:"Helena", lug:"Espa\u00f1a", img:"https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg", eh:15, emi:0},
   {n:"Mucho por Vivir", d:2, h:22, mi:30, cond:"Benjam\u00edn", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg", eh:23, emi:30},
   {n:"El Div\u00e1n", d:3, h:17, mi:0, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png", eh:18, emi:0},
-  {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis, Argentina", img:"https://files.catbox.moe/0yee2x.jpg", eh:23, emi:0}
+  {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis, Argentina", img:"https://files.catbox.moe/gt19vd.jpg", eh:23, emi:0}
 ];
 const DIAS_N = ["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"];
 function fmtFalta(ms){
