@@ -1179,62 +1179,6 @@ function keywordsOf(txt){
     .filter(w=>w.length>4 && !stop.has(w) && w.indexOf("http")!==0 && w.charAt(0)!==":").slice(0,2);
 }
 /* Mensaje coherente con lo que se está hablando en el chat */
-function contextualMsg(p){
-  if(recentChat.length && Math.random() < 0.55){
-    const last = recentChat[recentChat.length-1];
-    const nick = last.nick, txt = last.text;
-    const tl = txt.toLowerCase();
-    if(/\?/.test(txt)) return pickFrom([
-      "Buena pregunta "+nick+", yo también quiero saber",
-      "A ver si en "+progName()+" responden lo de "+nick,
-      "Me sumo a la duda de "+nick+" jaja"]);
-    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(tl)){
-      const first = !greetedHumans.has(nick); greetedHumans.add(nick);
-      return first ? pickFrom(["¡Hola "+nick+"! Bienvenido","Buenas "+nick+", ¿de dónde nos escuchás?"])
-                   : pickFrom(["¡Hola de nuevo "+nick+"!","¡Buenas "+nick+", qué bueno verte!"]);
-    }
-    if(/gracias/.test(tl)) return "¡De nada "+nick+"!";
-    if(/tema|canci[oó]n|m[uú]sica/.test(tl)) return pickFrom([
-      "¿Cuál tema decís "+nick+"? Yo también lo quiero saber",
-      "Temazo el que sonó, ¿no "+nick+"?"]);
-    if(/saludo/.test(tl)) return "¡Saludos para vos también "+nick+"!";
-    if(/en vivo|est[aá]n en vivo/.test(tl)) return pickFrom([
-      "Sí "+nick+", ¡estamos en vivo en "+progName()+"!",
-      "En vivo y en directo "+nick+", qué bueno que estés"]);
-    if(/qu[eé] programa|cu[aá]l programa/.test(tl)) return "Estamos con "+progName()+", "+nick;
-    if(/a qu[eé] hora|cu[aá]ndo|horario/.test(tl)) return "Los horarios los anuncia Radio Intensa en el chat, "+nick;
-    if(/chau|adi[oó]s|me voy|nos vemos/.test(tl)) return pickFrom([
-      "¡Chau "+nick+"! Gracias por escuchar",
-      "Nos vemos "+nick+", ¡que andes bien!"]);
-    if(/donde queda|ubicaci[oó]n|direcci[oó]n/.test(tl)) return "Somos una radio online "+nick+", ¡nos escuchás desde donde estés!";
-    if(/felicit|genial|excelente|hermoso|b[aá]rbaro/.test(tl)) return pickFrom([
-      "¡Gracias "+nick+"! "+progName()+" es lo más",
-      "Qué bueno que te guste "+nick+", ¡gracias por estar!"]);
-    if(/triste|llorar|baj[oó]n|dif[ií]cil|problema|duelo/.test(tl)) return pickFrom([
-      "Fuerza "+nick+", acá estamos para hacerte compañía",
-      "Te mando un abrazo grande "+nick]);
-    if(/calor|fr[ií]o|lluvia|lloviendo|clima/.test(tl)) return "¿Cómo está el clima por tu zona "+nick+"?";
-    if(/no se escucha|no anda|se corta/.test(tl)) return "¿No se escucha "+nick+"? Probá recargar la página";
-    const kws = keywordsOf(txt);
-    if(kws.length) return pickFrom([
-      "¿Lo de "+kws[0]+" lo comentaron en "+progName()+"?",
-      "Contame más de eso de "+kws[0]+", "+nick,
-      "Mirá vos, "+kws[0]+", no sabía",
-      "Qué interesante eso de "+kws[0]+", "+nick]);
-    return pickFrom([
-      nick+" tiene razón en eso",
-      "Coincido con lo que dice "+nick,
-      "Muy bueno lo que comentás "+nick]);
-  }
-  if(lastBot && Math.random() < 0.22){   /* picar entre oyentes, como en un chat real */
-    return pickFrom([
-      "Jaja, tal cual "+lastBot.nick,
-      "Coincido con "+lastBot.nick,
-      lastBot.nick+", me hiciste reír",
-      "Eso mismo iba a decir, "+lastBot.nick]);
-  }
-  return null;
-}
 const greetedHumans = new Set();
 let lastAutoReply = 0;
 window.maybeAutoReply = function(m){
@@ -1309,6 +1253,13 @@ window.maybeAutoReply = function(m){
     else if(/qui[eé]n conduce|qui[eé]n est[aá]|quien es el/.test(t)) pool = [
       "Ahora está {prog} al aire, {n}",
       "Es el programa {prog}, {n}, ¡quedate escuchando!"];
+    else if(/cu[aá]ntos a[nñ]os|qu[eé] edad|edad ten[eé]s/.test(t)) pool = [
+      "Tengo {edad} años, {n}",
+      "Tengo {edad}, {n}, ¿y vos cuántos tenés?",
+      "{edad} pirulos, {n} jaja"];
+    else if(/a qu[eé] te dedic[aá]s|en qu[eé] trabaj[aá]s|qu[eé] hac[eé]s de|tu trabajo/.test(t)) pool = [
+      "Soy {ocupa}, {n}",
+      "Trabajo de {ocupa}, {n}, ¿y vos?"];
     else if(/\?/.test(t)) pool = XR("pregunta", [
       "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
@@ -1326,12 +1277,14 @@ window.maybeAutoReply = function(m){
     const actA = getActive().length ? getActive() : personas;
     const per = directedNick || threadNick || actA[Math.floor(Math.random()*actA.length)];
     lastConvo = {human: m.nick, bot: per.nick, ts: now};
-    let text = pickReply(pool)
-      .replaceAll("{n}", m.nick)
-      .replaceAll("{prog}", progName())
-      .replaceAll("{pais}", per.pais || "");
-    if(botDup(text)){ const alt = pickReply(pool).replaceAll("{n}", m.nick).replaceAll("{prog}", progName()).replaceAll("{pais}", per.pais || ""); if(!botDup(alt)) text = alt; }
-    botMark(text);
+    const prof = ((window.NICK_PROFILES||{})[per.nick]) || {edad:"?", ocupa:"?"};
+    function fill(s){ return s.replaceAll("{n}", m.nick).replaceAll("{prog}", progName()).replaceAll("{pais}", per.pais || "").replaceAll("{edad}", prof.edad).replaceAll("{ocupa}", prof.ocupa); }
+    let text = fill(pickReply(pool));
+    for(let ri=0; ri<3 && (!botTextDiverse(text) || botDup(text)); ri++){
+      const alt = fill(pickReply(pool));
+      if(botTextDiverse(alt) && !botDup(alt)){ text = alt; break; }
+    }
+    botMark(text); botTextPush(text);
     if(/^lali$/i.test(m.nick||"")) text = text.replace(/\bbienvenido\b/g, "bienvenida");
     setTimeout(async ()=>{
       try{
@@ -1403,13 +1356,15 @@ function botLoop(){
         if(p.nick === lastBotNick) p = pickFrom(act0);
         lastBotNick = p.nick;
         let msg = null;
+        const justReplied = Date.now() - lastAutoReply < 90000;
         for(let att=0; att<5; att++){
           let cand;
           if(!ambientMsg && Math.random() < 0.12 && window.JOKES && window.JOKES.length) cand = pickJoke();
-          else cand = (ambientMsg || contextualMsg(p) || pickFresh(p));
+          else cand = (ambientMsg || (!justReplied && contextualMsg(p)) || pickFresh(p));
           cand = cand.replaceAll("{prog}", progName());
-          if(!botDup(cand) || att===4){ msg = cand; break; }
+          if((!botDup(cand) && botTextDiverse(cand)) || att===4){ msg = cand; break; }
         }
+        if(msg) botTextPush(msg);
         botMark(msg);
         typingEl.textContent = p.nick + " está escribiendo...";
         await new Promise(r=>setTimeout(r, 2000 + Math.random()*2500));
