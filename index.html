@@ -1202,8 +1202,11 @@ window.maybeAutoReply = function(m){
     const directedNick = findDirectedNick(t);
     const threadNick = findThreadNick(m.nick, directedNick, now);
     const isThread = !!(directedNick || threadNick);
-    if(!isThread && now - lastAutoReply < 90000) return;
-    if(isThread && now - lastAutoReply < 15000) return;
+    const isExplicitAt = !!(directedNick && (m.text||"").includes("@"));
+    let cdMs = 90000;
+    if(isExplicitAt) cdMs = 5000;
+    else if(isThread) cdMs = 15000;
+    if(now - lastAutoReply < cdMs) return;
     const cp = countryPoolFor(m);
     const ctx = cp ? cp.ctx : humanCtx(m.nick);
     const mentioned = cp ? cp.mentioned : null;
