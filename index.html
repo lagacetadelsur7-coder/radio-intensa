@@ -1287,6 +1287,13 @@ window.maybeAutoReply = function(m){
       "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
       "Seguro lo responden al aire en un rato"]);
+    else if(isExplicitAt){
+      pool = [
+        "¡Hola {n}! ¿Qué me contás?",
+        "Acá estoy {n}, ¿qué onda?",
+        "Decime {n}, te escucho",
+        "¡{n}! Qué bueno que me hablas directo"];
+    }
     else {
       const kws = keywordsOf(m.text);
       if(kws.length) pool = [
@@ -1299,6 +1306,7 @@ window.maybeAutoReply = function(m){
     lastAutoReply = now;
     const actA = getActive().length ? getActive() : personas;
     const per = directedNick || threadNick || actA[Math.floor(Math.random()*actA.length)];
+    if(per && per.nick) lastReplyByNick[per.nick] = now;
     lastConvo = {human: m.nick, bot: per.nick, ts: now};
     let text = buildBotText(m, per, pool);
     botMark(text); botTextPush(text);
@@ -1313,7 +1321,8 @@ window.maybeAutoReply = function(m){
           const actB = getActive().length ? getActive() : personas;
             const p2 = pickFrom(actB.filter(x=>x.nick !== per.nick));
           let t2 = pickFollowUp((m.text||"").toLowerCase(), per.nick, m.nick, text);
-          botMark(t2);
+          if(!t2 || botDup(t2) || !botTextDiverse(t2)) return;
+          botMark(t2); botTextPush(t2);
           setTimeout(async ()=>{
             try{ await sb.from("messages").insert({nick:p2.nick, text:t2}); }catch(e){}
           }, 9000 + Math.random()*9000);
