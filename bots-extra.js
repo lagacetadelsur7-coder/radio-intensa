@@ -252,3 +252,49 @@ window.JOKES = [
 "¿En qué se parece {prog} al café? ¡En que sin ellos no arranco! ☕",
 "Le conté un chiste a {prog} por el chat... ¡todavía se están riendo! 🤣"
 ];
+
+/* ============ PROMO INSTAGRAM CADA 15 MIN ============ */
+const INSTAGRAM_MSGS=[
+"¡Seguinos en Instagram! Fotos, novedades y todo lo de Radio Intensa.",
+"¿Ya nos seguís en Instagram? ¡Sumate a la comunidad de Intensa!",
+"En nuestro Instagram te enterás de todo antes que nadie. ¡Seguinos!"
+];
+function instagramTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==14) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_instagram")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0;
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[INSTAGRAM]"+INSTAGRAM_MSGS[idx%INSTAGRAM_MSGS.length]});
+    try{ localStorage.setItem("ri_instagram", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+setInterval(instagramTick, 60000);
+
+/* ============ PROMO RADIO CADA 15 MIN ============ */
+const RADIO_MSGS=[
+"¿Ya estás escuchando en vivo? ¡Subí el volumen que Radio Intensa no para!",
+"Radio Intensa, tu compañía de todos los días. ¡Compartila con tus amigos!",
+"Estamos en vivo las 24 horas. ¡Quedate, que lo mejor está por venir!"
+];
+function radioTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==2) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_radio")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0;
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[RADIO]"+RADIO_MSGS[idx%RADIO_MSGS.length]});
+    try{ localStorage.setItem("ri_radio", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+setInterval(radioTick, 60000);
