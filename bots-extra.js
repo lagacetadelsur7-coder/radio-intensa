@@ -604,3 +604,14 @@ function findDirectedNick(t){
   });
   return best;
 }
+/* Hilo de conversación: si el humano sigue hablando sin nombrar a otro nick,
+   continúa respondiendo el mismo nick (como en una charla real) */
+let lastConvo = {human:"", bot:"", ts:0};
+function findThreadNick(mNick, directedNick, now){
+  if(directedNick) return null;
+  if(lastConvo.human===mNick && lastConvo.bot && now-lastConvo.ts<3e5){
+    const f = personas.filter(pp=>pp.nick===lastConvo.bot);
+    if(f.length) return f[0];
+  }
+  return null;
+}
