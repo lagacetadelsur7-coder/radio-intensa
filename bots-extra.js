@@ -582,3 +582,25 @@ function maybeSwapNicks(){
     }
   }catch(e){}
 }
+
+/* Si el humano le habla a un nick por su nombre ("Rulo, ¿de dónde sos?"), responde ESE nick */
+function findDirectedNick(t){
+  let best = null, bestLen = 0;
+  personas.forEach(p=>{
+    const nl = p.nick.toLowerCase();
+    const variants = [nl];
+    const first = nl.split(/\s+/)[0];
+    if(first !== nl) variants.push(first);
+    const stripped = nl.replace(/(rc|mx|ar|ok)$/, "");
+    if(stripped !== nl && stripped.length >= 3) variants.push(stripped);
+    variants.forEach(v=>{
+      if(v.length < 3) return;
+      const esc = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      try{
+        const re = new RegExp("(?<![a-záéíóúñü])" + esc + "(?![a-záéíóúñü])");
+        if(re.test(t) && v.length > bestLen){ best = p; bestLen = v.length; }
+      }catch(e){}
+    });
+  });
+  return best;
+}
