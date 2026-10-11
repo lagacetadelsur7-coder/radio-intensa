@@ -1335,6 +1335,17 @@ function claimLeadership(){
 }
 setInterval(()=>{ if(botsOn && amLeader()) claimLeadership(); }, 5000);
 
+/* Chistes sin repetir: evita los últimos 40 usados */
+let _usedJokes = [];
+function pickJoke(){
+  const J = window.JOKES || [];
+  if(!J.length) return "";
+  let idx = Math.floor(Math.random()*J.length), tries = 0;
+  while(_usedJokes.includes(idx) && tries < 25){ idx = Math.floor(Math.random()*J.length); tries++; }
+  _usedJokes.push(idx);
+  if(_usedJokes.length > 40) _usedJokes.shift();
+  return J[idx];
+}
 function botLoop(){
   const delay = 30000 + Math.random()*45000;
   setTimeout(async ()=>{
@@ -1359,7 +1370,7 @@ function botLoop(){
         let msg = null;
         for(let att=0; att<5; att++){
           let cand;
-          if(!ambientMsg && Math.random() < 0.12 && window.JOKES && window.JOKES.length) cand = pickFrom(window.JOKES);
+          if(!ambientMsg && Math.random() < 0.12 && window.JOKES && window.JOKES.length) cand = pickJoke();
           else cand = (ambientMsg || contextualMsg(p) || pickFresh(p));
           cand = cand.replaceAll("{prog}", progName());
           if(!botDup(cand) || att===4){ msg = cand; break; }
