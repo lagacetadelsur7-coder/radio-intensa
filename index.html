@@ -1188,9 +1188,11 @@ function contextualMsg(p){
       "Buena pregunta "+nick+", yo también quiero saber",
       "A ver si en "+progName()+" responden lo de "+nick,
       "Me sumo a la duda de "+nick+" jaja"]);
-    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(tl)) return pickFrom([
-      "¡Hola "+nick+"! Bienvenido",
-      "Buenas "+nick+", ¿de dónde nos escuchás?"]);
+    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(tl)){
+      const first = !greetedHumans.has(nick); greetedHumans.add(nick);
+      return first ? pickFrom(["¡Hola "+nick+"! Bienvenido","Buenas "+nick+", ¿de dónde nos escuchás?"])
+                   : pickFrom(["¡Hola de nuevo "+nick+"!","¡Buenas "+nick+", qué bueno verte!"]);
+    }
     if(/gracias/.test(tl)) return "¡De nada "+nick+"!";
     if(/tema|canci[oó]n|m[uú]sica/.test(tl)) return pickFrom([
       "¿Cuál tema decís "+nick+"? Yo también lo quiero saber",
@@ -1200,6 +1202,7 @@ function contextualMsg(p){
       "Sí "+nick+", ¡estamos en vivo en "+progName()+"!",
       "En vivo y en directo "+nick+", qué bueno que estés"]);
     if(/qu[eé] programa|cu[aá]l programa/.test(tl)) return "Estamos con "+progName()+", "+nick;
+    if(/a qu[eé] hora|cu[aá]ndo|horario/.test(tl)) return "Los horarios los anuncia Radio Intensa en el chat, "+nick;
     if(/chau|adi[oó]s|me voy|nos vemos/.test(tl)) return pickFrom([
       "¡Chau "+nick+"! Gracias por escuchar",
       "Nos vemos "+nick+", ¡que andes bien!"]);
@@ -1232,6 +1235,7 @@ function contextualMsg(p){
   }
   return null;
 }
+const greetedHumans = new Set();
 let lastAutoReply = 0;
 window.maybeAutoReply = function(m){
   try{
@@ -1241,11 +1245,17 @@ window.maybeAutoReply = function(m){
     if(now - lastAutoReply < 90000) return;
     const t = (m.text || "").toLowerCase();
     let pool = null;
-    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)) pool = XR("hola", [
-      "¡Hola {n}! ¿Cómo andás?",
-      "Buenas {n}, bienvenido al chat",
-      "Holaa {n}, ¿de dónde nos escuchás?",
-      "¡Buenas {n}! Qué bueno verte por acá"]);
+    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)){
+      const first = !greetedHumans.has(m.nick); greetedHumans.add(m.nick);
+      pool = first ? XR("hola", [
+        "¡Hola {n}! ¿Cómo andás?",
+        "Buenas {n}, bienvenido al chat",
+        "Holaa {n}, ¿de dónde nos escuchás?",
+        "¡Buenas {n}! Qué bueno verte por acá"])
+      : ["¡Hola de nuevo {n}!",
+        "¡Buenas {n}, qué bueno verte por acá!",
+        "Holaa {n} 👋"];
+    }
     else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(t)) pool = XR("tema", [
       "¿Cuál tema decís {n}? Yo también lo quiero saber",
       "Temazo el que sonó recién en {prog}, ¿no?",
@@ -1289,6 +1299,12 @@ window.maybeAutoReply = function(m){
       "Jaja, ¿qué pasó {n}?",
       "Jajaja, me hiciste reír {n}",
       "¿De qué se ríen? Contá {n}"]);
+    else if(/a qu[eé] hora|cu[aá]ndo empieza|horario|cuando arranca/.test(t)) pool = [
+      "Los horarios los anuncia Radio Intensa acá en el chat, {n}",
+      "La programación está en la página, {n}, ¡no te pierdas nada!"];
+    else if(/qui[eé]n conduce|qui[eé]n est[aá]|quien es el/.test(t)) pool = [
+      "Ahora está {prog} al aire, {n}",
+      "Es el programa {prog}, {n}, ¡quedate escuchando!"];
     else if(/\?/.test(t)) pool = XR("pregunta", [
       "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
@@ -1366,6 +1382,7 @@ function botLoop(){
     try{
       if(botsOn && amLeader()){
         claimLeadership();
+        maybeSwapNicks();
         const humanActive = Date.now() - lastHumanTs < 30*60*1000;
         let doPost = humanActive, ambientMsg = null;
         if(!humanActive){
