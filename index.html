@@ -1244,8 +1244,10 @@ window.maybeAutoReply = function(m){
     const now = Date.now();
     const t = (m.text || "").toLowerCase();
     const directedNick = findDirectedNick(t);
-    if(!directedNick && now - lastAutoReply < 90000) return;
-    if(directedNick && now - lastAutoReply < 15000) return;
+    const threadNick = findThreadNick(m.nick, directedNick, now);
+    const isThread = !!(directedNick || threadNick);
+    if(!isThread && now - lastAutoReply < 90000) return;
+    if(isThread && now - lastAutoReply < 15000) return;
     let pool = null;
     if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)){
       const first = !greetedHumans.has(m.nick); greetedHumans.add(m.nick);
@@ -1322,7 +1324,8 @@ window.maybeAutoReply = function(m){
     if(!pool) return;
     lastAutoReply = now;
     const actA = getActive().length ? getActive() : personas;
-    const per = directedNick || actA[Math.floor(Math.random()*actA.length)];
+    const per = directedNick || threadNick || actA[Math.floor(Math.random()*actA.length)];
+    lastConvo = {human: m.nick, bot: per.nick, ts: now};
     let text = pickReply(pool)
       .replaceAll("{n}", m.nick)
       .replaceAll("{prog}", progName())
