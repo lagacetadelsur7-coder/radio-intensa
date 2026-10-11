@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="bots-extra.js?v=10"></script>
+<script src="bots-extra.js?v=11"></script>
 <style>
 :root{
   --bg:#07070f; --panel:#0d0d1a; --panel2:#121224;
@@ -1199,6 +1199,7 @@ window.maybeAutoReply = function(m){
   try{
     if(!botsOn || !amLeader()) return;
     if(!m || botNickSet.has(m.nick)) return;
+    if(m.id){ try{ const _k="ri_proc_"+m.id; if(localStorage.getItem(_k)) return; localStorage.setItem(_k,"1"); }catch(e){} }
     const now = Date.now();
     const t = (m.text || "").toLowerCase();
     const directedNick = findDirectedNick(t);
