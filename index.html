@@ -1206,15 +1206,15 @@ window.maybeAutoReply = function(m){
     const isThread = !!(directedNick || threadNick);
     const isExplicitAt = !!(directedNick && (m.text||"").includes("@"));
     const replyNickName = directedNick ? directedNick.nick : (threadNick ? threadNick.nick : null);
+    const cp = countryPoolFor(m);
+    const ctx = cp ? cp.ctx : humanCtx(m.nick);
+    const mentioned = cp ? cp.mentioned : null;
     const isGreeting = /hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t) && !mentioned;
     let cdMs = 90000, refTs = lastAutoReply;
     if(isGreeting){ /* cooldown propio por humano, no el global */ }
     else if(isExplicitAt){ cdMs = 5000; refTs = lastReplyByNick[replyNickName] || 0; }
     else if(isThread){ cdMs = 15000; refTs = lastReplyByNick[replyNickName] || 0; }
     if(!isGreeting && now - refTs < cdMs) return;
-    const cp = countryPoolFor(m);
-    const ctx = cp ? cp.ctx : humanCtx(m.nick);
-    const mentioned = cp ? cp.mentioned : null;
     let pool = cp ? cp.pool : null;
     if(mentioned && pool) {} else if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t)){
       if(now - (lastGreetByHuman[m.nick] || 0) < 30000) return;
@@ -1335,7 +1335,7 @@ window.maybeAutoReply = function(m){
           }, 9000 + Math.random()*9000);
         }
       }catch(e){}
-    }, 4000 + Math.random()*6000);
+    }, (isExplicitAt || isGreeting) ? 500 + Math.random()*1000 : 1500 + Math.random()*2000);
   }catch(e){}
 };
 
