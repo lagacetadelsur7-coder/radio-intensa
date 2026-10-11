@@ -459,7 +459,7 @@ function instagramTick(){
     try{ localStorage.setItem("ri_instagram", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
   }catch(e){}
 }
-setInterval(instagramTick, 60000);
+/* OFF: las promos las publica el cron del servidor cada 15 min */
 
 /* ============ PROMO RADIO CADA 15 MIN ============ */
 const RADIO_MSGS=[
@@ -482,7 +482,7 @@ function radioTick(){
     try{ localStorage.setItem("ri_radio", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
   }catch(e){}
 }
-setInterval(radioTick, 60000);
+/* OFF: las promos las publica el cron del servidor cada 15 min */
 
 /* Segundo nick: responde coherente con lo que dijo el humano, sin repetir lo mismo */
 function followUpFor(ht, firstNick, humanNick){
@@ -525,4 +525,36 @@ function pickJoke(){
   _usedJokes.push(idx);
   if(_usedJokes.length > 40) _usedJokes.shift();
   return J[idx];
+}
+/* Saludos de entrada: cuando un nick "llega" a la sala */
+window.JOIN_MSGS = [
+"Holaa, recién llego 👋 ¿qué me perdí?",
+"Buenas gente, ¿cómo andan?",
+"Acá estoy 🙋 ¿de qué hablan?",
+"Hola hola, me sumo un rato",
+"Buenas 👋 recién prendo la radio",
+"¡Llegué! ¿Qué están escuchando?",
+"Hola a todos, ¿cómo va la noche?",
+"Recién entro, ¿me cuentan qué onda {prog}?"
+];
+
+/* Entradas y salidas: cada 12-25 min sale un nick y entra uno nuevo del pool diario */
+let lastSwap = 0;
+function maybeSwapNicks(){
+  try{
+    const now = Date.now();
+    if(now - lastSwap < (12 + Math.random()*13)*60*1000) return;
+    lastSwap = now;
+    const daily = getDaily(), cur = getActive();
+    const outsiders = daily.filter(x => cur.indexOf(x) === -1);
+    if(!outsiders.length || cur.length < 2) return;
+    const leaver = cur[Math.floor(Math.random()*cur.length)];
+    const joiner = outsiders[Math.floor(Math.random()*outsiders.length)];
+    const idx = activeSet.indexOf(leaver);
+    if(idx >= 0) activeSet[idx] = joiner;
+    if(botsOn && amLeader() && now - lastHumanTs < 30*60*1000 && window.JOIN_MSGS && Math.random() < 0.7){
+      const text = pickFrom(window.JOIN_MSGS).replaceAll("{prog}", progName());
+      if(!botDup(text)){ botMark(text); sb.from("messages").insert({nick: joiner.nick, text: text}); }
+    }
+  }catch(e){}
 }
