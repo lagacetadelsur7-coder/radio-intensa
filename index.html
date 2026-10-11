@@ -583,7 +583,7 @@ const seen = new Set();
     }
   });
 })();
-const botGender = {"Lau de Quilmes":"f","JorgitoRC":"m","Sofi_MX":"f","Andr\u00e9s_CO":"m","Cami_CL":"f","Luc\u00eda_ES":"f","Diego_PE":"m","Valen_UY":"m","Pame_AR":"f","Rulo_MX":"m","Nico_CO":"m","Trini_CL":"f","Iker_ES":"m","Camila_PE":"f"};
+const botGender = {"Lau de Quilmes":"f","JorgitoRC":"m","Sofía Herrera":"f","Andrés":"m","Cami":"f","Lucía Fernández":"f","Diego":"m","Valentín Sosa":"m","Pame":"f","Rulo":"m","Nico Restrepo":"m","Trini":"f","Iker":"m","Camila Torres":"f"};
 const M_FACES = ["\u{1F468}","\u{1F9D4}","\u{1F468}\u200D\u{1F9B1}","\u{1F468}\u200D\u{1F9B0}","\u{1F471}\u200D\u2642\uFE0F","\u{1F9D1}\u200D\u{1F9B0}"];
 const F_FACES = ["\u{1F469}","\u{1F469}\u200D\u{1F9B1}","\u{1F469}\u200D\u{1F9B0}","\u{1F471}\u200D\u2640\uFE0F","\u{1F469}\u200D\u{1F9B3}","\u{1F9D1}\u200D\u{1F9B3}"];
 const N_FACES = ["\u{1F9D1}","\u{1F642}","\u{1F60E}","\u{1F920}","\u{1F98A}","\u{1F431}","\u{1F43C}","\u{1F981}"];
@@ -595,7 +595,7 @@ function faceFor(nick, g){
   for(let i=0;i<nick.length;i++){ h = (h*31 + nick.codePointAt(i)) >>> 0; }
   return pool[h % pool.length];
 }
-const botNicks = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE","Radio Intensa"]);
+const botNicks = new Set(["Lau de Quilmes","JorgitoRC","Sofía Herrera","Andrés","Cami","Lucía Fernández","Diego","Valentín Sosa","Pame","Rulo","Nico Restrepo","Trini","Iker","Camila Torres","Radio Intensa"]);
 
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function fmtTime(ts){
@@ -693,7 +693,7 @@ function addMsg(m){
   const isBot = botNicks.has(m.nick);
   const isMe = m.nick === getNick() && !isBot;
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
-  const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofi_MX":"#ff7a1a","Andrés_CO":"#39ff6a","Cami_CL":"#b78bff","Lucía_ES":"#ffd23f","Diego_PE":"#ff5f8f","Valen_UY":"#7df9ff","Pame_AR":"#ff9f1c","Rulo_MX":"#39ff6a","Nico_CO":"#ffd23f","Trini_CL":"#ee334e","Iker_ES":"#ff5d5d","Camila_PE":"#ff70a6","Radio Intensa":"#ff2fd6"};
+  const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofía Herrera":"#ff7a1a","Andrés":"#39ff6a","Cami":"#b78bff","Lucía Fernández":"#ffd23f","Diego":"#ff5f8f","Valentín Sosa":"#7df9ff","Pame":"#ff9f1c","Rulo":"#39ff6a","Nico Restrepo":"#ffd23f","Trini":"#ee334e","Iker":"#ff5d5d","Camila Torres":"#ff70a6","Radio Intensa":"#ff2fd6"};
   const g = botGender[m.nick] || (m.nick===getNick() ? myGender : "");
   const face = faceFor(m.nick, g);
   const ncol = colors[m.nick]||"#eef0ff";
@@ -913,7 +913,7 @@ const personas = [
     "El otro día me perdí {prog}, ¿lo suben a algún lado?",
     "¿Pasan cumbia en {prog}?",
     "Qué grande la gente de {prog}, siempre presentes"]},
-  {nick:"Sofi_MX", pais:"México", msgs:[
+  {nick:"Sofía Herrera", pais:"México", msgs:[
     "¡Qué onda! Saludos desde Guadalajara, me encanta {prog}",
     "Órale, qué buen programa {prog}, felicidades",
     "Acá en México escuchando {prog}, ¡está padrísimo!",
@@ -926,7 +926,7 @@ const personas = [
     "¿Tienen redes donde suban lo mejor de {prog}?",
     "¿Qué están cenando mientras escuchan {prog}? Yo tacos",
     "Me encanta el acento de los de {prog}"]},
-  {nick:"Andrés_CO", pais:"Colombia", msgs:[
+  {nick:"Andrés", pais:"Colombia", msgs:[
     "Parce, qué buen programa {prog}",
     "Saludos desde Medellín, {prog} la rompe",
     "¿Qué más gente? ¿Cómo les va con {prog}?",
@@ -939,7 +939,7 @@ const personas = [
     "Qué bacano que se escuchen desde tantos países",
     "¿Escucharon el tema nuevo que pusieron en {prog}?",
     "Parce, ¿{prog} es en vivo o grabado?"]},
-  {nick:"Cami_CL", pais:"Chile", msgs:[
+  {nick:"Cami", pais:"Chile", msgs:[
     "¡Hola! Acá desde Santiago escuchando {prog}, bacán",
     "Felicitaciones por {prog}, se escucha filete",
     "Saludos a todos desde Chile, ¿cachai lo bueno que está {prog}?",
@@ -952,7 +952,7 @@ const personas = [
     "¿Alguien más de Chile por acá escuchando {prog}?",
     "¿Les gusta el horario de {prog}?",
     "Acá tomando once con {prog} de fondo"]},
-  {nick:"Lucía_ES", pais:"España", msgs:[
+  {nick:"Lucía Fernández", pais:"España", msgs:[
     "¡Hola desde Barcelona! {prog} mola un montón",
     "Qué guay {prog}, saludos desde España",
     "Felicidades por el programa, se escucha genial",
@@ -965,7 +965,7 @@ const personas = [
     "Felicidades a los conductores de {prog}, qué arte",
     "¿Cuántas horas de diferencia hay con Argentina?",
     "Me flipa {prog}, en serio"]},
-  {nick:"Diego_PE", pais:"Perú", msgs:[
+  {nick:"Diego", pais:"Perú", msgs:[
     "¡Qué tal gente! Desde Lima escuchando {prog}",
     "Chévere {prog} hoy, saludos",
     "Un saludo para todos desde Perú",
@@ -978,7 +978,7 @@ const personas = [
     "¿Alguien sabe si {prog} tiene podcast?",
     "¿Qué tal el audio? Se escucha perfecto hasta acá",
     "Un abrazo a todos los de {prog}"]},
-  {nick:"Valen_UY", pais:"Uruguay", msgs:[
+  {nick:"Valentín Sosa", pais:"Uruguay", msgs:[
     "Bo, qué bueno {prog} hoy",
     "Saludos desde Montevideo, ta buenísimo {prog}",
     "Felicitaciones por el programa",
@@ -991,7 +991,7 @@ const personas = [
     "¿A qué hora arranca {prog} mañana?",
     "¿Toman mate escuchando {prog}? Yo sí",
     "Bo, qué nivel {prog} hoy"]},
-  {nick:"Pame_AR", pais:"Argentina", color:"#ff9f1c", msgs:[
+  {nick:"Pame", pais:"Argentina", color:"#ff9f1c", msgs:[
     "¿Qué onda gente? Recién llego, ¿qué me perdí de {prog}?",
     "Che, ¿a alguien más le pasa que {prog} se le pasa volando?",
     "Acá con el mate, escuchando {prog}, qué plan",
@@ -1004,7 +1004,7 @@ const personas = [
     "¿Repite {prog} en la semana o solo en vivo?",
     "Saludos a los conductores de {prog}, genios totales",
     "Acá cenando con {prog} de fondo, qué rico"]},
-  {nick:"Rulo_MX", pais:"México", color:"#39ff6a", msgs:[
+  {nick:"Rulo", pais:"México", color:"#39ff6a", msgs:[
     "¡Órale! ¿Qué tal {prog} hoy?",
     "¿Pasaron rolas nuevas en {prog}?",
     "Qué chido que {prog} tenga oyentes de tantos lados",
@@ -1017,7 +1017,7 @@ const personas = [
     "¿Repiten los programas o solo salen en vivo?",
     "Me late mucho la conducción de {prog}",
     "Acá con unos tacos escuchando {prog}"]},
-  {nick:"Nico_CO", pais:"Colombia", color:"#ffd23f", msgs:[
+  {nick:"Nico Restrepo", pais:"Colombia", color:"#ffd23f", msgs:[
     "¿Qué más pues? ¿Cómo va {prog}?",
     "¿Sonó vallenato en {prog} hoy?",
     "Qué chimba {prog}, parce",
@@ -1030,7 +1030,7 @@ const personas = [
     "¿Alguien sabe si {prog} queda grabado?",
     "Ese {prog} no falla nunca",
     "Acá con un tinto escuchando {prog}"]},
-  {nick:"Trini_CL", pais:"Chile", color:"#ee334e", msgs:[
+  {nick:"Trini", pais:"Chile", color:"#ee334e", msgs:[
     "Hola a todos, ¿qué tal {prog}?",
     "¿Ponen música chilena en {prog}?",
     "Qué bacán {prog} hoy",
@@ -1043,7 +1043,7 @@ const personas = [
     "¿Se puede pedir temas en {prog}?",
     "Aguante {prog}, el mejor panorama",
     "Acá con la once y {prog} de fondo"]},
-  {nick:"Iker_ES", pais:"España", color:"#ff5d5d", msgs:[
+  {nick:"Iker", pais:"España", color:"#ff5d5d", msgs:[
     "¡Buenas! ¿Qué tal {prog}?",
     "¿Suenan grupos españoles en {prog}?",
     "Qué guay {prog}, tío",
@@ -1056,7 +1056,7 @@ const personas = [
     "¿Se puede participar en {prog} desde acá?",
     "Me encanta el humor de {prog}",
     "Acá cenando con {prog} de fondo"]},
-  {nick:"Camila_PE", pais:"Perú", color:"#ff70a6", msgs:[
+  {nick:"Camila Torres", pais:"Perú", color:"#ff70a6", msgs:[
     "¡Hola! ¿Cómo está {prog} hoy?",
     "¿Ponen cumbia peruana en {prog}?",
     "Qué lindo {prog}, me encanta",
@@ -1075,7 +1075,7 @@ try{ if(window.EXTRA_MSGS) personas.forEach(function(p){ var e=window.EXTRA_MSGS
 /* Helper: suma respuestas extra por tema */
 function XR(k, arr){ try{ var x=window.EXTRA_REPLIES&&window.EXTRA_REPLIES[k]; if(x&&x.length) return arr.concat(x); }catch(e){} return arr; }
 /* Respuestas automáticas cuando un oyente real escribe */
-const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofi_MX","Andrés_CO","Cami_CL","Lucía_ES","Diego_PE","Valen_UY","Pame_AR","Rulo_MX","Nico_CO","Trini_CL","Iker_ES","Camila_PE","Radio Intensa"]);
+const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofía Herrera","Andrés","Cami","Lucía Fernández","Diego","Valentín Sosa","Pame","Rulo","Nico Restrepo","Trini","Iker","Camila Torres","Radio Intensa"]);
 /* Rotación de nicks: no siempre están los mismos.
    REGULARS: Cé pasa la lista de nicks que deben estar casi siempre. */
 const REGULARS = [];
