@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="bots-extra.js"></script>
+<script src="bots-extra.js?v=8"></script>
 <style>
 :root{
   --bg:#07070f; --panel:#0d0d1a; --panel2:#121224;
@@ -1193,6 +1193,8 @@ function keywordsOf(txt){
 /* Mensaje coherente con lo que se está hablando en el chat */
 const greetedHumans = new Set();
 let lastAutoReply = 0;
+const lastReplyByNick = {};
+const lastGreetByHuman = {};
 window.maybeAutoReply = function(m){
   try{
     if(!botsOn || !amLeader()) return;
@@ -1203,15 +1205,20 @@ window.maybeAutoReply = function(m){
     const threadNick = findThreadNick(m.nick, directedNick, now);
     const isThread = !!(directedNick || threadNick);
     const isExplicitAt = !!(directedNick && (m.text||"").includes("@"));
-    let cdMs = 90000;
-    if(isExplicitAt) cdMs = 5000;
-    else if(isThread) cdMs = 15000;
-    if(now - lastAutoReply < cdMs) return;
+    const replyNickName = directedNick ? directedNick.nick : (threadNick ? threadNick.nick : null);
+    const isGreeting = /hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t) && !mentioned;
+    let cdMs = 90000, refTs = lastAutoReply;
+    if(isGreeting){ /* cooldown propio por humano, no el global */ }
+    else if(isExplicitAt){ cdMs = 5000; refTs = lastReplyByNick[replyNickName] || 0; }
+    else if(isThread){ cdMs = 15000; refTs = lastReplyByNick[replyNickName] || 0; }
+    if(!isGreeting && now - refTs < cdMs) return;
     const cp = countryPoolFor(m);
     const ctx = cp ? cp.ctx : humanCtx(m.nick);
     const mentioned = cp ? cp.mentioned : null;
     let pool = cp ? cp.pool : null;
-    if(mentioned && pool) {} else if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)){
+    if(mentioned && pool) {} else if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t)){
+      if(now - (lastGreetByHuman[m.nick] || 0) < 30000) return;
+      lastGreetByHuman[m.nick] = now;
       const first = !greetedHumans.has(m.nick) && !ctx.askedWhere; greetedHumans.add(m.nick);
       pool = first ? XR("hola", [
         "¡Hola {n}! ¿Cómo estás?",
@@ -1635,6 +1642,6 @@ window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
   }catch(e){}
 })();
 </script>
-<script src="bots-ar.js"></script>
+<script src="bots-ar.js?v=8"></script>
 </body>
 </html>
