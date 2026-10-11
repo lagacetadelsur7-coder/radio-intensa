@@ -1174,7 +1174,7 @@ function pickReply(pool){        /* evita repetir respuestas recientes */
 /* Extrae palabras distintivas del mensaje para responder con coherencia */
 function keywordsOf(txt){
   if(txt.toLowerCase().indexOf("[cartelera]")>=0) return [];
-  const stop = new Set("que,de,la,el,en,y,los,las,una,con,por,para,como,esta,estan,muy,mas,pero,hola,buenas,gracias,eso,esto,del,mi,tu,su,nos,les,tienen,tiene,pueden,puede,quieren,quiere,estoy,estamos,ahora,hoy,ayer,aca,alla,ahi,cuando,donde,cual,quien,porque,tambien,solo,este,esta,estos,estas,ese,esa,programa,radio,tema,cancion,musica,saludo,saludos,noche,dia,tarde,lindo,linda,bueno,buena,genial,grande,chido,bacan,chevere,filete,mola,padre".split(","));
+  const stop = new Set("que,de,la,el,en,y,los,las,una,con,por,para,como,esta,estan,muy,mas,pero,hola,buenas,gracias,eso,esto,del,mi,tu,su,nos,les,tienen,tiene,pueden,puede,quieren,quiere,estoy,estamos,ahora,hoy,ayer,aca,alla,ahi,cuando,donde,cual,quien,porque,tambien,solo,este,esta,estos,estas,ese,esa,programa,radio,tema,cancion,musica,saludo,saludos,noche,dia,tarde,lindo,linda,bueno,buena,genial,grande,chido,bacan,chevere,filete,mola,padre,compre,compro,tengo,tiene,quiero,soy,eres,voy,vamos,hago,hace,hacen,digo,dice,creo,siento".split(","));
   return txt.toLowerCase().replace(/[¿?¡!.,;:()"]/g,"").split(/\s+/)
     .filter(w=>w.length>4 && !stop.has(w) && w.indexOf("http")!==0 && w.charAt(0)!==":").slice(0,2);
 }
@@ -1207,17 +1207,21 @@ function contextualMsg(p){
     if(/felicit|genial|excelente|hermoso|b[aá]rbaro/.test(tl)) return pickFrom([
       "¡Gracias "+nick+"! "+progName()+" es lo más",
       "Qué bueno que te guste "+nick+", ¡gracias por estar!"]);
+    if(/triste|llorar|baj[oó]n|dif[ií]cil|problema|duelo/.test(tl)) return pickFrom([
+      "Fuerza "+nick+", acá estamos para hacerte compañía",
+      "Te mando un abrazo grande "+nick]);
+    if(/calor|fr[ií]o|lluvia|lloviendo|clima/.test(tl)) return "¿Cómo está el clima por tu zona "+nick+"?";
+    if(/no se escucha|no anda|se corta/.test(tl)) return "¿No se escucha "+nick+"? Probá recargar la página";
     const kws = keywordsOf(txt);
     if(kws.length) return pickFrom([
       "¿Lo de "+kws[0]+" lo comentaron en "+progName()+"?",
-      "Jaja, "+kws[0]+", qué bueno "+nick,
       "Contame más de eso de "+kws[0]+", "+nick,
-      "Mirá vos, "+kws[0]+", no sabía"]);
+      "Mirá vos, "+kws[0]+", no sabía",
+      "Qué interesante eso de "+kws[0]+", "+nick]);
     return pickFrom([
-      nick+" tiene razón",
-      "Jaja, lo que dijo "+nick,
-      "Totalmente de acuerdo con "+nick,
-      "¿Viste "+nick+"? Muy bueno lo que comentás"]);
+      nick+" tiene razón en eso",
+      "Coincido con lo que dice "+nick,
+      "Muy bueno lo que comentás "+nick]);
   }
   if(lastBot && Math.random() < 0.22){   /* picar entre oyentes, como en un chat real */
     return pickFrom([
@@ -1227,36 +1231,6 @@ function contextualMsg(p){
       "Eso mismo iba a decir, "+lastBot.nick]);
   }
   return null;
-}
-/* Segundo nick: responde coherente con lo que dijo el humano, sin repetir lo mismo */
-function followUpFor(ht, firstNick, humanNick){
-  if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(ht)) return pickFrom([
-    "¡Hola "+humanNick+"! ¿De dónde nos escuchás?",
-    "Bienvenido "+humanNick+", qué bueno que te sumes"]);
-  if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(ht)) return pickFrom([
-    "Ese tema es tremendo, "+humanNick,
-    "¿Cuál era? Yo llegué tarde jaja",
-    "A mí también me gustó ese tema"]);
-  if(/gracias/.test(ht)) return "¡De nada "+humanNick+"!";
-  if(/saludo/.test(ht)) return "¡Saludos "+humanNick+"!";
-  if(/\?/.test(ht)) return pickFrom([
-    "Yo también quiero saber eso, "+humanNick,
-    "Buena pregunta, a ver si la responden al aire",
-    "Me quedo a leer qué responden jaja"]);
-  if(/programa|radio/.test(ht)) return pickFrom([
-    "Yo no me pierdo "+progName(),
-    "Este programa es lo más, "+humanNick]);
-  if(/jaja+|\u0001f602|\u0001f923/.test(ht)) return pickFrom([
-    "Jajaja, ¿qué pasó?",
-    "Me sumo a la risa jaja"]);
-  const kws = keywordsOf(ht);
-  if(kws.length && Math.random() < 0.6) return pickFrom([
-    "Lo de "+kws[0]+" estuvo bueno, "+humanNick,
-    "¿Viste lo de "+kws[0]+"? Tremendo"]);
-  return pickFrom([
-    "Coincido con "+firstNick,
-    "Tal cual dice "+firstNick,
-    humanNick+" tiene razón en eso"]);
 }
 let lastAutoReply = 0;
 window.maybeAutoReply = function(m){
@@ -1291,6 +1265,26 @@ window.maybeAutoReply = function(m){
     else if(/programa|radio/.test(t)) pool = XR("programa", [
       "¿Cuál es tu programa favorito {n}?",
       "Yo no me pierdo {prog}"]);
+    else if(/triste|llorar|baj[oó]n|dif[ií]cil|problema|duelo|fuerza/.test(t)) pool = [
+      "Fuerza {n}, acá estamos para hacerte compañía",
+      "Te mando un abrazo grande {n}, la música siempre ayuda",
+      "Ánimo {n}, {prog} te acompaña"];
+    else if(/no se escucha|no anda|se corta|no suena|sin sonido/.test(t)) pool = [
+      "¿No se escucha {n}? Probá recargar la página",
+      "A mí me anda bien {n}, fijate el volumen",
+      "Uy {n}, probá salir y entrar de nuevo al chat"];
+    else if(/calor|fr[ií]o|lluvia|lloviendo|clima|tormenta/.test(t)) pool = [
+      "¿Cómo está el clima por tu zona {n}?",
+      "Acá también está bravo el clima, {n}"];
+    else if(/f[uú]tbol|partido|gol|boca|river|selecci[oó]n/.test(t)) pool = [
+      "¿Viste el partido {n}? Tremendo",
+      "¡De fútbol no me hablen que me emociono! ¿De qué cuadro sos {n}?"];
+    else if(/trabajo|labur|oficina/.test(t)) pool = [
+      "¿Laburando a esta hora {n}? ¡La radio te acompaña!",
+      "El trabajo pasa más rápido con {prog}, ¿no {n}?"];
+    else if(/mate|asado|pizza|comida|caf[eé]/.test(t)) pool = [
+      "¡Unos mates con {prog}, plan perfecto {n}!",
+      "¿Mate o café para acompañar {prog}, {n}?"];
     else if(/jaja+|\u0001f602|\u0001f923/.test(t)) pool = XR("jaja", [
       "Jaja, ¿qué pasó {n}?",
       "Jajaja, me hiciste reír {n}",
@@ -1299,12 +1293,14 @@ window.maybeAutoReply = function(m){
       "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
       "Seguro lo responden al aire en un rato"]);
-    else if(Math.random() < 0.22) pool = [
-      "Totalmente de acuerdo",
-      "Jaja, muy bueno",
-      "Aguante {prog}",
-      "Qué bueno que somos varios escuchando",
-      "¿Vieron qué bueno está {prog} hoy?"];
+    else {
+      const kws = keywordsOf(m.text);
+      if(kws.length) pool = [
+        "¿Lo de "+kws[0]+" lo comentaron en {prog}?",
+        "Contame más de eso de "+kws[0]+", {n}",
+        "Mirá vos, "+kws[0]+", no sabía",
+        "Qué bueno eso de "+kws[0]+" que contás, {n}"];
+    }
     if(!pool) return;
     lastAutoReply = now;
     const actA = getActive().length ? getActive() : personas;
@@ -1364,17 +1360,6 @@ function claimLeadership(){
 }
 setInterval(()=>{ if(botsOn && amLeader()) claimLeadership(); }, 5000);
 
-/* Chistes sin repetir: evita los últimos 40 usados */
-let _usedJokes = [];
-function pickJoke(){
-  const J = window.JOKES || [];
-  if(!J.length) return "";
-  let idx = Math.floor(Math.random()*J.length), tries = 0;
-  while(_usedJokes.includes(idx) && tries < 25){ idx = Math.floor(Math.random()*J.length); tries++; }
-  _usedJokes.push(idx);
-  if(_usedJokes.length > 40) _usedJokes.shift();
-  return J[idx];
-}
 function botLoop(){
   const delay = 30000 + Math.random()*45000;
   setTimeout(async ()=>{
