@@ -483,3 +483,46 @@ function radioTick(){
   }catch(e){}
 }
 setInterval(radioTick, 60000);
+
+/* Segundo nick: responde coherente con lo que dijo el humano, sin repetir lo mismo */
+function followUpFor(ht, firstNick, humanNick){
+  if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(ht)) return pickFrom([
+    "¡Hola "+humanNick+"! ¿De dónde nos escuchás?",
+    "Bienvenido "+humanNick+", qué bueno que te sumes"]);
+  if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(ht)) return pickFrom([
+    "Ese tema es tremendo, "+humanNick,
+    "¿Cuál era? Yo llegué tarde jaja",
+    "A mí también me gustó ese tema"]);
+  if(/gracias/.test(ht)) return "¡De nada "+humanNick+"!";
+  if(/saludo/.test(ht)) return "¡Saludos "+humanNick+"!";
+  if(/\?/.test(ht)) return pickFrom([
+    "Yo también quiero saber eso, "+humanNick,
+    "Buena pregunta, a ver si la responden al aire",
+    "Me quedo a leer qué responden jaja"]);
+  if(/programa|radio/.test(ht)) return pickFrom([
+    "Yo no me pierdo "+progName(),
+    "Este programa es lo más, "+humanNick]);
+  if(/jaja+|\u0001f602|\u0001f923/.test(ht)) return pickFrom([
+    "Jajaja, ¿qué pasó?",
+    "Me sumo a la risa jaja"]);
+  const kws = keywordsOf(ht);
+  if(kws.length && Math.random() < 0.6) return pickFrom([
+    "Lo de "+kws[0]+" estuvo bueno, "+humanNick,
+    "¿Viste lo de "+kws[0]+"? Tremendo"]);
+  return pickFrom([
+    "Coincido con "+firstNick,
+    "Tal cual dice "+firstNick,
+    humanNick+" tiene razón en eso"]);
+}
+
+/* Chistes sin repetir: evita los últimos 40 usados */
+let _usedJokes = [];
+function pickJoke(){
+  const J = window.JOKES || [];
+  if(!J.length) return "";
+  let idx = Math.floor(Math.random()*J.length), tries = 0;
+  while(_usedJokes.includes(idx) && tries < 25){ idx = Math.floor(Math.random()*J.length); tries++; }
+  _usedJokes.push(idx);
+  if(_usedJokes.length > 40) _usedJokes.shift();
+  return J[idx];
+}
