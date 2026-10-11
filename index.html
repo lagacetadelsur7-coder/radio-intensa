@@ -1332,7 +1332,10 @@ function botLoop(){
         lastBotNick = p.nick;
         let msg = null;
         for(let att=0; att<5; att++){
-          const cand = (ambientMsg || contextualMsg(p) || pickFresh(p)).replaceAll("{prog}", progName());
+          let cand;
+          if(!ambientMsg && Math.random() < 0.12 && window.JOKES && window.JOKES.length) cand = pickFrom(window.JOKES);
+          else cand = (ambientMsg || contextualMsg(p) || pickFresh(p));
+          cand = cand.replaceAll("{prog}", progName());
           if(!botDup(cand) || att===4){ msg = cand; break; }
         }
         botMark(msg);
