@@ -808,3 +808,38 @@ function contextualMsg(p){
   }
   return null;
 }
+
+/* Memoria de conversación: cada bot recuerda de dónde le dijo el humano que es */
+window.HUMAN_CTX = {};
+function humanCtx(nick){
+  if(!window.HUMAN_CTX[nick]) window.HUMAN_CTX[nick] = {country:null, askedWhere:false};
+  return window.HUMAN_CTX[nick];
+}
+const COUNTRIES = [["mexico","México"],["méxico","México"],["colombia","Colombia"],["chile","Chile"],["españa","España"],["espana","España"],["peru","Perú"],["perú","Perú"],["uruguay","Uruguay"],["argentina","Argentina"],["venezuela","Venezuela"],["ecuador","Ecuador"],["bolivia","Bolivia"],["paraguay","Paraguay"],["costa rica","Costa Rica"],["panama","Panamá"],["panamá","Panamá"],["dominicana","República Dominicana"],["republica dominicana","República Dominicana"],["guatemala","Guatemala"],["honduras","Honduras"],["nicaragua","Nicaragua"],["el salvador","El Salvador"],["cuba","Cuba"],["puerto rico","Puerto Rico"],["estados unidos","Estados Unidos"],["eeuu","Estados Unidos"],["usa","Estados Unidos"]];
+function detectCountry(txt){
+  const tl = (txt||"").toLowerCase();
+  for(const [key,name] of COUNTRIES){ if(tl.includes(key)) return name; }
+  return null;
+}
+
+/* Construye el texto final de respuesta con vos/tú, edad, ocupación y diversidad */
+function buildBotText(m, per, pool){
+  const prof = ((window.NICK_PROFILES||{})[per.nick]) || {edad:"?", ocupa:"?"};
+  const esVos = /Argentina|Uruguay/.test(per.pais||"");
+  function fill(s){ return s.replaceAll("{n}", m.nick).replaceAll("{prog}", progName()).replaceAll("{pais}", per.pais || "").replaceAll("{edad}", prof.edad).replaceAll("{ocupa}", prof.ocupa).replaceAll("{vos}", esVos?"vos":"tú").replaceAll("{sos}", esVos?"sos":"eres").replaceAll("{escuchas}", esVos?"escuchás":"escuchas").replaceAll("{dices}", esVos?"decís":"dices").replaceAll("{tienes}", esVos?"tenés":"tienes"); }
+  let text = fill(pickReply(pool));
+  for(let ri=0; ri<3 && (!botTextDiverse(text) || botDup(text)); ri++){
+    const alt = fill(pickReply(pool));
+    if(botTextDiverse(alt) && !botDup(alt)){ text = alt; break; }
+  }
+  return text;
+}
+/* Si el humano menciona un país, devuelve {ctx, mentioned, pool} para reaccionar */
+function countryPoolFor(m){
+  const mentioned = detectCountry(m.text||"");
+  const tl = (m.text||"").toLowerCase();
+  if(!mentioned || /d[oó]nde (sos|eres)|de d[oó]nde/.test(tl)) return null;
+  const ctx = humanCtx(m.nick);
+  ctx.country = mentioned;
+  return {ctx, mentioned, pool: ["¡"+mentioned+"! Qué bueno, {n}","¡Aguante "+mentioned+"! Saludos {n}","¡Qué lindo "+mentioned+"! ¿Se escucha bien la radio por ahí, {n}?"]};
+}
