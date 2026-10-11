@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Radio Intensa — En vivo</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📻</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📻</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -512,16 +512,7 @@ footer .visits{border:2px solid var(--cyan);
 /* ============ CONFIG ============ */
 const SUPABASE_URL = "https://lhatspnvxujisxyigvbp.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH";
-let sb = null;
-try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
-catch(e){ console.error("Supabase init failed:", e); }
-/* Reporte visible de errores JS para diagnóstico */
-window.addEventListener("error", function(ev){
-  try{
-    var el = document.getElementById("connStatus");
-    if(el){ el.textContent = "Error: " + (ev.message||"desconocido"); el.className = "conn err"; }
-  }catch(e){}
-});
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ============ PLAYER ============ */
 const audio = new Audio();
@@ -744,13 +735,10 @@ function addMsg(m){
   else trackReal(m);
 }
 async function loadMessages(){
-  if(!sb){ connEl.textContent="Sin conexión: recargá la página"; connEl.className="conn err"; return; }
-  try{
-    const { data, error } = await sb.from("messages").select("*").order("created_at",{ascending:false}).limit(6);
-    if(error){ connEl.textContent = "Error de conexión: "+error.message; connEl.className="conn err"; return; }
-    connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
-    data.reverse().forEach(addMsg);
-  }catch(e){ connEl.textContent = "Error: "+e.message; connEl.className="conn err"; }
+  const { data, error } = await sb.from("messages").select("*").order("created_at",{ascending:false}).limit(6);
+  if(error){ connEl.textContent = "Error de conexión: "+error.message; connEl.className="conn err"; return; }
+  connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
+  data.reverse().forEach(addMsg);
 }
 /* Tocar el nick de un mensaje lo arroba en el campo de texto para hablarle directo */
 window.mentionNick = function(nick){
@@ -766,12 +754,9 @@ async function sendMessage(){
   const text = textInput.value.trim();
   if(!text) return;
   if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
-  if(!sb){ connEl.textContent = "Sin conexión: recargá la página"; connEl.className="conn err"; return; }
   textInput.value = "";
-  try{
-    const { error } = await sb.from("messages").insert({nick, text});
-    if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; textInput.value = text; }
-  }catch(e){ connEl.textContent = "Error al enviar: "+e.message; connEl.className="conn err"; textInput.value = text; }
+  const { error } = await sb.from("messages").insert({nick, text});
+  if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; }
 }
 document.getElementById("sendBtn").onclick = sendMessage;
 /* ============ SUBIR IMAGEN AL CHAT ============ */
@@ -818,16 +803,12 @@ document.getElementById("imgFile").addEventListener("change", async function(e){
 });
 textInput.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
 
-if(sb){ try{
 sb.channel("chat-live").on("postgres_changes",
   {event:"INSERT", schema:"public", table:"messages"},
   payload => { addMsg(payload.new); if(window.maybeAutoReply) window.maybeAutoReply(payload.new); }
 ).subscribe(status=>{
   if(status==="SUBSCRIBED"){ connEl.textContent="Conectado · chat en vivo"; connEl.className="conn ok"; }
-  else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){ connEl.textContent="Error de conexión en vivo (reintentando...)"; connEl.className="conn err"; }
 });
-}catch(e){ connEl.textContent="Error: "+e.message; connEl.className="conn err"; } }
-else { connEl.textContent="Sin conexión: no se cargó Supabase"; connEl.className="conn err"; }
 loadMessages();
 loadClima();
 
@@ -1212,82 +1193,6 @@ function keywordsOf(txt){
 /* Mensaje coherente con lo que se está hablando en el chat */
 const greetedHumans = new Set();
 let lastAutoReply = 0;
-/* ctx+memoria conversacional de bots */
-const _humanCtxMap={};
-function humanCtx(n){const k=(n||"").toLowerCase();if(!_humanCtxMap[k])_humanCtxMap[k]={askedWhere:false,country:null};return _humanCtxMap[k];}
-function personaByNick(n){const l=(n||"").toLowerCase();for(const p of personas){if(p.nick.toLowerCase()===l)return p;}return null;}
-function _escRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
-function findDirectedNick(t){const l=(t||"").toLowerCase();const s=personas.slice().sort((a,b)=>b.nick.length-a.nick.length);for(const p of s){if(l.indexOf("@"+p.nick.toLowerCase())>=0)return p;}for(const p of s){try{const r=new RegExp("(^|[^\\p{L}\\p{N}_])"+_escRe(p.nick.toLowerCase())+"([^\\p{L}\\p{N}_]|$)","iu");if(r.test(l))return p;}catch(e){}}const ats=l.match(/@[\p{L}\p{N}_]+/giu)||[];for(const p of s){const f=p.nick.toLowerCase().split(" ")[0];if(f.length>=4){for(const a of ats){const w=a.slice(1);if(w.length>=4&&(f.indexOf(w)===0||w.indexOf(f)===0))return p;}try{const r2=new RegExp("(^|[^\\p{L}\\p{N}_])"+_escRe(f)+"([^\\p{L}\\p{N}_]|$)","iu");if(r2.test(l))return p;}catch(e){}}}return null;}
-let lastConvo=null;
-function findThreadNick(a,b,c){if(b)return null;if(lastConvo&&lastConvo.human===a&&(c-lastConvo.ts)<3e5)return personaByNick(lastConvo.bot);return null;}
-const COUNTRY_WORDS={"argentina":"Argentina","uruguay":"Uruguay","chile":"Chile","paraguay":"Paraguay","brasil":"Brasil","mexico":"México","méxico":"México","espana":"España","españa":"España","colombia":"Colombia","peru":"Perú","perú":"Perú","bolivia":"Bolivia","ecuador":"Ecuador","venezuela":"Venezuela"};
-function countryPoolFor(m){const t=(m.text||"").toLowerCase();let f=null;for(const k in COUNTRY_WORDS){try{if(new RegExp("(^|[^\\p{L}])"+_escRe(k)+"([^\\p{L}]|$)","iu").test(t)){f=COUNTRY_WORDS[k];break;}}catch(e){}}if(!f)return null;const c=humanCtx(m.nick);c.country=f;return{mentioned:f,ctx:c,pool:["¡Aguante "+f+", {n}! Saludos por allá","Qué bueno tener oyentes de "+f+" por acá, {n}","Saludos hasta "+f+", {n}, gracias por escuchar"]};}
-function _hashStr(s){ let h=0; s=String(s||""); for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h; }
-const _OCUPA_M=["mecánico","comerciante","docente","empleado","técnico","vendedor","estudiante","chofer"];
-const _OCUPA_F=["docente","comerciante","empleada","diseñadora","estudiante","vendedora","peluquera","enfermera"];
-function buildBotText(m, per, pool){
-  try{
-    const tpl = pickFrom(pool);
-    const pais = (per && per.pais) || "";
-    const voseo = /argentina|uruguay/i.test(pais);
-    const g = (typeof botGender!=="undefined" && per && botGender[per.nick]) || "m";
-    const h = _hashStr(per && per.nick);
-    const R = {
-      "{n}": m.nick, "{prog}": (typeof progName==="function"?progName():"la radio"), "{pais}": pais,
-      "{vos}": voseo?"vos":"tú", "{dices}": voseo?"decís":"dices",
-      "{escuchas}": voseo?"escuchás":"escuchas", "{sos}": voseo?"sos":"eres",
-      "{tienes}": voseo?"tenés":"tienes", "{edad}": 25+(h%20),
-      "{ocupa}": (g==="f"?_OCUPA_F:_OCUPA_M)[h%8]
-    };
-    let t = tpl;
-    for(const k in R){ t = t.split(k).join(String(R[k])); }
-    return t;
-  }catch(e){ try{ return pickFrom(pool); }catch(e2){ return ""; } }
-}
-function botTextPush(t){ try{ recentReplies.push(t); if(recentReplies.length>10) recentReplies.shift(); }catch(e){} }
-function botTextDiverse(t){
-  try{
-    const w = normTxt(t).split(" ").filter(x=>x.length>3);
-    if(w.length<3) return true;
-    for(const r of _botUsedNorm.slice(-12)){
-      const rs = new Set(r.split(" "));
-      let c = 0;
-      for(const x of w){ if(rs.has(x)) c++; }
-      if(c >= w.length*0.6) return false;
-    }
-    return true;
-  }catch(e){ return true; }
-}
-function pickFollowUp(hl, botNick, humanNick, botText){
-  if(Math.random()<0.35) return null;
-  return pickFrom([
-    "Coincido con "+botNick,
-    "Tal cual lo dice "+botNick,
-    "Bien ahí "+botNick+", yo pienso igual",
-    "Jaja "+botNick+" siempre tiene razón"
-  ]);
-}
-function pickJoke(){
-  try{ if(window.JOKES && window.JOKES.length) return pickFrom(window.JOKES); }catch(e){}
-  return null;
-}
-function contextualMsg(p){
-  try{
-    const h = new Date().getHours();
-    if(h>=5 && h<12 && Math.random()<0.25) return "Buen día gente, ¿quién más arranca la mañana con {prog}?";
-    if((h>=22 || h<5) && Math.random()<0.25) return "¿Quién más trasnochando con {prog}?";
-  }catch(e){}
-  return null;
-}
-function mentionNick(nick){
-  try{
-    const ti = document.getElementById("msgtext");
-    if(ti){ ti.value = "@"+nick+" "+ti.value; ti.focus(); }
-  }catch(e){}
-}
-function maybeSwapNicks(){
-  try{ if(Math.random()<0.12) setExpires = 0; }catch(e){}
-}
 const lastReplyByNick = {};
 const lastGreetByHuman = {};
 window.maybeAutoReply = function(m){
@@ -1307,7 +1212,7 @@ window.maybeAutoReply = function(m){
     const isGreeting = /hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t) && !mentioned;
     let cdMs = 90000, refTs = lastAutoReply;
     if(isGreeting){ /* cooldown propio por humano, no el global */ }
-    else if(isExplicitAt){ cdMs = 2000; refTs = lastReplyByNick[replyNickName] || 0; }
+    else if(isExplicitAt){ cdMs = 5000; refTs = lastReplyByNick[replyNickName] || 0; }
     else if(isThread){ cdMs = 15000; refTs = lastReplyByNick[replyNickName] || 0; }
     if(!isGreeting && now - refTs < cdMs) return;
     let pool = cp ? cp.pool : null;
