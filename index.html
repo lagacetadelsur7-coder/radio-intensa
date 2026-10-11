@@ -1324,7 +1324,7 @@ window.maybeAutoReply = function(m){
         await new Promise(r=>setTimeout(r, 800 + Math.random()*1200));
         typingEl.textContent = "";
         await sb.from("messages").insert({nick:per.nick, text});
-        if(Math.random() < 0.25){
+        if(Math.random() < (isGreeting ? 0.6 : 0.25)){
           const actB = getActive().length ? getActive() : personas;
             const p2 = pickFrom(actB.filter(x=>x.nick !== per.nick));
           let t2 = pickFollowUp((m.text||"").toLowerCase(), per.nick, m.nick, text);
