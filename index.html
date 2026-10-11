@@ -1242,8 +1242,10 @@ window.maybeAutoReply = function(m){
     if(!botsOn || !amLeader()) return;
     if(!m || botNickSet.has(m.nick)) return;
     const now = Date.now();
-    if(now - lastAutoReply < 90000) return;
     const t = (m.text || "").toLowerCase();
+    const directedNick = findDirectedNick(t);
+    if(!directedNick && now - lastAutoReply < 90000) return;
+    if(directedNick && now - lastAutoReply < 15000) return;
     let pool = null;
     if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(t)){
       const first = !greetedHumans.has(m.nick); greetedHumans.add(m.nick);
@@ -1320,7 +1322,7 @@ window.maybeAutoReply = function(m){
     if(!pool) return;
     lastAutoReply = now;
     const actA = getActive().length ? getActive() : personas;
-    const per = actA[Math.floor(Math.random()*actA.length)];
+    const per = directedNick || actA[Math.floor(Math.random()*actA.length)];
     let text = pickReply(pool)
       .replaceAll("{n}", m.nick)
       .replaceAll("{prog}", progName())
