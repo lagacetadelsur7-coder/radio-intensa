@@ -516,7 +516,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ============ PLAYER ============ */
 const audio = new Audio();
-audio.preload = "none";
+audio.preload = "auto";
 const playBtn = document.getElementById("playBtn");
 const bigPlay = document.getElementById("bigPlay");
 let playing = false;
