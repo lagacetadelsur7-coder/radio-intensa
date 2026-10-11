@@ -716,3 +716,94 @@ function findThreadNick(mNick, directedNick, now){
   }
   return null;
 }
+
+/* Perfil de cada nick: para responder "¿cuántos años tenés?", "¿a qué te dedicás?", etc. */
+window.NICK_PROFILES = {
+"Lau de Quilmes":{edad:34, ocupa:"comerciante"},
+"JorgitoRC":{edad:28, ocupa:"mecánico"},
+"Sofía Herrera":{edad:26, ocupa:"diseñadora"},
+"Andrés":{edad:31, ocupa:"ingeniero"},
+"Cami":{edad:24, ocupa:"estudiante"},
+"Lucía Fernández":{edad:29, ocupa:"profesora"},
+"Diego":{edad:27, ocupa:"cocinero"},
+"Valentín Sosa":{edad:33, ocupa:"empleado"},
+"Pame":{edad:25, ocupa:"estudiante"},
+"Rulo":{edad:30, ocupa:"tachero"},
+"Nico Restrepo":{edad:29, ocupa:"vendedor"},
+"Trini":{edad:23, ocupa:"estudiante"},
+"Iker":{edad:26, ocupa:"programador"},
+"Camila Torres":{edad:28, ocupa:"enfermera"}
+};
+/* Diversidad semántica: evita que dos respuestas seguidas usen las mismas palabras */
+let _recentBotTexts = [];
+function botTextDiverse(text){
+  for(const prev of _recentBotTexts){
+    if(sharesWords(text, prev, new Set(), 2)) return false;
+  }
+  return true;
+}
+function botTextPush(text){
+  _recentBotTexts.push(text);
+  if(_recentBotTexts.length > 4) _recentBotTexts.shift();
+}
+
+function contextualMsg(p){
+  if(recentChat.length && Math.random() < 0.55){
+    const last = recentChat[recentChat.length-1];
+    const nick = last.nick, txt = last.text;
+    const tl = txt.toLowerCase();
+    if(/\?/.test(txt)) return pickFrom([
+      "Buena pregunta "+nick+", yo también quiero saber",
+      "A ver si en "+progName()+" responden lo de "+nick,
+      "Me sumo a la duda de "+nick+" jaja"]);
+    if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(tl)){
+      const first = !greetedHumans.has(nick); greetedHumans.add(nick);
+      return first ? pickFrom(["¡Hola "+nick+"! Bienvenido","Buenas "+nick+", ¿de dónde nos escuchás?"])
+                   : pickFrom(["¡Hola de nuevo "+nick+"!","¡Buenas "+nick+", qué bueno verte!"]);
+    }
+    if(/gracias/.test(tl)) return "¡De nada "+nick+"!";
+    if(/tema|canci[oó]n|m[uú]sica/.test(tl)) return pickFrom([
+      "¿Cuál tema decís "+nick+"? Yo también lo quiero saber",
+      "Temazo el que sonó, ¿no "+nick+"?"]);
+    if(/saludo/.test(tl)) return "¡Saludos para vos también "+nick+"!";
+    if(/en vivo|est[aá]n en vivo/.test(tl)) return pickFrom([
+      "Sí "+nick+", ¡estamos en vivo en "+progName()+"!",
+      "En vivo y en directo "+nick+", qué bueno que estés"]);
+    if(/qu[eé] programa|cu[aá]l programa/.test(tl)) return "Estamos con "+progName()+", "+nick;
+    if(/a qu[eé] hora|cu[aá]ndo|horario/.test(tl)) return "Los horarios los anuncia Radio Intensa en el chat, "+nick;
+    if(/cu[aá]ntos a[nñ]os|qu[eé] edad|edad/.test(tl)){
+      const pr = ((window.NICK_PROFILES||{})[p.nick]) || {edad:"?"};
+      return "Tengo "+pr.edad+" años, "+nick;
+    }
+    if(/chau|adi[oó]s|me voy|nos vemos/.test(tl)) return pickFrom([
+      "¡Chau "+nick+"! Gracias por escuchar",
+      "Nos vemos "+nick+", ¡que andes bien!"]);
+    if(/donde queda|ubicaci[oó]n|direcci[oó]n/.test(tl)) return "Somos una radio online "+nick+", ¡nos escuchás desde donde estés!";
+    if(/felicit|genial|excelente|hermoso|b[aá]rbaro/.test(tl)) return pickFrom([
+      "¡Gracias "+nick+"! "+progName()+" es lo más",
+      "Qué bueno que te guste "+nick+", ¡gracias por estar!"]);
+    if(/triste|llorar|baj[oó]n|dif[ií]cil|problema|duelo/.test(tl)) return pickFrom([
+      "Fuerza "+nick+", acá estamos para hacerte compañía",
+      "Te mando un abrazo grande "+nick]);
+    if(/calor|fr[ií]o|lluvia|lloviendo|clima/.test(tl)) return "¿Cómo está el clima por tu zona "+nick+"?";
+    if(/no se escucha|no anda|se corta/.test(tl)) return "¿No se escucha "+nick+"? Probá recargar la página";
+    const kws = keywordsOf(txt);
+    if(kws.length) return pickFrom([
+      "¿Lo de "+kws[0]+" lo comentaron en "+progName()+"?",
+      "Contame más de eso de "+kws[0]+", "+nick,
+      "Mirá vos, "+kws[0]+", no sabía",
+      "Qué interesante eso de "+kws[0]+", "+nick]);
+    return pickFrom([
+      nick+" tiene razón en eso",
+      "Coincido con lo que dice "+nick,
+      "Muy bueno lo que comentás "+nick]);
+  }
+  if(lastBot && Math.random() < 0.22){   /* picar entre oyentes, como en un chat real */
+    return pickFrom([
+      "Jaja, tal cual "+lastBot.nick,
+      "Coincido con "+lastBot.nick,
+      lastBot.nick+", me hiciste reír",
+      "Eso mismo iba a decir, "+lastBot.nick]);
+  }
+  return null;
+}
