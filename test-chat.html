@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Chat - Radio Intensa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>body{font-family:sans-serif;background:#111;color:#fff;padding:20px}input,button{font-size:18px;padding:12px;margin:5px;width:90%;max-width:400px}button{background:#e91e63;color:#fff;border:none;border-radius:8px}#log{background:#222;padding:15px;border-radius:8px;margin-top:15px;white-space:pre-wrap;font-size:14px}.ok{color:#4caf50}.err{color:#f44336}</style>
+</head>
+<body>
+<h2>🔧 Prueba de conexión del chat</h2>
+<div id="log">Iniciando...</div>
+<input id="nick" placeholder="Tu nick" value="PruebaCé">
+<input id="msg" placeholder="Escribí un mensaje">
+<button onclick="enviar()">Enviar mensaje</button>
+<script>
+const log = document.getElementById('log');
+function add(t, cls){ log.innerHTML += '\n<span class="'+(cls||'')+'">'+t+'</span>'; }
+async function init(){
+  try{
+    add('1. Verificando librería Supabase...');
+    if(!window.supabase){ add('✗ ERROR: no se cargó la librería (CDN bloqueado)', 'err'); return; }
+    add('✓ Librería cargada', 'ok');
+    const sb = window.supabase.createClient("https://lhatspnvxujisxyigvbp.supabase.co", "sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH");
+    add('2. Cliente creado, probando lectura...');
+    const { data, error } = await sb.from("messages").select("nick").limit(1);
+    if(error){ add('✗ ERROR lectura: '+error.message, 'err'); return; }
+    add('✓ Lectura OK ('+data.length+' mensajes)', 'ok');
+    add('3. Probando suscripción en tiempo real...');
+    sb.channel("test").on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},()=>{}).subscribe(s=>{
+      if(s==="SUBSCRIBED") add('✓ Tiempo real conectado', 'ok');
+      else add('Estado: '+s);
+    });
+    window._sb = sb;
+    add('4. Listo. Escribí un mensaje y tocá Enviar.', 'ok');
+  }catch(e){ add('✗ ERROR: '+e.message, 'err'); }
+}
+async function enviar(){
+  const nick = document.getElementById('nick').value.trim();
+  const text = document.getElementById('msg').value.trim();
+  if(!nick || !text){ add('⚠ Escribí nick y mensaje', 'err'); return; }
+  try{
+    add('Enviando...');
+    const { error } = await window._sb.from("messages").insert({nick, text});
+    if(error) add('✗ ERROR al enviar: '+error.message, 'err');
+    else { add('✓ ¡Mensaje enviado!', 'ok'); document.getElementById('msg').value=''; }
+  }catch(e){ add('✗ ERROR: '+e.message, 'err'); }
+}
+init();
+</script>
+</body>
+</html>
