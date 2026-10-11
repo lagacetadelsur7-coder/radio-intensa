@@ -1542,7 +1542,7 @@ function semanarioTick(){
     try{ localStorage.setItem("ri_semanario", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
   }catch(e){}
 }
-setInterval(semanarioTick, 60000);
+/* OFF: las promos las publica el cron del servidor cada 15 min */
 
 /* ============ PROMO YOUTUBE CADA 15 MIN ============ */
 const YOUTUBE_MSGS=[
@@ -1565,7 +1565,7 @@ function youtubeTick(){
     try{ localStorage.setItem("ri_youtube", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
   }catch(e){}
 }
-setInterval(youtubeTick, 60000);
+/* OFF: las promos las publica el cron del servidor cada 15 min */
 
 /* La música callada: misma imagen en grilla y en eventos */
 (function(){ const a=document.getElementById("imgMusicaCallada"), b=document.getElementById("evMusicaCallada"); if(a&&b&&a.src) b.src=a.src; })();
