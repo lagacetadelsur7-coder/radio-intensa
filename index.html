@@ -512,7 +512,9 @@ footer .visits{border:2px solid var(--cyan);
 /* ============ CONFIG ============ */
 const SUPABASE_URL = "https://lhatspnvxujisxyigvbp.supabase.co";
 const SUPABASE_KEY = "sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let sb = null;
+try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }
+catch(e){ console.error("Supabase init failed:", e); }
 
 /* ============ PLAYER ============ */
 const audio = new Audio();
@@ -735,10 +737,13 @@ function addMsg(m){
   else trackReal(m);
 }
 async function loadMessages(){
-  const { data, error } = await sb.from("messages").select("*").order("created_at",{ascending:false}).limit(6);
-  if(error){ connEl.textContent = "Error de conexión: "+error.message; connEl.className="conn err"; return; }
-  connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
-  data.reverse().forEach(addMsg);
+  if(!sb){ connEl.textContent="Sin conexión: recargá la página"; connEl.className="conn err"; return; }
+  try{
+    const { data, error } = await sb.from("messages").select("*").order("created_at",{ascending:false}).limit(6);
+    if(error){ connEl.textContent = "Error de conexión: "+error.message; connEl.className="conn err"; return; }
+    connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
+    data.reverse().forEach(addMsg);
+  }catch(e){ connEl.textContent = "Error: "+e.message; connEl.className="conn err"; }
 }
 /* Tocar el nick de un mensaje lo arroba en el campo de texto para hablarle directo */
 window.mentionNick = function(nick){
@@ -754,9 +759,12 @@ async function sendMessage(){
   const text = textInput.value.trim();
   if(!text) return;
   if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
+  if(!sb){ connEl.textContent = "Sin conexión: recargá la página"; connEl.className="conn err"; return; }
   textInput.value = "";
-  const { error } = await sb.from("messages").insert({nick, text});
-  if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; }
+  try{
+    const { error } = await sb.from("messages").insert({nick, text});
+    if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; textInput.value = text; }
+  }catch(e){ connEl.textContent = "Error al enviar: "+e.message; connEl.className="conn err"; textInput.value = text; }
 }
 document.getElementById("sendBtn").onclick = sendMessage;
 /* ============ SUBIR IMAGEN AL CHAT ============ */
@@ -803,12 +811,16 @@ document.getElementById("imgFile").addEventListener("change", async function(e){
 });
 textInput.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
 
+if(sb){ try{
 sb.channel("chat-live").on("postgres_changes",
   {event:"INSERT", schema:"public", table:"messages"},
   payload => { addMsg(payload.new); if(window.maybeAutoReply) window.maybeAutoReply(payload.new); }
 ).subscribe(status=>{
   if(status==="SUBSCRIBED"){ connEl.textContent="Conectado · chat en vivo"; connEl.className="conn ok"; }
+  else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){ connEl.textContent="Error de conexión en vivo (reintentando...)"; connEl.className="conn err"; }
 });
+}catch(e){ connEl.textContent="Error: "+e.message; connEl.className="conn err"; } }
+else { connEl.textContent="Sin conexión: no se cargó Supabase"; connEl.className="conn err"; }
 loadMessages();
 loadClima();
 
