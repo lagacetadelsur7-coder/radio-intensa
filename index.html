@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="bots-extra.js?v=8"></script>
+<script src="bots-extra.js?v=9"></script>
 <style>
 :root{
   --bg:#07070f; --panel:#0d0d1a; --panel2:#121224;
@@ -1317,7 +1317,7 @@ window.maybeAutoReply = function(m){
     lastConvo = {human: m.nick, bot: per.nick, ts: now};
     let text = buildBotText(m, per, pool);
     botMark(text); botTextPush(text);
-    if(/^lali$/i.test(m.nick||"")) text = text.replace(/\bbienvenido\b/g, "bienvenida");
+    if(/^lali$/i.test(m.nick||"")) text = text.replace(/\bbienvenido\b/gi, "bienvenida").replace(/\bBienvenido\b/g, "Bienvenida");
     setTimeout(async ()=>{
       try{
         typingEl.textContent = per.nick + " está escribiendo...";
@@ -1642,6 +1642,6 @@ window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
   }catch(e){}
 })();
 </script>
-<script src="bots-ar.js?v=8"></script>
+<script src="bots-ar.js?v=9"></script>
 </body>
 </html>
