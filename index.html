@@ -1337,8 +1337,7 @@ window.maybeAutoReply = function(m){
         if(Math.random() < 0.25){
           const actB = getActive().length ? getActive() : personas;
             const p2 = pickFrom(actB.filter(x=>x.nick !== per.nick));
-          let t2 = followUpFor((m.text||"").toLowerCase(), per.nick, m.nick);
-          if(botDup(t2)) t2 = "Coincido con "+per.nick;
+          let t2 = pickFollowUp((m.text||"").toLowerCase(), per.nick, m.nick, text);
           botMark(t2);
           setTimeout(async ()=>{
             try{ await sb.from("messages").insert({nick:p2.nick, text:t2}); }catch(e){}
