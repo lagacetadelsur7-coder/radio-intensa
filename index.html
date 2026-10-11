@@ -1290,6 +1290,11 @@ window.maybeAutoReply = function(m){
     else if(/a qu[eé] te dedic[aá]s|a que te dedicas|en qu[eé] trabaj[aá]s|en que trabajas|qu[eé] hac[eé]s|que haces|tu trabajo/.test(t)) pool = [
       "Soy {ocupa}, {n}",
       "Trabajo de {ocupa}, {n}, ¿y vos?"];
+    else if(/c[oó]mo est[aá]s|c[oó]mo est[aá]|c[oó]mo and[aá]s|c[oó]mo te va|qu[eé] tal est[aá]s/.test(t)) pool = XR("comoestas", [
+      "¡Bien {n}! ¿Y {vos} cómo estás?",
+      "Muy bien, gracias por preguntar {n}. ¿Y {vos}?",
+      "¡De diez {n}! Escuchando {prog} como siempre. ¿Vos cómo andás?",
+      "Bien, bien {n}. ¿Y {vos} qué me {dices}?"])
     else if(/\?/.test(t)) pool = XR("pregunta", [
       "Buena pregunta {n}, a ver qué dicen en {prog}",
       "Yo también quiero saber eso",
