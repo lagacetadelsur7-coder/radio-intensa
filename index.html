@@ -1228,6 +1228,36 @@ function contextualMsg(p){
   }
   return null;
 }
+/* Segundo nick: responde coherente con lo que dijo el humano, sin repetir lo mismo */
+function followUpFor(ht, firstNick, humanNick){
+  if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda/.test(ht)) return pickFrom([
+    "¡Hola "+humanNick+"! ¿De dónde nos escuchás?",
+    "Bienvenido "+humanNick+", qué bueno que te sumes"]);
+  if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(ht)) return pickFrom([
+    "Ese tema es tremendo, "+humanNick,
+    "¿Cuál era? Yo llegué tarde jaja",
+    "A mí también me gustó ese tema"]);
+  if(/gracias/.test(ht)) return "¡De nada "+humanNick+"!";
+  if(/saludo/.test(ht)) return "¡Saludos "+humanNick+"!";
+  if(/\?/.test(ht)) return pickFrom([
+    "Yo también quiero saber eso, "+humanNick,
+    "Buena pregunta, a ver si la responden al aire",
+    "Me quedo a leer qué responden jaja"]);
+  if(/programa|radio/.test(ht)) return pickFrom([
+    "Yo no me pierdo "+progName(),
+    "Este programa es lo más, "+humanNick]);
+  if(/jaja+|\u0001f602|\u0001f923/.test(ht)) return pickFrom([
+    "Jajaja, ¿qué pasó?",
+    "Me sumo a la risa jaja"]);
+  const kws = keywordsOf(ht);
+  if(kws.length && Math.random() < 0.6) return pickFrom([
+    "Lo de "+kws[0]+" estuvo bueno, "+humanNick,
+    "¿Viste lo de "+kws[0]+"? Tremendo"]);
+  return pickFrom([
+    "Coincido con "+firstNick,
+    "Tal cual dice "+firstNick,
+    humanNick+" tiene razón en eso"]);
+}
 let lastAutoReply = 0;
 window.maybeAutoReply = function(m){
   try{
@@ -1292,13 +1322,12 @@ window.maybeAutoReply = function(m){
         await new Promise(r=>setTimeout(r, 1500 + Math.random()*2000));
         typingEl.textContent = "";
         await sb.from("messages").insert({nick:per.nick, text});
-        if(Math.random() < 0.3){
+        if(Math.random() < 0.25){
           const actB = getActive().length ? getActive() : personas;
             const p2 = pickFrom(actB.filter(x=>x.nick !== per.nick));
-          const t2 = pickFrom([
-            "Jaja, "+per.nick+" siempre con la posta",
-            "Tal cual "+per.nick,
-            "Coincido con "+per.nick+", "+m.nick+" tiene razón"]);
+          let t2 = followUpFor((m.text||"").toLowerCase(), per.nick, m.nick);
+          if(botDup(t2)) t2 = "Coincido con "+per.nick;
+          botMark(t2);
           setTimeout(async ()=>{
             try{ await sb.from("messages").insert({nick:p2.nick, text:t2}); }catch(e){}
           }, 9000 + Math.random()*9000);
@@ -1552,52 +1581,6 @@ function youtubeTick(){
   }catch(e){}
 }
 setInterval(youtubeTick, 60000);
-
-/* ============ PROMO INSTAGRAM CADA 15 MIN ============ */
-const INSTAGRAM_MSGS=[
-"¡Seguinos en Instagram! Fotos, novedades y todo lo de Radio Intensa.",
-"¿Ya nos seguís en Instagram? ¡Sumate a la comunidad de Intensa!",
-"En nuestro Instagram te enterás de todo antes que nadie. ¡Seguinos!"
-];
-function instagramTick(){
-  try{
-    if(!botsOn || !amLeader()) return;
-    claimLeadership();
-    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
-    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
-    if(parseInt(pp.minute,10)%15!==14) return;
-    const slot=pp.hour+":"+pp.minute;
-    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_instagram")||"{}"); }catch(e){ st={}; }
-    if(st.slot===slot) return;
-    const idx=st.idx||0;
-    sb.from("messages").insert({nick:"Radio Intensa", text:"[INSTAGRAM]"+INSTAGRAM_MSGS[idx%INSTAGRAM_MSGS.length]});
-    try{ localStorage.setItem("ri_instagram", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
-  }catch(e){}
-}
-setInterval(instagramTick, 60000);
-
-/* ============ PROMO RADIO CADA 15 MIN ============ */
-const RADIO_MSGS=[
-"¿Ya estás escuchando en vivo? ¡Subí el volumen que Radio Intensa no para!",
-"Radio Intensa, tu compañía de todos los días. ¡Compartila con tus amigos!",
-"Estamos en vivo las 24 horas. ¡Quedate, que lo mejor está por venir!"
-];
-function radioTick(){
-  try{
-    if(!botsOn || !amLeader()) return;
-    claimLeadership();
-    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
-    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
-    if(parseInt(pp.minute,10)%15!==2) return;
-    const slot=pp.hour+":"+pp.minute;
-    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_radio")||"{}"); }catch(e){ st={}; }
-    if(st.slot===slot) return;
-    const idx=st.idx||0;
-    sb.from("messages").insert({nick:"Radio Intensa", text:"[RADIO]"+RADIO_MSGS[idx%RADIO_MSGS.length]});
-    try{ localStorage.setItem("ri_radio", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
-  }catch(e){}
-}
-setInterval(radioTick, 60000);
 
 /* La música callada: misma imagen en grilla y en eventos */
 (function(){ const a=document.getElementById("imgMusicaCallada"), b=document.getElementById("evMusicaCallada"); if(a&&b&&a.src) b.src=a.src; })();
