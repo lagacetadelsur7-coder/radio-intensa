@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bebo · Privado</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a12;color:#e8e8f0;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;padding:20px}
+.wrap{max-width:600px;margin:0 auto}
+h1{text-align:center;font-size:1.6rem;margin:10px 0 4px;
+  background:linear-gradient(90deg,#00e5ff,#ff2fb3,#ff9f1c);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(0,229,255,.45))}
+.sub{text-align:center;color:#8888a0;font-size:.85rem;margin-bottom:22px}
+.card{background:#12121e;border:1px solid #2a2a3f;border-radius:14px;padding:18px;margin-bottom:16px;
+  box-shadow:0 0 18px rgba(255,47,179,.12)}
+.names{display:flex;gap:10px;margin-bottom:14px}
+.names button{flex:1;padding:12px;border-radius:10px;border:2px solid #2a2a3f;background:#1a1a28;color:#aaa;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s}
+.names button.on{border-color:#00e5ff;color:#00e5ff;box-shadow:0 0 14px rgba(0,229,255,.35)}
+.names button.on.lali{border-color:#ff2fb3;color:#ff2fb3;box-shadow:0 0 14px rgba(255,47,179,.35)}
+textarea{width:100%;min-height:90px;background:#0d0d16;border:1px solid #2a2a3f;border-radius:10px;color:#fff;font-size:1rem;padding:12px;resize:vertical}
+textarea:focus{outline:none;border-color:#00e5ff;box-shadow:0 0 10px rgba(0,229,255,.25)}
+.row{display:flex;gap:10px;margin-top:12px}
+.btn{flex:1;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;transition:.2s}
+.btn-send{background:linear-gradient(90deg,#ff2fb3,#ff9f1c);color:#fff;box-shadow:0 0 14px rgba(255,47,179,.4)}
+.btn-send:active{transform:scale(.97)}
+.btn-rec{background:#1a1a28;color:#ff5555;border:2px solid #ff5555}
+.btn-rec.rec{background:#ff5555;color:#fff;animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 20px rgba(255,85,85,.7)}}
+.btn:disabled{opacity:.4;cursor:default}
+#status{text-align:center;min-height:1.4em;font-size:.9rem;color:#00e5ff;margin-top:10px}
+.hist h2{font-size:1.05rem;color:#ff9f1c;margin-bottom:10px;text-shadow:0 0 10px rgba(255,159,28,.4)}
+.msg{background:#0d0d16;border:1px solid #23232f;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.92rem}
+.msg .who{font-weight:800;font-size:.8rem;margin-bottom:4px}
+.msg .who.ce{color:#00e5ff}.msg .who.la{color:#ff2fb3}
+.msg .t{color:#666;font-size:.75rem;margin-top:4px}
+.msg audio{width:100%;margin-top:6px}
+.lock{text-align:center;font-size:2rem;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="lock">🔒</div>
+  <h1>Bebo · Privado</h1>
+  <p class="sub">Solo para Cé y Lali — instrucciones directas para Bebo</p>
+
+  <div class="card">
+    <div class="names">
+      <button id="btnCe" class="on" onclick="setName('Cé')">Cé</button>
+      <button id="btnLa" onclick="setName('Lali')">Lali</button>
+    </div>
+    <textarea id="txt" placeholder="Escribí tu indicación para Bebo..."></textarea>
+    <div class="row">
+      <button class="btn btn-send" id="btnSend" onclick="sendText()">Enviar texto</button>
+      <button class="btn btn-rec" id="btnRec" onclick="toggleRec()">🎤 Grabar audio</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div class="card hist">
+    <h2>📋 Instrucciones enviadas</h2>
+    <div id="hist"></div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://lhatspnvxujisxyigvbp.supabase.co';
+const SB_KEY='sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH';
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+let nombre='Cé', rec=null, chunks=[], recOn=false;
+const $=id=>document.getElementById(id);
+const status=t=>{$('status').textContent=t;};
+
+function setName(n){
+  nombre=n;
+  $('btnCe').className=n==='Cé'?'on':'';
+  $('btnLa').className=n==='Lali'?'on lali':'';
+}
+
+async function sendText(){
+  const t=$('txt').value.trim();
+  if(!t){status('Escribí algo primero');return;}
+  $('btnSend').disabled=true; status('Enviando...');
+  const {error}=await sb.from('instrucciones_privadas').insert({nombre,tipo:'texto',contenido:t});
+  $('btnSend').disabled=false;
+  if(error){status('Error: '+error.message);return;}
+  $('txt').value=''; status('✓ Enviado a Bebo');
+  loadHist(); setTimeout(()=>status(''),2500);
+}
+
+function toggleRec(){
+  if(recOn){stopRec();return;}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    rec=new MediaRecorder(stream); chunks=[];
+    rec.ondataavailable=e=>chunks.push(e.data);
+    rec.onstop=()=>sendAudio(stream);
+    rec.start(); recOn=true;
+    $('btnRec').textContent='⏹ Detener'; $('btnRec').classList.add('rec');
+    status('Grabando... tocá Detener cuando termines');
+  }).catch(()=>status('No se pudo acceder al micrófono'));
+}
+
+function stopRec(){ if(rec&&recOn){rec.stop();recOn=false;$('btnRec').textContent='🎤 Grabar audio';$('btnRec').classList.remove('rec');} }
+
+async function sendAudio(stream){
+  status('Subiendo audio...');
+  const blob=new Blob(chunks,{type:'audio/webm'});
+  stream.getTracks().forEach(t=>t.stop());
+  const fname=Date.now()+'_'+nombre+'.webm';
+  const {error:upErr}=await sb.storage.from('instrucciones-audio').upload(fname,blob);
+  if(upErr){status('Error al subir: '+upErr.message);return;}
+  const {data}=sb.storage.from('instrucciones-audio').getPublicUrl(fname);
+  const {error}=await sb.from('instrucciones_privadas').insert({nombre,tipo:'audio',audio_url:data.publicUrl,contenido:'🎤 Audio'});
+  if(error){status('Error: '+error.message);return;}
+  status('✓ Audio enviado a Bebo'); loadHist(); setTimeout(()=>status(''),2500);
+}
+
+async function loadHist(){
+  const {data}=await sb.from('instrucciones_privadas').select('*').order('created_at',{ascending:false}).limit(20);
+  if(!data)return;
+  $('hist').innerHTML=data.map(m=>{
+    const cls=m.nombre==='Lali'?'la':'ce';
+    const body=m.tipo==='audio'?`<audio controls src="${m.audio_url}"></audio>`:`<div>${m.contenido.replace(/</g,'&lt;')}</div>`;
+    const f=new Date(m.created_at).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div class="msg"><div class="who ${cls}">${m.nombre}</div>${body}<div class="t">${f}</div></div>`;
+  }).join('')||'<div class="msg">Todavía no hay instrucciones.</div>';
+}
+loadHist();
+setInterval(loadHist,15000);
+</script>
+</body>
+</html>
