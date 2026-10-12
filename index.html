@@ -1682,7 +1682,7 @@ function o(){document.getElementById('tm').classList.add('o');s();}
 function c(){clearInterval(t);document.getElementById('tm').classList.remove('o');}
 function h(x){document.getElementById('tb').innerHTML=x;}
 function s(){i=0;p=0;h('<h2>🎯 TRIVIA INTENSA</h2><button class="tb1" onclick="n()">¡JUGAR!</button><br><button class="tc" onclick="c()">Cerrar</button>');}
-function n(){if(i>=Q.length){e();return;}var v=Q[i],o=v[1].map(function(x,j){return t=x,k=j===v[2];}),x='<p>⭐ '+p+' · '+(i+1)+'/8</p><div class="tq">'+v[0]+'</div><div class="to">';o.sort(function(){return .5-Math.random()});o.forEach(function(y){x+='<button onclick="a(this,'+y.k+')">'+y.t+'</button>';});h(x+'</div><button class="tc" onclick="c()">Salir</button>');}
+function n(){if(i>=Q.length){e();return;}var v=Q[i],o=v[1].map(function(x,j){return{t:x,k:j===v[2]};}),x='<p>⭐ '+p+' · '+(i+1)+'/8</p><div class="tq">'+v[0]+'</div><div class="to">';o.sort(function(){return .5-Math.random()});o.forEach(function(y){x+='<button onclick="a(this,'+y.k+')">'+y.t+'</button>';});h(x+'</div><button class="tc" onclick="c()">Salir</button>');}
 function a(b,ok){var bs=document.querySelectorAll('.to button');for(var j=0;j<bs.length;j++)bs[j].disabled=true;if(b)b.classList.add(ok?'ok':'no');if(ok)p+=10;i++;setTimeout(n,900);}
 function e(){h('<h2>🎯 ¡FIN!</h2><div class="ts">'+p+'</div><p>'+(p>=60?'¡Genial! 🏆':p>=30?'¡Bien! 👏':'A practicar 😅')+'</p><button class="tb1" onclick="s()">OTRA VEZ</button><br><button class="tc" onclick="c()">Cerrar</button>');}
 document.getElementById('tm').addEventListener('click',function(e){if(e.target.id==='tm')c();});
