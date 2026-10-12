@@ -33,7 +33,8 @@ textarea:focus{outline:none;border-color:#00e5ff;box-shadow:0 0 10px rgba(0,229,
 .hist h2{font-size:1.05rem;color:#ff9f1c;margin-bottom:10px;text-shadow:0 0 10px rgba(255,159,28,.4)}
 .msg{background:#0d0d16;border:1px solid #23232f;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.92rem}
 .msg .who{font-weight:800;font-size:.8rem;margin-bottom:4px}
-.msg .who.ce{color:#00e5ff}.msg .who.la{color:#ff2fb3}
+.msg .who.ce{color:#00e5ff}.msg .who.la{color:#ff2fb3}.msg .who.be{color:#c9a227}
+.msg.bebo{border-color:#c9a227;box-shadow:0 0 10px rgba(201,162,39,.2)}
 .msg .t{color:#666;font-size:.75rem;margin-top:4px}
 .msg audio{width:100%;margin-top:6px}
 .lock{text-align:center;font-size:2rem;margin-bottom:6px}
@@ -120,10 +121,11 @@ async function loadHist(){
   const {data}=await sb.from('instrucciones_privadas').select('*').order('created_at',{ascending:false}).limit(20);
   if(!data)return;
   $('hist').innerHTML=data.map(m=>{
-    const cls=m.nombre==='Lali'?'la':'ce';
+    const cls=m.nombre==='Lali'?'la':(m.nombre==='Bebo'?'be':'ce');
+    const beboCls=m.nombre==='Bebo'?' bebo':'';
     const body=m.tipo==='audio'?`<audio controls src="${m.audio_url}"></audio>`:`<div>${m.contenido.replace(/</g,'&lt;')}</div>`;
     const f=new Date(m.created_at).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-    return `<div class="msg"><div class="who ${cls}">${m.nombre}</div>${body}<div class="t">${f}</div></div>`;
+    return `<div class="msg${beboCls}"><div class="who ${cls}">${m.nombre}</div>${body}<div class="t">${f}</div></div>`;
   }).join('')||'<div class="msg">Todavía no hay instrucciones.</div>';
 }
 loadHist();
