@@ -30,6 +30,9 @@ textarea:focus{outline:none;border-color:#00e5ff;box-shadow:0 0 10px rgba(0,229,
 @keyframes pulse{50%{box-shadow:0 0 20px rgba(255,85,85,.7)}}
 .btn:disabled{opacity:.4;cursor:default}
 #status{text-align:center;min-height:1.4em;font-size:.9rem;color:#00e5ff;margin-top:10px}
+.live{text-align:center;font-size:.75rem;color:#4ade80;margin-bottom:12px}
+.live::before{content:'● ';animation:blink 1.5s infinite}
+@keyframes blink{50%{opacity:.3}}
 .hist h2{font-size:1.05rem;color:#ff9f1c;margin-bottom:10px;text-shadow:0 0 10px rgba(255,159,28,.4)}
 .msg{background:#0d0d16;border:1px solid #23232f;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.92rem}
 .msg .who{font-weight:800;font-size:.8rem;margin-bottom:4px}
@@ -45,6 +48,7 @@ textarea:focus{outline:none;border-color:#00e5ff;box-shadow:0 0 10px rgba(0,229,
   <div class="lock">🔒</div>
   <h1>Bebo · Privado</h1>
   <p class="sub">Canal privado de Lali — instrucciones directas para Bebo</p>
+  <div class="live">Bebo revisando</div>
 
   <div class="card">
     <div class="names">
@@ -75,12 +79,14 @@ const status=t=>{$('status').textContent=t;};
 async function sendText(){
   const t=$('txt').value.trim();
   if(!t){status('Escribí algo primero');return;}
-  $('btnSend').disabled=true; status('Enviando...');
+  $('txt').value='';
+  // Optimista: mostrar al instante
+  prependMsg({nombre,tipo:'texto',contenido:t,created_at:new Date().toISOString()});
+  status('Enviando...');
   const {error}=await sb.from('instrucciones_privadas').insert({nombre,tipo:'texto',contenido:t});
-  $('btnSend').disabled=false;
   if(error){status('Error: '+error.message);return;}
-  $('txt').value=''; status('✓ Enviado a Bebo');
-  loadHist(); setTimeout(()=>status(''),2500);
+  status('✓ Enviado a Bebo');
+  setTimeout(()=>status(''),2500);
 }
 
 function toggleRec(){
@@ -102,27 +108,45 @@ async function sendAudio(stream){
   const blob=new Blob(chunks,{type:'audio/webm'});
   stream.getTracks().forEach(t=>t.stop());
   const fname=Date.now()+'_'+nombre+'.webm';
+  const localUrl=URL.createObjectURL(blob);
+  // Optimista: mostrar al instante
+  prependMsg({nombre,tipo:'audio',audio_url:localUrl,contenido:'🎤 Audio',created_at:new Date().toISOString()});
   const {error:upErr}=await sb.storage.from('instrucciones-audio').upload(fname,blob);
   if(upErr){status('Error al subir: '+upErr.message);return;}
   const {data}=sb.storage.from('instrucciones-audio').getPublicUrl(fname);
   const {error}=await sb.from('instrucciones_privadas').insert({nombre,tipo:'audio',audio_url:data.publicUrl,contenido:'🎤 Audio'});
   if(error){status('Error: '+error.message);return;}
-  status('✓ Audio enviado a Bebo'); loadHist(); setTimeout(()=>status(''),2500);
+  status('✓ Audio enviado a Bebo'); setTimeout(()=>status(''),2500);
 }
 
+function msgHtml(m){
+  const cls=m.nombre==='Lali'?'la':(m.nombre==='Bebo'?'be':'ce');
+  const beboCls=m.nombre==='Bebo'?' bebo':'';
+  const body=m.tipo==='audio'?`<audio controls src="${m.audio_url}"></audio>`:`<div>${(m.contenido||'').replace(/</g,'&lt;')}</div>`;
+  const f=new Date(m.created_at).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  return `<div class="msg${beboCls}"><div class="who ${cls}">${m.nombre}</div>${body}<div class="t">${f}</div></div>`;
+}
+
+function prependMsg(m){
+  const d=document.createElement('div');
+  d.innerHTML=msgHtml(m);
+  const h=$('hist');
+  if(h.querySelector('.msg')&&h.textContent.includes('Todavía no hay'))h.innerHTML='';
+  h.prepend(d.firstChild);
+}
+
+let lastIds=new Set();
 async function loadHist(){
   const {data}=await sb.from('instrucciones_privadas').select('*').order('created_at',{ascending:false}).limit(20);
   if(!data)return;
-  $('hist').innerHTML=data.map(m=>{
-    const cls=m.nombre==='Lali'?'la':(m.nombre==='Bebo'?'be':'ce');
-    const beboCls=m.nombre==='Bebo'?' bebo':'';
-    const body=m.tipo==='audio'?`<audio controls src="${m.audio_url}"></audio>`:`<div>${m.contenido.replace(/</g,'&lt;')}</div>`;
-    const f=new Date(m.created_at).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-    return `<div class="msg${beboCls}"><div class="who ${cls}">${m.nombre}</div>${body}<div class="t">${f}</div></div>`;
-  }).join('')||'<div class="msg">Todavía no hay instrucciones.</div>';
+  const ids=new Set(data.map(m=>m.id).filter(Boolean));
+  // Solo re-renderizar si hay cambios reales (evita parpadeo)
+  if(ids.size===lastIds.size&&[...ids].every(i=>lastIds.has(i)))return;
+  lastIds=ids;
+  $('hist').innerHTML=data.map(msgHtml).join('')||'<div class="msg">Todavía no hay instrucciones.</div>';
 }
 loadHist();
-setInterval(loadHist,15000);
+setInterval(loadHist,2000);
 </script>
 </body>
 </html>
