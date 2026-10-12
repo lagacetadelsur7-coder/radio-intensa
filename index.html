@@ -425,7 +425,7 @@ footer .visits{border:2px solid var(--cyan);
     <a class="sbtn ig" href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener"><span class="ico">📷</span>Instagram</a>
     <a class="sbtn yt" href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener"><span class="ico">▶</span>YouTube</a>
     <a class="sbtn mp" href="http://link.mercadopago.com.ar/radiointensa" target="_blank" rel="noopener"><span class="ico">💙</span>Colaborar</a>
-    <button class="sbtn" onclick="o()" style="cursor:pointer;background:none;font:inherit;border-color:#0ff;color:#0ff"><span class="ico">🎯</span>Trivia</button>
+    <button class="sbtn" onclick="o()" style="cursor:pointer;background:none;font:inherit;border-color:#0ff;color:#0ff"><span class="ico">🎯</span>Trivia Intensa</button>
     <a class="sbtn ms" href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener" title="El Mensajero Noticias - Semanario Digital"><img src="https://el-mensajero-noticias.vercel.app/assets/logo-mensajero.webp" alt="El Mensajero Noticias"></a>
   </div>
 </section>
@@ -1674,10 +1674,10 @@ window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
 <script src="bots-ar.js?v=9"></script>
 
 
-<style>#tm{display:none;position:fixed;inset:0;z-index:9999;background:rgba(5,5,15,.93);align-items:center;justify-content:center;padding:12px}#tm.o{display:flex}.tb{width:100%;max-width:400px;background:#0d0d1f;border:2px solid #0ff;border-radius:14px;padding:18px;box-shadow:0 0 20px #0ff;text-align:center;color:#fff}.tb h2{color:#0ff;text-shadow:0 0 10px #0ff;margin:0}.tq{margin:10px 0;min-height:2.4em}.to{display:grid;gap:8px;margin:10px 0}.to button{background:#1a1a35;border:1.5px solid #f0f;color:#fff;border-radius:10px;padding:9px;cursor:pointer}.to button.ok{background:#0a5c0a;border-color:#0f0}.to button.no{background:#5c0a0a;border-color:#f00}.tb1{background:linear-gradient(135deg,#f0f,#0ff);border:0;color:#fff;font-weight:700;padding:10px 24px;border-radius:24px;cursor:pointer;margin-top:8px}.tc{background:none;border:1px solid #555;color:#999;border-radius:16px;padding:4px 12px;cursor:pointer;margin-top:8px}.ts{font-size:2.4em;color:#0ff;margin:6px 0}</style>
+<style>#tm{display:none;position:fixed;inset:0;z-index:9999;background:rgba(5,5,15,.93);align-items:center;justify-content:center;padding:12px}#tm.o{display:flex}.tb{width:100%;max-width:400px;background:#0d0d1f;border:2px solid #0ff;border-radius:14px;padding:18px;box-shadow:0 0 20px #0ff;text-align:center;color:#fff}.tb h2{color:#0ff;margin:0}.tq{margin:10px 0;min-height:2.4em}.to{display:grid;gap:8px;margin:10px 0}.to button{background:#1a1a35;border:1.5px solid #f0f;color:#fff;border-radius:10px;padding:9px;cursor:pointer}.to button.ok{background:#0a5c0a;border-color:#0f0}.to button.no{background:#5c0a0a;border-color:#f00}.tb1{background:linear-gradient(135deg,#f0f,#0ff);border:0;color:#fff;font-weight:700;padding:10px 24px;border-radius:24px;cursor:pointer;margin-top:8px}.tc{background:none;border:1px solid #555;color:#999;border-radius:16px;padding:4px 12px;cursor:pointer;margin-top:8px}.ts{font-size:2.4em;color:#0ff;margin:6px 0}</style>
 <div id="tm"><div class="tb" id="tb"></div></div>
 <script>
-var Q=[["¿Capital de Argentina?",["Buenos Aires","Córdoba","Rosario"],0],["¿Llegada a la Luna?",["1969","1975","1980"],0],["¿Río más largo?",["Paraná","Negro","Colorado"],0],["¿Género argentino?",["Chacarera","Salsa","Merengue"],0],["¿Planeta rojo?",["Marte","Venus","Saturno"],0],["¿Moneda argentina?",["Peso","Dólar","Euro"],0],["¿Conduce Arenas?",["Lali Mitre","Benjamín","Helena"],0],["¿Pintó la Mona Lisa?",["Da Vinci","Picasso","Dalí"],0]],i=0,p=0,t=null;
+var Q=[["¿Capital argentina?",["Buenos Aires","Córdoba","Rosario"],0],["¿Llegada a la Luna?",["1969","1975","1980"],0],["¿Río más largo?",["Paraná","Negro","Colorado"],0],["¿Género musical?",["Chacarera","Salsa","Merengue"],0],["¿Planeta rojo?",["Marte","Venus","Saturno"],0],["¿Moneda argentina?",["Peso","Dólar","Euro"],0],["¿Conduce Arenas?",["Lali Mitre","Benjamín","Helena"],0],["¿Mona Lisa?",["Da Vinci","Picasso","Dalí"],0]],i=0,p=0,t=null;
 function o(){document.getElementById('tm').classList.add('o');s();}
 function c(){clearInterval(t);document.getElementById('tm').classList.remove('o');}
 function h(x){document.getElementById('tb').innerHTML=x;}
