@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🎯 Trivia Intensa</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#05050f;color:#fff;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:15px;background-image:radial-gradient(circle at 20% 30%,#1a0a2e 0%,transparent 50%),radial-gradient(circle at 80% 70%,#0a1a2e 0%,transparent 50%)}
+.box{width:100%;max-width:480px;background:#0d0d1f;border:2px solid #0ff;border-radius:20px;padding:26px;box-shadow:0 0 30px #0ff,0 0 80px rgba(255,0,255,.15);text-align:center}
+h1{color:#0ff;text-shadow:0 0 15px #0ff;font-size:1.7em;margin-bottom:4px}
+.sub{color:#f0f;margin-bottom:16px}
+.q{font-size:1.2em;margin:14px 0;min-height:3em;line-height:1.4}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opts button{background:#1a1a35;border:1.5px solid #f0f;color:#fff;border-radius:12px;padding:13px;font-size:1em;cursor:pointer;transition:.2s}
+.opts button:hover:not(:disabled){background:#2a2a55;box-shadow:0 0 12px #f0f;transform:scale(1.02)}
+.opts button.ok{background:#0a5c0a;border-color:#0f0;box-shadow:0 0 14px #0f0}
+.opts button.no{background:#5c0a0a;border-color:#f00;box-shadow:0 0 14px #f00}
+.opts button:disabled{cursor:default}
+.meta{display:flex;justify-content:space-between;color:#0ff;font-weight:700;margin-bottom:8px}
+.tbar{height:8px;background:#222;border-radius:4px;overflow:hidden;margin-bottom:12px}
+.tbar>div{height:100%;background:linear-gradient(90deg,#0ff,#f0f);transition:width 1s linear}
+.btn{background:linear-gradient(135deg,#f0f,#0ff);border:0;color:#fff;font-weight:700;font-size:1.1em;padding:13px 30px;border-radius:30px;cursor:pointer;box-shadow:0 0 15px #f0f;margin-top:10px}
+.btn:hover{transform:scale(1.05)}
+.score{font-size:3em;color:#0ff;text-shadow:0 0 18px #0ff;margin:10px 0}
+.best{color:#ffd700;margin:8px 0;font-size:1.1em}
+.back{display:inline-block;margin-top:14px;color:#999;text-decoration:none;font-size:.9em}
+.msg{color:#0ff;font-size:1.05em;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="box" id="b"></div>
+<script>
+var Q=[],G=[],i=0,p=0,tm=null,best=+(localStorage.getItem('tB')||0);
+function h(x){document.getElementById('b').innerHTML=x;}
+function sh(a){for(var j=a.length-1;j>0;j--){var k=Math.floor(Math.random()*(j+1)),t=a[j];a[j]=a[k];a[k]=t;}return a;}
+fetch('trivia-preguntas.json').then(function(r){return r.json()}).then(function(d){Q=d;start();}).catch(function(){Q=[["¿Capital argentina?",["Buenos Aires","Córdoba","Rosario"],0]];start();});
+function start(){i=0;p=0;G=sh(Q.slice());h('<h1>🎯 TRIVIA INTENSA</h1><div class="sub">'+G.length+' preguntas · 15 segundos cada una</div>'+(best?'<div class="best">🏆 Récord: '+best+' pts</div>':'')+'<button class="btn" onclick="nx()">¡EMPEZAR!</button><br><a class="back" href="index.html">← Volver a Radio Intensa</a>');}
+function nx(){if(i>=G.length){end();return;}var v=G[i],op=sh(v[1].map(function(x,j){return{t:x,k:j===v[2]};})),s='<div class="meta"><span>'+(i+1)+'/'+G.length+'</span><span>⭐ '+p+' pts</span></div><div class="tbar"><div id="tb" style="width:100%"></div></div><div class="q">'+v[0]+'</div><div class="opts">';op.forEach(function(o){s+='<button onclick="an(this,'+o.k+')">'+o.t+'</button>';});h(s+'</div>');var sec=15;clearInterval(tm);tm=setInterval(function(){sec--;var b=document.getElementById('tb');if(b)b.style.width=(sec/15*100)+'%';if(sec<=0){clearInterval(tm);an(null,false);}},1000);}
+function an(btn,ok){clearInterval(tm);var bs=document.querySelectorAll('.opts button');for(var j=0;j<bs.length;j++)bs[j].disabled=true;if(btn)btn.classList.add(ok?'ok':'no');if(ok)p+=10;i++;setTimeout(nx,1100);}
+function end(){if(p>best){best=p;localStorage.setItem('tB',best);}var m=p>=500?'¡Leyenda de la trivia! 🏆':p>=200?'¡Increíble! 👏':p>=80?'¡Muy bien! 💪':'A seguir practicando 😅';h('<h1>🎯 ¡FIN DEL JUEGO!</h1><div class="score">'+p+'</div><div>puntos</div><div class="msg">'+m+'</div><div class="best">🏆 Récord: '+best+' pts</div><button class="btn" onclick="start()">JUGAR OTRA VEZ</button><br><a class="back" href="index.html">← Volver a Radio Intensa</a>');}
+</script>
+</body>
+</html>
