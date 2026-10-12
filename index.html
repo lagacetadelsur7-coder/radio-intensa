@@ -754,8 +754,23 @@ window.mentionNick = function(nick){
     textInput.focus();
   }catch(e){}
 };
+async function sha256(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+let _laliOk=false;
+async function verificarClaveLali(){
+  if(_laliOk)return true;
+  try{
+    const r=await sb.from("nick_claves").select("hash").eq("nick","lali").maybeSingle();
+    if(!r.data)return true;
+    const c=prompt("🔒 El nick Lali está protegido. Ingresá su contraseña:");
+    if(!c)return false;
+    if(await sha256('lali:'+c)===r.data.hash){_laliOk=true;return true;}
+    alert("❌ Contraseña incorrecta");
+    return false;
+  }catch(e){return true;}
+}
 async function sendMessage(){
   const nick = getNick();
+  if(/^lali$/i.test(nick)){if(!(await verificarClaveLali()))return;}
   const text = textInput.value.trim();
   if(!text) return;
   if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
