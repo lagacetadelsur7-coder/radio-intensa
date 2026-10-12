@@ -44,12 +44,11 @@ textarea:focus{outline:none;border-color:#00e5ff;box-shadow:0 0 10px rgba(0,229,
 <div class="wrap">
   <div class="lock">🔒</div>
   <h1>Bebo · Privado</h1>
-  <p class="sub">Solo para Cé y Lali — instrucciones directas para Bebo</p>
+  <p class="sub">Canal privado de Lali — instrucciones directas para Bebo</p>
 
   <div class="card">
     <div class="names">
-      <button id="btnCe" class="on" onclick="setName('Cé')">Cé</button>
-      <button id="btnLa" onclick="setName('Lali')">Lali</button>
+      <button id="btnLa" class="on lali">Lali</button>
     </div>
     <textarea id="txt" placeholder="Escribí tu indicación para Bebo..."></textarea>
     <div class="row">
@@ -69,15 +68,9 @@ textarea:focus{outline:none;border-color:#00e5ff;box-shadow:0 0 10px rgba(0,229,
 const SB_URL='https://lhatspnvxujisxyigvbp.supabase.co';
 const SB_KEY='sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH';
 const sb=window.supabase.createClient(SB_URL,SB_KEY);
-let nombre='Cé', rec=null, chunks=[], recOn=false;
+let nombre='Lali', rec=null, chunks=[], recOn=false;
 const $=id=>document.getElementById(id);
 const status=t=>{$('status').textContent=t;};
-
-function setName(n){
-  nombre=n;
-  $('btnCe').className=n==='Cé'?'on':'';
-  $('btnLa').className=n==='Lali'?'on lali':'';
-}
 
 async function sendText(){
   const t=$('txt').value.trim();
