@@ -345,7 +345,7 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
 /* Clima en grilla horizontal compacta */
 .clima-wide{max-width:1180px;margin:0 auto;padding:0 20px}
 .clima-wide .side{margin-bottom:14px}
-#climaList{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+#climaList{display:block;position:relative;min-height:86px}#climaList .clima-card{display:none;animation:climaFade .6s ease}#climaList .clima-card.ver{display:block}@keyframes climaFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.clima-dots{text-align:center;margin-top:6px}.clima-dots span{display:inline-block;width:8px;height:8px;border-radius:50%;background:#444;margin:0 3px;cursor:pointer}.clima-dots span.on{background:#0ff;box-shadow:0 0 8px #0ff}
 #climaList>.ep{grid-column:1/-1}
 @media(max-width:900px){#climaList{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:640px){#climaList{grid-template-columns:repeat(2,1fr)}}
@@ -861,12 +861,13 @@ async function loadClima(){
       const data = await r.json();
       const arr = Array.isArray(data) ? data : [data];
       if(!arr[0] || !arr[0].current) throw new Error("sin datos");
-      list.innerHTML = CIUDADES.map((c,i)=>{
+      window._climaDatos = CIUDADES.map((c,i)=>{
         const cur = arr[i] && arr[i].current;
-        if(!cur) return "";
+        if(!cur) return null;
         const ic = climaIcon(cur.weather_code);
         return '<div class="clima-card"><b>'+c.f+' '+c.n+'</b><div class="cc-main"><span class="cc-ic">'+ic[0]+'</span><span class="cc-temp">'+Math.round(cur.temperature_2m)+'°</span></div><p>'+ic[1]+'</p></div>';
-      }).join("");
+      }).filter(Boolean);
+      climaRotar();
       return;
     }catch(e){ await new Promise(r=>setTimeout(r,1500)); }
   }
@@ -880,12 +881,24 @@ async function loadClima(){
       const ic = wttrIcon(cur.weatherCode);
       rows.push('<div class="clima-card"><b>'+c.f+' '+c.n+'</b><div class="cc-main"><span class="cc-ic">'+ic[0]+'</span><span class="cc-temp">'+cur.temp_C+'°</span></div><p>'+ic[1]+'</p></div>');
     }
-    list.innerHTML = rows.join("");
+    window._climaDatos = rows;
+    climaRotar();
     return;
   }catch(e){}
   /* Sin conexión a los servicios: botón para reintentar a mano */
   list.innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Clima no disponible</b><p><a href="#" id="climaRetry" style="color:var(--cyan);text-decoration:underline">🔄 Tocá para reintentar</a></p></div></div>';
   document.getElementById("climaRetry").onclick = function(e){ e.preventDefault(); list.innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Cargando clima...</b><p></p></div></div>'; loadClima(); };
+}
+var _climaIdx=0,_climaTimer=null;
+function climaRotar(){
+  const list=document.getElementById("climaList");
+  const datos=window._climaDatos||[];
+  if(!datos.length)return;
+  list.innerHTML=datos.join("")+'<div class="clima-dots">'+datos.map((_,i)=>'<span data-i="'+i+'"></span>').join("")+'</div>';
+  const cards=list.querySelectorAll(".clima-card"),dots=list.querySelectorAll(".clima-dots span");
+  function ver(i){_climaIdx=i%cards.length;cards.forEach((c,j)=>c.classList.toggle("ver",j===_climaIdx));dots.forEach((d,j)=>d.classList.toggle("on",j===_climaIdx));}
+  dots.forEach(d=>d.onclick=function(){clearInterval(_climaTimer);ver(+this.dataset.i);_climaTimer=setInterval(()=>ver(_climaIdx+1),5000);});
+  ver(0);clearInterval(_climaTimer);_climaTimer=setInterval(()=>ver(_climaIdx+1),5000);
 }
 function wttrIcon(code){
   code = parseInt(code,10);
