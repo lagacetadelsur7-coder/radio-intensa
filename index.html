@@ -1681,10 +1681,10 @@ var Q=[["¿Capital argentina?",["Buenos Aires","Córdoba","Rosario"],0]],G=[],i=
 function o(){document.getElementById('tm').classList.add('o');s();}
 function c(){clearInterval(t);document.getElementById('tm').classList.remove('o');}
 function h(x){document.getElementById('tb').innerHTML=x;}
-function s(){i=0;p=0;G=sh(Q.slice()).slice(0,10);h('<h2>🎯 TRIVIA INTENSA</h2><p style="color:#f0f">10 al azar</p><button class="tb1" onclick="n()">¡JUGAR!</button><br><button class="tc" onclick="c()">Cerrar</button>');}
-function n(){if(i>=G.length){e();return;}var v=G[i],o=v[1].map(function(x,j){return{t:x,k:j===v[2]};}),x='<p>⭐ '+p+' · '+(i+1)+'/10</p><div class="tq">'+v[0]+'</div><div class="to">';o.sort(function(){return .5-Math.random()});o.forEach(function(y){x+='<button onclick="a(this,'+y.k+')">'+y.t+'</button>';});h(x+'</div><button class="tc" onclick="c()">Salir</button>');}
+function s(){i=0;p=0;G=sh(Q.slice());h('<h2>🎯 TRIVIA INTENSA</h2><p style="color:#f0f">Sin límite</p><button class="tb1" onclick="n()">¡JUGAR!</button><br><button class="tc" onclick="c()">Cerrar</button>');}
+function n(){if(i>=G.length){e();return;}var v=G[i],o=v[1].map(function(x,j){return{t:x,k:j===v[2]};}),x='<p>⭐ '+p+' · '+(i+1)+'/'+G.length+'</p><div class="tq">'+v[0]+'</div><div class="to">';o.sort(function(){return .5-Math.random()});o.forEach(function(y){x+='<button onclick="a(this,'+y.k+')">'+y.t+'</button>';});h(x+'</div><button class="tc" onclick="c()">Salir</button>');}
 function a(b,ok){var bs=document.querySelectorAll('.to button');for(var j=0;j<bs.length;j++)bs[j].disabled=true;if(b)b.classList.add(ok?'ok':'no');if(ok)p+=10;i++;setTimeout(n,900);}
-function e(){h('<h2>🎯 ¡FIN!</h2><div class="ts">'+p+'</div><p>'+(p>=80?'¡Genial! 🏆':p>=50?'¡Bien! 👏':'A practicar 😅')+'</p><button class="tb1" onclick="s()">OTRA VEZ</button><br><button class="tc" onclick="c()">Cerrar</button>');}
+function e(){h('<h2>🎯 ¡FIN!</h2><div class="ts">'+p+'</div><p>'+(p>=500?'¡Leyenda! 🏆':p>=200?'¡Genial! 👏':p>=80?'¡Bien! 💪':'A practicar 😅')+'</p><button class="tb1" onclick="s()">OTRA VEZ</button><br><button class="tc" onclick="c()">Cerrar</button>');}
 document.getElementById('tm').addEventListener('click',function(e){if(e.target.id==='tm')c();});
 </script>
 
