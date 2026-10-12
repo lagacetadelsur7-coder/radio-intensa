@@ -425,7 +425,7 @@ footer .visits{border:2px solid var(--cyan);
     <a class="sbtn ig" href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener"><span class="ico">📷</span>Instagram</a>
     <a class="sbtn yt" href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener"><span class="ico">▶</span>YouTube</a>
     <a class="sbtn mp" href="http://link.mercadopago.com.ar/radiointensa" target="_blank" rel="noopener"><span class="ico">💙</span>Colaborar</a>
-    <button class="sbtn" onclick="o()" style="cursor:pointer;background:none;font:inherit;border-color:#0ff;color:#0ff"><span class="ico">🎯</span>Trivia Intensa</button>
+    <button class="sbtn" onclick="window.open('trivia.html','_blank','width=500,height=750')" style="cursor:pointer;background:none;font:inherit;border-color:#0ff;color:#0ff"><span class="ico">🎯</span>Trivia Intensa</button>
     <a class="sbtn ms" href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener" title="El Mensajero Noticias - Semanario Digital"><img src="https://el-mensajero-noticias.vercel.app/assets/logo-mensajero.webp" alt="El Mensajero Noticias"></a>
   </div>
 </section>
@@ -1674,19 +1674,6 @@ window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
 <script src="bots-ar.js?v=9"></script>
 
 
-<style>#tm{display:none;position:fixed;inset:0;z-index:9999;background:rgba(5,5,15,.93);align-items:center;justify-content:center;padding:12px}#tm.o{display:flex}.tb{width:100%;max-width:400px;background:#0d0d1f;border:2px solid #0ff;border-radius:14px;padding:18px;box-shadow:0 0 20px #0ff;text-align:center;color:#fff}.tb h2{color:#0ff;margin:0}.tq{margin:10px 0;min-height:2.4em}.to{display:grid;gap:8px;margin:10px 0}.to button{background:#1a1a35;border:1.5px solid #f0f;color:#fff;border-radius:10px;padding:9px;cursor:pointer}.to button.ok{background:#0a5c0a;border-color:#0f0}.to button.no{background:#5c0a0a;border-color:#f00}.tb1{background:linear-gradient(135deg,#f0f,#0ff);border:0;color:#fff;font-weight:700;padding:10px 24px;border-radius:24px;cursor:pointer;margin-top:8px}.tc{background:none;border:1px solid #555;color:#999;border-radius:16px;padding:4px 12px;cursor:pointer;margin-top:8px}.ts{font-size:2.4em;color:#0ff;margin:6px 0}</style>
-<div id="tm"><div class="tb" id="tb"></div></div>
-<script>
-var Q=[["¿Capital argentina?",["Buenos Aires","Córdoba","Rosario"],0]],G=[],i=0,p=0,t=null;fetch('trivia-preguntas.json').then(function(r){return r.json()}).then(function(d){if(d&&d.length)Q=d;}).catch(function(){});function sh(a){for(var j=a.length-1;j>0;j--){var k=Math.floor(Math.random()*(j+1)),t2=a[j];a[j]=a[k];a[k]=t2;}return a;}
-function o(){document.getElementById('tm').classList.add('o');s();}
-function c(){clearInterval(t);document.getElementById('tm').classList.remove('o');}
-function h(x){document.getElementById('tb').innerHTML=x;}
-function s(){i=0;p=0;G=sh(Q.slice());h('<h2>🎯 TRIVIA INTENSA</h2><p style="color:#f0f">Sin límite</p><button class="tb1" onclick="n()">¡JUGAR!</button><br><button class="tc" onclick="c()">Cerrar</button>');}
-function n(){if(i>=G.length){e();return;}var v=G[i],o=v[1].map(function(x,j){return{t:x,k:j===v[2]};}),x='<p>⭐ '+p+' · '+(i+1)+'/'+G.length+'</p><div class="tq">'+v[0]+'</div><div class="to">';o.sort(function(){return .5-Math.random()});o.forEach(function(y){x+='<button onclick="a(this,'+y.k+')">'+y.t+'</button>';});h(x+'</div><button class="tc" onclick="c()">Salir</button>');}
-function a(b,ok){var bs=document.querySelectorAll('.to button');for(var j=0;j<bs.length;j++)bs[j].disabled=true;if(b)b.classList.add(ok?'ok':'no');if(ok)p+=10;i++;setTimeout(n,900);}
-function e(){h('<h2>🎯 ¡FIN!</h2><div class="ts">'+p+'</div><p>'+(p>=500?'¡Leyenda! 🏆':p>=200?'¡Genial! 👏':p>=80?'¡Bien! 💪':'A practicar 😅')+'</p><button class="tb1" onclick="s()">OTRA VEZ</button><br><button class="tc" onclick="c()">Cerrar</button>');}
-document.getElementById('tm').addEventListener('click',function(e){if(e.target.id==='tm')c();});
-</script>
 
 </body>
 </html>
