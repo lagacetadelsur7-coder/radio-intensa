@@ -371,6 +371,15 @@ footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
 .tool-btn{border:2px solid rgba(0,229,255,.6)}
 .gbtn{border:2px solid rgba(255,47,214,.55)}
 .gbtn.sel{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,229,255,.6)}
+/* Ventanita para elegir avatar */
+.avamodal{position:fixed;inset:0;background:rgba(5,5,15,.82);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px}
+.avamodal-card{background:#14142a;border:2px solid var(--cyan);border-radius:16px;padding:18px;max-width:350px;width:100%;
+  box-shadow:0 0 26px rgba(0,229,255,.45)}
+.avamodal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:#fff;font-size:17px;font-weight:800;letter-spacing:1px}
+#avaClose{background:#1a1a2e;border:1px solid var(--border);color:#fff;border-radius:8px;padding:4px 11px;cursor:pointer;font-size:15px}
+.avamodal-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.avabtn{font-size:32px;background:#1a1a2e;border:2px solid var(--border);border-radius:12px;padding:8px 0;cursor:pointer;line-height:1}
+.avabtn.sel{border-color:var(--magenta);box-shadow:0 0 12px rgba(255,47,214,.55)}
 /* Reloj hora argentina */
 .clock-box{max-width:250px;margin:14px auto 0;text-align:center;background:var(--panel);
   border:2px solid var(--cyan);border-radius:12px;padding:10px 14px;
@@ -478,8 +487,14 @@ footer .visits{border:2px solid var(--cyan);
       <div class="picker" id="picker"></div>
       <div class="nickbar">
         <input type="text" id="nick" placeholder="Tu nick" maxlength="20">
-        <button type="button" class="gbtn" data-g="m" title="Hombre">👦</button>
-        <button type="button" class="gbtn" data-g="f" title="Mujer">👧</button>
+        <button type="button" class="gbtn" data-g="m" title="Elegir avatar (hombre)">👦</button>
+        <button type="button" class="gbtn" data-g="f" title="Elegir avatar (mujer)">👧</button>
+      </div>
+      <div class="avamodal" id="avaModal" style="display:none">
+        <div class="avamodal-card">
+          <div class="avamodal-head"><span>Elegí tu avatar</span><button type="button" id="avaClose" title="Cerrar">✕</button></div>
+          <div class="avamodal-grid" id="avaGrid"></div>
+        </div>
       </div>
       <div class="chat-input">
         <button class="tool-btn" id="emojiBtn" title="Emojis">😊</button>
@@ -576,7 +591,7 @@ const nickInput = document.getElementById("nick");
 const textInput = document.getElementById("msgtext");
 const chatMain = document.getElementById("chatMain");
 function getNick(){ return nickInput.value.trim(); }
-document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); }; });
+
 nickInput.addEventListener("input", ()=>{ nickInput.classList.remove("need"); });
 const seen = new Set();
 /* ===== Protección anti-copia ===== */
@@ -599,10 +614,41 @@ const seen = new Set();
   });
 })();
 const botGender = {"Lau de Quilmes":"f","JorgitoRC":"m","Sofía Herrera":"f","Andrés":"m","Cami":"f","Lucía Fernández":"f","Diego":"m","Valentín Sosa":"m","Pame":"f","Rulo":"m","Nico Restrepo":"m","Trini":"f","Iker":"m","Camila Torres":"f"};
-const M_FACES = ["\u{1F468}","\u{1F9D4}","\u{1F468}\u200D\u{1F9B1}","\u{1F468}\u200D\u{1F9B0}","\u{1F471}\u200D\u2642\uFE0F","\u{1F9D1}\u200D\u{1F9B0}"];
-const F_FACES = ["\u{1F469}","\u{1F469}\u200D\u{1F9B1}","\u{1F469}\u200D\u{1F9B0}","\u{1F471}\u200D\u2640\uFE0F","\u{1F469}\u200D\u{1F9B3}","\u{1F9D1}\u200D\u{1F9B3}"];
+const M_FACES = ["\u{1F468}","\u{1F9D4}","\u{1F468}\u200D\u{1F9B1}","\u{1F468}\u200D\u{1F9B0}","\u{1F468}\u200D\u{1F9B3}","\u{1F471}\u200D\u2642\uFE0F","\u{1F934}","\u{1F575}\uFE0F\u200D\u2642\uFE0F","\u{1F9B8}\u200D\u2642\uFE0F","\u{1F468}\u200D\u2708\uFE0F"];
+const F_FACES = ["\u{1F469}","\u{1F469}\u200D\u{1F9B1}","\u{1F469}\u200D\u{1F9B0}","\u{1F469}\u200D\u{1F9B3}","\u{1F471}\u200D\u2640\uFE0F","\u{1F9D5}","\u{1F475}","\u{1F483}","\u{1F470}","\u{1F9B8}\u200D\u2640\uFE0F"];
 const N_FACES = ["\u{1F9D1}","\u{1F642}","\u{1F60E}","\u{1F920}","\u{1F98A}","\u{1F431}","\u{1F43C}","\u{1F981}"];
 let myGender = "";
+let myAvatar = "";
+try{
+  const sg = localStorage.getItem("ri_gender"), sa = localStorage.getItem("ri_avatar");
+  if(sg){ myGender = sg; if(sa) myAvatar = sa;
+    document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.toggle("sel", x.getAttribute("data-g")===sg); });
+  }
+}catch(e){}
+function openAvaPicker(g){
+  const grid = document.getElementById("avaGrid");
+  const pool = g==="f" ? F_FACES : M_FACES;
+  grid.innerHTML = "";
+  pool.forEach(function(face){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "avabtn" + (face===myAvatar ? " sel" : "");
+    b.textContent = face;
+    b.onclick = function(){
+      myGender = g; myAvatar = face;
+      try{ localStorage.setItem("ri_gender", g); localStorage.setItem("ri_avatar", face); }catch(e){}
+      document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.toggle("sel", x.getAttribute("data-g")===g); });
+      closeAvaPicker();
+    };
+    grid.appendChild(b);
+  });
+  document.getElementById("avaModal").style.display = "flex";
+}
+function closeAvaPicker(){ document.getElementById("avaModal").style.display = "none"; }
+document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ openAvaPicker(b.getAttribute("data-g")); }; });
+document.getElementById("avaClose").onclick = closeAvaPicker;
+document.getElementById("avaModal").addEventListener("click", function(e){ if(e.target.id==="avaModal") closeAvaPicker(); });
+document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeAvaPicker(); });
 function faceFor(nick, g){
   if(nick==="Radio Intensa") return "\u{0001F4FB}";
   if(/^misi$/i.test(nick)) return "\u{0001F431}";
@@ -723,7 +769,7 @@ function addMsg(m){
   div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
   const colors = {"Lau de Quilmes":"#ff2fd6","JorgitoRC":"#00e5ff","Sofía Herrera":"#ff7a1a","Andrés":"#39ff6a","Cami":"#b78bff","Lucía Fernández":"#ffd23f","Diego":"#ff5f8f","Valentín Sosa":"#7df9ff","Pame":"#ff9f1c","Rulo":"#39ff6a","Nico Restrepo":"#ffd23f","Trini":"#ee334e","Iker":"#ff5d5d","Camila Torres":"#ff70a6","Martín":"#4dff88","Sole":"#ff8ac2","Pablo Ríos":"#6ab8ff","Mica":"#ffd166","Facundo":"#c39bff","Radio Intensa":"#ff2fd6"};
   const g = botGender[m.nick] || (m.nick===getNick() ? myGender : "");
-  const face = faceFor(m.nick, g);
+  const face = (isMe && myAvatar) ? myAvatar : faceFor(m.nick, g);
   const isLali = /^lali$/i.test(m.nick||"");
   if(isLali) m.nick = "Lali";
   const ncol = isLali ? "#ff6bda" : (colors[m.nick]||"#eef0ff");
