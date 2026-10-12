@@ -25,7 +25,7 @@ h1{color:#0ff;text-shadow:0 0 15px #0ff;font-size:1.7em;margin-bottom:4px}
 .score{font-size:3em;color:#0ff;text-shadow:0 0 18px #0ff;margin:10px 0}
 .best{color:#ffd700;margin:8px 0;font-size:1.1em}
 .back{display:inline-block;margin-top:14px;color:#999;text-decoration:none;font-size:.9em}
-.msg{color:#0ff;font-size:1.05em;margin:8px 0}.ch{font-size:3.2em;margin:6px 0;animation:chPop .4s ease}@keyframes chPop{0%{transform:scale(.3)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.msg{color:#0ff;font-size:1.05em;margin:8px 0}.ch{margin:6px 0;animation:chPop .4s ease}.ch img{width:150px;height:150px;object-fit:cover;border-radius:50%;border:3px solid #0ff;box-shadow:0 0 20px #0ff}@keyframes chPop{0%{transform:scale(.3)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -37,7 +37,7 @@ function sh(a){for(var j=a.length-1;j>0;j--){var k=Math.floor(Math.random()*(j+1
 fetch('trivia-preguntas.json').then(function(r){return r.json()}).then(function(d){Q=d;start();}).catch(function(){Q=[["¿Capital argentina?",["Buenos Aires","Córdoba","Rosario"],0]];start();});
 function start(){i=0;p=0;G=sh(Q.slice());h('<h1>🎯 TRIVIA INTENSA</h1><div class="sub">'+G.length+' preguntas · 15 segundos cada una</div>'+(best?'<div class="best">🏆 Récord: '+best+' pts</div>':'')+'<button class="btn" onclick="nx()">¡EMPEZAR!</button><br><a class="back" href="index.html">← Volver a Radio Intensa</a>');}
 function nx(){if(i>=G.length){end();return;}var v=G[i],op=sh(v[1].map(function(x,j){return{t:x,k:j===v[2]};})),s='<div class="meta"><span>'+(i+1)+'/'+G.length+'</span><span>⭐ '+p+' pts</span></div><div class="tbar"><div id="tb" style="width:100%"></div></div><div class="q">'+v[0]+'</div><div class="opts">';op.forEach(function(o){s+='<button onclick="an(this,'+o.k+')">'+o.t+'</button>';});h(s+'</div>');var sec=15;clearInterval(tm);tm=setInterval(function(){sec--;var b=document.getElementById('tb');if(b)b.style.width=(sec/15*100)+'%';if(sec<=0){clearInterval(tm);an(null,false);}},1000);}
-function an(btn,ok){clearInterval(tm);var bs=document.querySelectorAll('.opts button');for(var j=0;j<bs.length;j++)bs[j].disabled=true;if(btn)btn.classList.add(ok?'ok':'no');if(ok)p+=10;var ch=ok?'<div class="ch">🧑‍🔬🎉</div><div class="msg">¡Correcto! Einstein festeja</div>':'<div class="ch">🫏</div><div class="msg">¡Mmm! El burrito no aprueba</div>';h('<div class="meta"><span>'+(i+1)+'/'+G.length+'</span><span>⭐ '+p+' pts</span></div>'+ch);i++;setTimeout(nx,1400);}
+function an(btn,ok){clearInterval(tm);var bs=document.querySelectorAll('.opts button');for(var j=0;j<bs.length;j++)bs[j].disabled=true;if(btn)btn.classList.add(ok?'ok':'no');if(ok)p+=10;var ch=ok?'<div class="ch"><img src="https://files.catbox.moe/3wls5j.webp" alt="Einstein festejando"></div><div class="msg">¡Correcto! Einstein festeja 🎉</div>':'<div class="ch"><img src="https://files.catbox.moe/vokv1n.webp" alt="Burrito"></div><div class="msg">¡Mmm! El burrito no aprueba</div>';h('<div class="meta"><span>'+(i+1)+'/'+G.length+'</span><span>⭐ '+p+' pts</span></div>'+ch);i++;setTimeout(nx,1400);}
 function end(){if(p>best){best=p;localStorage.setItem('tB',best);}var m=p>=500?'¡Leyenda de la trivia! 🏆':p>=200?'¡Increíble! 👏':p>=80?'¡Muy bien! 💪':'A seguir practicando 😅';h('<h1>🎯 ¡FIN DEL JUEGO!</h1><div class="score">'+p+'</div><div>puntos</div><div class="msg">'+m+'</div><div class="best">🏆 Récord: '+best+' pts</div><button class="btn" onclick="start()">JUGAR OTRA VEZ</button><br><a class="back" href="index.html">← Volver a Radio Intensa</a>');}
 </script>
 </body>
