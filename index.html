@@ -17,7 +17,7 @@
   --text:#eef0ff; --muted:#9a9ab5; --border:rgba(0,229,255,.14);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Rajdhani',system-ui,sans-serif;min-height:100vh;
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;
   background-image:radial-gradient(1000px 500px at 20% -5%,rgba(255,47,214,.08),transparent),
                    radial-gradient(1000px 500px at 85% 0%,rgba(0,229,255,.08),transparent);}
 #bgvid{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
@@ -53,8 +53,8 @@ header{position:sticky;top:0;z-index:50;background:rgba(7,7,15,.88);backdrop-fil
   background:linear-gradient(180deg,#7df9ff 10%,var(--cyan) 40%,var(--magenta) 90%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 22px rgba(0,229,255,.35)) drop-shadow(0 0 60px rgba(255,47,214,.25));
-  animation:heroPulse 3s ease-in-out infinite}
-@keyframes heroPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  animation:heroPulse 3s infinite}
+@keyframes heroPulse{50%{transform:scale(1.04)}}
 .dir-top{margin-top:16px;font-size:15px;letter-spacing:2px;color:var(--muted)}
 .dir-top b{color:var(--text);text-shadow:0 0 12px rgba(0,229,255,.4)}
 .live-badge{display:inline-flex;align-items:center;gap:8px;margin:18px 0 6px;padding:7px 18px;border-radius:999px;
