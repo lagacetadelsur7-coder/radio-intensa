@@ -124,11 +124,15 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .ev img{width:58px;height:58px;object-fit:cover;border-radius:10px;flex:none;border:1px solid var(--border)}
 .ev b{font-size:14px;letter-spacing:.5px;color:#fff;text-shadow:0 0 10px rgba(0,229,255,.35)}
 .ev p{color:#ffd54a;font-size:13px;font-weight:700;text-shadow:0 0 8px rgba(255,213,74,.6)}
-/* Indicador escribiendo */
+/* Indicador escribiendo estilo WhatsApp */
+.typing-text{color:#aaa;font-size:13px;font-style:italic}
+.tdots span{animation:tblink 1.2s infinite;font-weight:bold}
+.tdots span:nth-child(2){animation-delay:.2s}
+.tdots span:nth-child(3){animation-delay:.4s}
+@keyframes tblink{0%,60%,100%{opacity:.3}30%{opacity:1}}
 .typing-dots span{display:inline-block;width:8px;height:8px;margin:0 2px;background:#aaa;border-radius:50%;animation:tblink 1.2s infinite}
 .typing-dots span:nth-child(2){animation-delay:.2s}
 .typing-dots span:nth-child(3){animation-delay:.4s}
-@keyframes tblink{0%,60%,100%{opacity:.3}30%{opacity:1}}
 .card .info{padding:12px 14px}
 .card .info b{letter-spacing:1px;font-size:15px}
 .card .info p{color:#ffd54a;font-size:13px;margin-top:4px;font-weight:700;text-shadow:0 0 8px rgba(255,213,74,.6)}
@@ -758,7 +762,7 @@ function showTyping(nick, id){
   div.className = "msg bot typing-msg";
   div.id = "typing-"+id;
   div.innerHTML = '<div class="mbody"><div class="nick" style="color:#aaa">'+esc(nick)+
-    '</div><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+    '</div><div class="typing-text">escribiendo<span class="tdots"><span>.</span><span>.</span><span>.</span></span></div></div>';
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   typingEls[nick] = div;
