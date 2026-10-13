@@ -789,6 +789,7 @@ async function sendMessage(){
   if(!text) return;
   if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
   textInput.value = "";
+  try{ sendStopTyping(nick); }catch(e){}
   const { error } = await sb.from("messages").insert({nick, text});
   if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; }
 }
@@ -843,6 +844,42 @@ sb.channel("chat-live").on("postgres_changes",
 ).subscribe(status=>{
   if(status==="SUBSCRIBED"){ connEl.textContent="Conectado · chat en vivo"; connEl.className="conn ok"; }
 });
+/* ===== TYPING DE HUMANOS: "X está escribiendo..." vía broadcast ===== */
+const typingCh = sb.channel("typing-live", {config:{broadcast:{self:false}}});
+typingCh.on("broadcast", {event:"typing"}, p=>{
+  try{
+    const n = ((p.payload||{}).nick||"").trim();
+    if(!n || n === getNick()) return;
+    showTyping(n, "h-"+n);
+  }catch(e){}
+});
+typingCh.on("broadcast", {event:"stop"}, p=>{
+  try{
+    const n = ((p.payload||{}).nick||"").trim();
+    if(n) hideTyping(n);
+  }catch(e){}
+});
+typingCh.subscribe();
+let lastTypeSent = 0, typeStopT = null, prevNick = "";
+function sendStopTyping(nick){
+  try{
+    const n = nick || getNick();
+    clearTimeout(typeStopT);
+    if(n) typingCh.send({type:"broadcast", event:"stop", payload:{nick:n}});
+  }catch(e){}
+}
+textInput.addEventListener("input", ()=>{
+  const n = getNick(), t = textInput.value.trim();
+  if(!n || !t){ sendStopTyping(); return; }
+  const now = Date.now();
+  if(now - lastTypeSent < 2500) return;
+  lastTypeSent = now;
+  try{ typingCh.send({type:"broadcast", event:"typing", payload:{nick:n}}); }catch(e){}
+  clearTimeout(typeStopT);
+  typeStopT = setTimeout(()=>sendStopTyping(), 4000);
+});
+textInput.addEventListener("blur", ()=>sendStopTyping());
+nickInput.addEventListener("input", ()=>{ if(prevNick && prevNick !== getNick()) sendStopTyping(prevNick); prevNick = getNick(); });
 loadMessages();
 loadClima();
 
