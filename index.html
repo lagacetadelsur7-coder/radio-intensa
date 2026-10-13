@@ -1385,25 +1385,25 @@ window.maybeAutoReply = function(m){
     else if(/mate|asado|pizza|comida|caf[eé]/.test(t)) pool = [
       "¡Unos mates con {prog}, plan perfecto {n}!",
       "¿Mate o café para acompañar {prog}, {n}?"];
-    else if(/jaja+|\u0001f602|\u0001f923/.test(t)) pool = XR("jaja", [
+    else if(/jaja+|😂|🤣/.test(t)) pool = XR("jaja", [
       "Jaja, ¿qué pasó {n}?",
       "Jajaja, me hiciste reír {n}",
       "¿De qué se ríen? Contá {n}"]);
-    else if(/\u2764|\u0001f60d|\u0001f970/.test(t)) pool = ["¡Qué lindo {n}!","Ay {n}, qué amor"];
-    else if(/\u0001f44d|\u0001f44f|\u0001f64c/.test(t)) pool = ["¡Bien ahí {n}!","¡Eso {n}!"];
-    else if(/\u0001f622|\u0001f62d|\u0001f614/.test(t)) pool = ["¿Qué pasó {n}? ¿Estás bien?","Ánimo {n}, la radio te acompaña"];
-    else if(/\u0001f389|\u0001f973|\u0001f38a/.test(t)) pool = ["¡Fiesta {n}! ¿Qué se celebra?","¡A celebrar {n}!"];
-    else if(/\u0001f3b5|\u0001f3b6|\u0001f3a7/.test(t)) pool = ["¡Musiquita {n}!","¡Aguante la buena música {n}!"];
-    else if(/\u26bd|\u0001f3c6/.test(t)) pool = ["¡Fútbol {n}! ¿De qué cuadro sos?","¿Viste el partido {n}?"];
-    else if(/\u0001f355|\u0001f9c9|\u2615/.test(t)) pool = ["¡Qué rico {n}! ¿Convidás? jaja","¡Unos mates con {prog}, plan perfecto {n}!"];
-    else if(/\u2600|\u0001f327|\u2744/.test(t)) pool = ["¿Cómo está el clima por ahí {n}?","El clima está loco {n}, ¿no?"];
-    else if(/\u0001f319|\u2728/.test(t)) pool = ["¡Qué linda noche {n}!","Buenas noches {n}"];
-    else if(/\u0001f621|\u0001f624/.test(t)) pool = ["Uy {n}, ¿qué te enojó? Tranquilo","Respirá hondo {n}"];
-    else if(/\u0001f62e|\u0001f632/.test(t)) pool = ["¿Qué pasó {n}? ¡Contame!","¡No me digas {n}!"];
-    else if(/\u0001f64f/.test(t)) pool = ["¡De nada {n}!","Acá estamos {n}"];
-    else if(/\u0001f4a4|\u0001f634/.test(t)) pool = ["¿Sueño {n}? La radio te acompaña","Descansá {n}, buenas noches"];
-    else if(/\u0001f431|\u0001f436/.test(t)) pool = ["¡Qué lindo animalito {n}!","¿Tenés mascota {n}?"];
-    else if(/\u0001f917/.test(t)) pool = ["¡Abrazo grande {n}!","¡Qué lindo abrazo {n}!"];
+    else if(/❤️|😍|🥰|💕|💖/.test(t)) pool = ["¡Qué lindo {n}!","Ay {n}, qué amor"];
+    else if(/👍|👏|🙌|💪/.test(t)) pool = ["¡Bien ahí {n}!","¡Eso {n}!"];
+    else if(/😢|😭|😔|💔/.test(t)) pool = ["¿Qué pasó {n}? ¿Estás bien?","Ánimo {n}, la radio te acompaña"];
+    else if(/🎉|🥳|🎊|🍾/.test(t)) pool = ["¡Fiesta {n}! ¿Qué se celebra?","¡A celebrar {n}!"];
+    else if(/🎵|🎶|🎧|🎤|🎸/.test(t)) pool = ["¡Musiquita {n}!","¡Aguante la buena música {n}!"];
+    else if(/⚽|🏆/.test(t)) pool = ["¡Fútbol {n}! ¿De qué cuadro sos?","¿Viste el partido {n}?"];
+    else if(/🍕|🍔|🧉|☕|🍷|🍺|🍰/.test(t)) pool = ["¡Qué rico {n}! ¿Convidás? jaja","¡Unos mates con {prog}, plan perfecto {n}!"];
+    else if(/☀️|🌧️|⛈️|❄️/.test(t)) pool = ["¿Cómo está el clima por ahí {n}?","El clima está loco {n}, ¿no?"];
+    else if(/🌙|⭐|✨/.test(t)) pool = ["¡Qué linda noche {n}!","Buenas noches {n}"];
+    else if(/😡|🤬|😤/.test(t)) pool = ["Uy {n}, ¿qué te enojó? Tranquilo","Respirá hondo {n}"];
+    else if(/😮|😲|🤯/.test(t)) pool = ["¿Qué pasó {n}? ¡Contame!","¡No me digas {n}!"];
+    else if(/🙏/.test(t)) pool = ["¡De nada {n}!","Acá estamos {n}"];
+    else if(/💤|😴/.test(t)) pool = ["¿Sueño {n}? La radio te acompaña","Descansá {n}, buenas noches"];
+    else if(/🐱|🐶/.test(t)) pool = ["¡Qué lindo animalito {n}!","¿Tenés mascota {n}?"];
+    else if(/🤗/.test(t)) pool = ["¡Abrazo grande {n}!","¡Qué lindo abrazo {n}!"];
     else if(/a qu[eé] hora|cu[aá]ndo empieza|horario|cuando arranca/.test(t)) pool = [
       "Los horarios los anuncia Radio Intensa acá en el chat, {n}",
       "La programación está en la página, {n}, ¡no te pierdas nada!"];
