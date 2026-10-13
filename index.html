@@ -551,13 +551,9 @@ function togglePlay(){
   else { audio.play().then(()=>setPlaying(true)).catch(()=>{ setPlaying(false); }); }
 }
 playBtn.onclick = togglePlay; bigPlay.onclick = togglePlay;
-/* Intento de autoplay al entrar */
+/* Sin autoplay: la radio suena solo cuando el oyente toca reproducir (pedido de Cé 13-oct-2026) */
 window.addEventListener("load", function(){
-  try{
-    audio.src = getStreamUrl();
-    const pr = audio.play();
-    if(pr && pr.then) pr.then(function(){ setPlaying(true); }).catch(function(){ setPlaying(false); });
-  }catch(e){ setPlaying(false); }
+  try{ audio.src = getStreamUrl(); }catch(e){}
 });
 document.getElementById("vol").oninput = e => audio.volume = e.target.value/100;
 audio.volume = 1;
