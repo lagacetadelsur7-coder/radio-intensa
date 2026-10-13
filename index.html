@@ -257,6 +257,27 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .stk-intensa{background:linear-gradient(45deg,#4b0082,#9400d3);border:2px solid var(--cyan);color:#fff;animation:stkGlow 1.6s infinite}
 .stk-temazo{background:#0a2a1a;border:2px solid #39ff6a;color:#39ff6a;animation:stkBounce 1s infinite}
 .stk-aguante{background:#2a1500;border:2px solid #ff9f1c;color:#ff9f1c;animation:stkPulse 1.4s infinite}
+.stk-bravo{background:#001a2a;border:2px solid #00e5ff;color:#00e5ff}
+.stk-genio{background:#1a1a00;border:2px solid #ffd23f;color:#ffd23f}
+.stk-fuego{background:#200500;border:2px solid #ff5f1a;color:#ff8c42}
+.stk-amor{background:#220011;border:2px solid #ff5f8f;color:#ff8ac2}
+.stk-fiesta{background:#0a1a00;border:2px solid #7dff5f;color:#a8ff8a}
+.stk-noche{background:#0a0a2a;border:2px solid #b78bff;color:#d0b3ff}
+.stk-mate{background:#1a2a00;border:2px solid #a8d53f;color:#c8f55f}
+.stk-musica{background:#001a1a;border:2px solid #5ff2d0;color:#8affe0}
+.stk-aplausos{background:#2a1a00;border:2px solid #ffb35f;color:#ffd0a0}
+.stk-idolo{background:#1a0033;border:2px solid #d05fff;color:#e0a0ff}
+.stk-gracias{background:#002a1a;border:2px solid #5fff9f;color:#a0ffc8}
+.stk-saludos{background:#0a2a33;border:2px solid #5fc8ff;color:#a0e0ff}
+.stk-bienvenido{background:#331a00;border:2px solid #ffcf5f;color:#ffe0a0}
+.stk-feliz{background:#2a2a00;border:2px solid #f5ff5f;color:#faffb0}
+.stk-triste{background:#1a1a2a;border:2px solid #8a8ab8;color:#b0b0d0}
+.stk-fuerza{background:#330000;border:2px solid #ff5f5f;color:#ff9f9f}
+.stk-exito{background:#002a33;border:2px solid #5ffff2;color:#a0fff8}
+.stk-risa{background:#332a00;border:2px solid #ffe45f;color:#ffefa0}
+.stk-corazon{background:#33001a;border:2px solid #ff2f6f;color:#ff8ab0}
+.stk-triste{background:#1a1a2a;border:2px solid #8a8ab8;color:#b0b0d0}
+.stk-dale{background:#0a3300;border:2px solid #6fff5f;color:#a8ffa0}
 @keyframes stkPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes stkGlow{0%,100%{box-shadow:0 0 8px rgba(0,229,255,.4)}50%{box-shadow:0 0 20px rgba(0,229,255,.9)}}
 @keyframes stkBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
@@ -641,10 +662,8 @@ const GIPHY_KEY = "qKuAMvC7RRGQ6TY8Z97aNh3a9HwQnVv8"; /* clave de Cé - no compa
 function giphyThumb(g){ return (g.images && g.images.fixed_width_small && g.images.fixed_width_small.url) || ""; }
 function giphyFull(g){ return (g.images && g.images.fixed_height && g.images.fixed_height.url) || g.url; }
 const STICKERS = {
-  ":vivo:": '<span class="stk stk-vivo">🔴 EN VIVO</span>',
-  ":intensa:": '<span class="stk stk-intensa">⚡INTENSA⚡</span>',
-  ":temazo:": '<span class="stk stk-temazo">🎵 TEMAZO</span>',
-  ":aguante:": '<span class="stk stk-aguante">💪 AGUANTE INTENSA</span>'
+  ":vivo:": '<span class="stk stk-vivo">🔴 EN VIVO</span>', ":intensa:": '<span class="stk stk-intensa">⚡INTENSA⚡</span>', ":temazo:": '<span class="stk stk-temazo">🎵 TEMAZO</span>', ":aguante:": '<span class="stk stk-aguante">💪 AGUANTE INTENSA</span>',
+":bravo:": '<span class="stk stk-bravo">👏 BRAVO</span>', ":genio:": '<span class="stk stk-genio">🧠 GENIO</span>', ":fuego:": '<span class="stk stk-fuego">🔥 FUEGO</span>', ":amor:": '<span class="stk stk-amor">❤️ AMOR</span>', ":fiesta:": '<span class="stk stk-fiesta">🎉 FIESTA</span>', ":noche:": '<span class="stk stk-noche">🌙 BUENAS NOCHES</span>', ":mate:": '<span class="stk stk-mate">🧉 MATES</span>', ":musica:": '<span class="stk stk-musica">🎶 MÚSICA</span>', ":aplausos:": '<span class="stk stk-aplausos">👏 APLAUSOS</span>', ":idolo:": '<span class="stk stk-idolo">⭐ ÍDOLO</span>', ":gracias:": '<span class="stk stk-gracias">🙏 GRACIAS</span>', ":saludos:": '<span class="stk stk-saludos">👋 SALUDOS</span>', ":bienvenido:": '<span class="stk stk-bienvenido">🎊 BIENVENIDO</span>', ":feliz:": '<span class="stk stk-feliz">😄 FELIZ</span>', ":fuerza:": '<span class="stk stk-fuerza">💪 FUERZA</span>', ":exito:": '<span class="stk stk-exito">🚀 ÉXITO</span>', ":risa:": '<span class="stk stk-risa">😂 JAJA</span>', ":corazon:": '<span class="stk stk-corazon">💖 CORAZÓN</span>', ":triste:": '<span class="stk stk-triste">😢 TRISTE</span>', ":dale:": '<span class="stk stk-dale">🙌 DALE</span>'
 };
 function linkify(s){
   return s.replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, function(u){
