@@ -743,7 +743,7 @@ function addMsg(m){
   const isCesar = /^c[eé]sar$/i.test(m.nick||"");
   const ncol = isLali ? "#ff6ec7" : isCesar ? "#4dd8ff" : (colors[m.nick]||"#eef0ff");
   div.innerHTML = '<div class="ava" style="background:linear-gradient(135deg,'+ncol+'66,#14142a)">'+face+'</div>'+
-    '<div class="mbody"><div class="nick" style="color:'+ncol+(isLali?';text-shadow:0 0 8px #ff6ec7,0 0 20px rgba(255,110,199,.75)':isCesar?';text-shadow:0 0 8px #4dd8ff,0 0 20px rgba(77,216,255,.75)':'')+'">'+esc(m.nick)+(isLali?' <span class="lali-heart">💖</span>':"")+(isCesar?' <span class="cesar-joker">🃏</span>':"")+
+    '<div class="mbody"><div class="nick" style="color:'+ncol+(isLali?';text-shadow:0 0 8px #ff6ec7,0 0 20px rgba(255,110,199,.75)':isCesar?';text-shadow:0 0 8px #4dd8ff,0 0 20px rgba(77,216,255,.75)':'')+'">'+esc(m.nick)+(isLali?' <span class="lali-heart">💖</span>':"")+(isCesar?' <span class="cesar-joker">🂡</span>':"")+
     '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+renderBody(m)+"</div></div>";
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
