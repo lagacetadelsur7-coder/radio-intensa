@@ -611,21 +611,27 @@ const seen = new Set();
     }
   });
 })();
-const botGender = {"Lau de Quilmes":"f","JorgitoRC":"m","Sofía Herrera":"f","Andrés":"m","Cami":"f","Lucía Fernández":"f","Diego":"m","Valentín Sosa":"m","Pame":"f","Rulo":"m","Nico Restrepo":"m","Trini":"f","Iker":"m","Camila Torres":"f"};
-const M_FACES = ["\u{1F468}","\u{1F9D4}","\u{1F468}\u200D\u{1F9B1}","\u{1F468}\u200D\u{1F9B0}","\u{1F471}\u200D\u2642\uFE0F","\u{1F9D1}\u200D\u{1F9B0}"];
-const F_FACES = ["\u{1F469}","\u{1F469}\u200D\u{1F9B1}","\u{1F469}\u200D\u{1F9B0}","\u{1F471}\u200D\u2640\uFE0F","\u{1F469}\u200D\u{1F9B3}","\u{1F9D1}\u200D\u{1F9B3}"];
+const botGender = {"Tiziano":"m","Morena Acosta":"f","El Ruso":"m","Candela":"f","Braian Toledo":"m","Ailén":"f","Santino":"m","Milagros Ferrer":"f","Thiago":"m","Delfina":"f","El Colo":"m","Brisa":"f","Lautaro Giménez":"m","Aitana":"f","Bastián":"m","Emma Núñez":"f","Dylan":"m","Julieta Roldán":"f","El Flaco":"m","Kiara":"f","Nazareno":"m","Pilar Benítez":"f","El Tano":"m","Maitena":"f","Gino":"m","Renata":"f","El Chueco":"m","Zoe":"f","Ian":"m","Alma Pereyra":"f","Teo":"m","Bianca":"f","El Negro Sosa":"m","Nahiara":"f","Valentino":"m","Uma":"f","El Pela":"m","Jazmín Duarte":"f","Romeo":"m","Olivia":"f","El Gordo":"m","Martina Cejas":"f","Bauty":"m","Francisca":"f","El Enano":"m","Paloma":"f","Dante Leguizamón":"m","Ámbar":"f","El Mudo":"m","Romi":"f","Eitan":"m","Violeta Soria":"f","El Turco":"m","Aymara":"f","León":"m","Nerea":"f","El Cordobés":"m","Iara":"f","Máximo Paz":"m","Giovanna":"f","El Santiagueño":"m","Lola":"f","Ciro":"m","Antonia":"f","El Mendocino":"m","Vera":"f","Elio":"m","Josefina Quirós":"f","El Pibe":"m","Malena":"f","Gael":"m","Agustina Luna":"f","El Viejo":"m","Catalina":"f","Noah":"m","Paula Andrada":"f","El Zurdo":"m","Victoria":"f","Ramiro":"m","Sofía Ledesma":"f","El Colorado":"m","Florencia":"f","Tomás":"m","Camila Duarte":"f","El Petiso":"m","Luciana":"f","Elías":"m","Ximena":"f","El Gallego":"m","Daniela":"f","Bruno":"m","Abril Montes":"m","El Chaqueño":"m","Sasha":"f","Lisandro":"m","Oriana":"f","El Tucu":"m","Micaela Torres":"f","Joaco":"m","Ariadna":"f","El Bomba":"m","Nicol":"m","Ezio":"m","Sharon":"f","El Mago":"m","Tamara":"f","Ulises":"m","Deborah":"f","El Chino":"m","Yamila":"f","Fabricio":"m","Karen":"f","El Porteño":"m","Aldana":"f","Kevin":"m","Melina":"f","El Santafesino":"m","Daiana":"f","Yago":"m","Rocío":"f","El Entrerriano":"m","Samira":"f","Denis":"m","Aixa":"f","El Pampeano":"m","Mili":"f","Alan":"m","Noelia":"f","El Riojano":"m","Cintia":"f","Renzo":"m","Salma":"f","El Jujeño":"m","Belén":"f","Uriel":"m","Macarena":"f","El Salteño":"m","Fiamma":"f","Alex":"m","Nadia":"f","El Puntano":"m","Milena":"f","Gastón":"m","Alejandra":"f","El Neuquino":"m","Brenda":"f","Iván":"m","Eliana":"f","El Rionegrino":"m","Priscila":"f","El Chubutense":"m","Ailín":"f","Mauro":"m","Jimena":"f","El Fueguino":"m","Antonella":"f","Nicolás":"m","Débora Paz":"f","El Misionero":"m","Yael":"f","El Correntino":"m","Sol":"f","Ezequiel":"m","Azul":"f","El Formoseño":"m","Ludmila":"f","Julián":"m","Mora":"f","El Santiagueño Paz":"m","Indira":"f"};
+function guessGender(nick){ const n = String(nick||""); if(botGender[n]) return botGender[n]; if(/^el\s/i.test(n)) return "m"; const w = n.split(/\s+/)[0]; return /a$/i.test(w) ? "f" : "m"; }
+const M_FACES = ["👨","🧔","👨‍🦱","👨‍🦰","👱‍♂️","🧑‍🦲","🕵️‍♂️","👷‍♂️","🧙‍♂️","💂‍♂️","🙍‍♂️","🤵‍♂️"];
+const F_FACES = ["👩","👩‍🦱","👩‍🦰","👩‍🦳","👱‍♀️","🕵️‍♀️","👷‍♀️","🧙‍♀️","👸","💃","💂‍♀️","👩‍🦲"];
 const N_FACES = ["\u{1F9D1}","\u{1F642}","\u{1F60E}","\u{1F920}","\u{1F98A}","\u{1F431}","\u{1F43C}","\u{1F981}"];
 let myGender = "";
 function faceFor(nick, g){
-  if(nick==="Radio Intensa") return "\u{0001F4FB}";
+  if(nick==="Radio Intensa") return "\u0001F4FB";
   if(/^lali$/i.test(nick||""))return'<img src="https://files.catbox.moe/mdxf0e.jpg">';
   if(/^c[eé]sar$/i.test(nick||""))return'<img src="https://files.catbox.moe/4jruzp.jpg">';
   const pool = g==="f" ? F_FACES : g==="m" ? M_FACES : N_FACES;
-  let h = 0;
-  for(let i=0;i<nick.length;i++){ h = (h*31 + nick.codePointAt(i)) >>> 0; }
-  return pool[h % pool.length];
+  const s = String(nick||"");
+  let h = 11;
+  for(let i=0;i<s.length;i++){ h = (h*131 + s.codePointAt(i)) >>> 0; }
+  let face = pool[h % pool.length];
+  const tones = ["","\u{1F3FB}","\u{1F3FC}","\u{1F3FD}","\u{1F3FE}","\u{1F3FF}"];
+  const tone = tones[Math.floor(h/pool.length) % tones.length];
+  if(tone){ const chars = Array.from(face); face = chars[0] + tone + chars.slice(1).join(""); }
+  return face;
 }
-const botNicks = new Set(["Lau de Quilmes","JorgitoRC","Sofía Herrera","Andrés","Cami","Lucía Fernández","Diego","Valentín Sosa","Pame","Rulo","Nico Restrepo","Trini","Iker","Camila Torres","Radio Intensa"]);
+const botNicks = new Set(["Abril Montes", "Agustina Luna", "Ailén", "Ailín", "Aitana", "Aixa", "Alan", "Aldana", "Alejandra", "Alex", "Alma Pereyra", "Antonella", "Antonia", "Ariadna", "Aymara", "Azul", "Bastián", "Bauty", "Belén", "Bianca", "Braian Toledo", "Brenda", "Brisa", "Bruno", "Camila Duarte", "Candela", "Catalina", "Cintia", "Ciro", "Daiana", "Daniela", "Dante Leguizamón", "Deborah", "Delfina", "Denis", "Dylan", "Débora Paz", "Eitan", "El Bomba", "El Chaqueño", "El Chino", "El Chubutense", "El Chueco", "El Colo", "El Colorado", "El Cordobés", "El Correntino", "El Enano", "El Entrerriano", "El Flaco", "El Formoseño", "El Fueguino", "El Gallego", "El Gordo", "El Jujeño", "El Mago", "El Mendocino", "El Misionero", "El Mudo", "El Negro Sosa", "El Neuquino", "El Pampeano", "El Pela", "El Petiso", "El Pibe", "El Porteño", "El Puntano", "El Riojano", "El Rionegrino", "El Ruso", "El Salteño", "El Santafesino", "El Santiagueño", "El Santiagueño Paz", "El Tano", "El Tucu", "El Turco", "El Viejo", "El Zurdo", "Eliana", "Elio", "Elías", "Emma Núñez", "Ezequiel", "Ezio", "Fabricio", "Fiamma", "Florencia", "Francisca", "Gael", "Gastón", "Gino", "Giovanna", "Ian", "Iara", "Indira", "Iván", "Jazmín Duarte", "Jimena", "Joaco", "Josefina Quirós", "Julieta Roldán", "Julián", "Karen", "Kevin", "Kiara", "Lautaro Giménez", "León", "Lisandro", "Lola", "Luciana", "Ludmila", "Macarena", "Maitena", "Malena", "Martina Cejas", "Mauro", "Melina", "Micaela Torres", "Milagros Ferrer", "Milena", "Mili", "Mora", "Morena Acosta", "Máximo Paz", "Nadia", "Nahiara", "Nazareno", "Nerea", "Nicol", "Nicolás", "Noah", "Noelia", "Olivia", "Oriana", "Paloma", "Paula Andrada", "Pilar Benítez", "Priscila", "Radio Intensa", "Ramiro", "Renata", "Renzo", "Rocío", "Romeo", "Romi", "Salma", "Samira", "Santino", "Sasha", "Sharon", "Sofía Ledesma", "Sol", "Tamara", "Teo", "Thiago", "Tiziano", "Tomás", "Ulises", "Uma", "Uriel", "Valentino", "Vera", "Victoria", "Violeta Soria", "Ximena", "Yael", "Yago", "Yamila", "Zoe", "Ámbar"]);
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function fmtTime(ts){
   try{ return new Date(ts).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}); }
@@ -741,7 +747,7 @@ function addMsg(m){
   const PALETTE = ["#ff6ec7","#39ff6a","#00e5ff","#ff7a1a","#b78bff","#ffd23f","#ff5d5d","#6ab8ff","#4dff88","#ff2fd6","#7df9ff","#ff8ac2","#ffd166","#c39bff","#ff70a6","#ee334e"];
   function colorFor(nick){ let h=7; const s=String(nick||""); for(let i=0;i<s.length;i++){ h=(h*131+s.charCodeAt(i))>>>0; } return PALETTE[h%PALETTE.length]; }
   const colors = {"Radio Intensa":"#ff2fd6"};
-  const g = botGender[m.nick] || (m.nick===getNick() ? myGender : "");
+  const g = guessGender(m.nick) || (m.nick===getNick() ? myGender : "");
   const face = faceFor(m.nick, g);
   const isLali = /^lali$/i.test(m.nick||"");
   const isCesar = /^c[eé]sar$/i.test(m.nick||"");
