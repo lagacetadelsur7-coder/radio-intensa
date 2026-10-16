@@ -649,7 +649,7 @@ let myFace = "";
 try{ myGender=localStorage.getItem("ri_gender")||""; myFace=localStorage.getItem("ri_face")||""; }catch(e){}
 if(myGender){ document.querySelectorAll(".gbtn").forEach(function(x){ if(x.getAttribute("data-g")===myGender) x.classList.add("sel"); }); }
 function faceFor(nick, g){
-  if(nick==="Radio Intensa") return "\u0001F4FB";
+  if(nick==="Radio Intensa"){ try{ const li=document.getElementById("logoH"); if(li&&li.src) return '<img src="'+li.src+'" alt="Radio Intensa">'; }catch(e){} return "📻"; }
   if(/^lali$/i.test(nick||""))return'<img src="https://files.catbox.moe/mdxf0e.jpg">';
   if(/^c[eé]sar$/i.test(nick||""))return'<img src="https://files.catbox.moe/4jruzp.jpg">';
   const pool = g==="f" ? F_FACES : g==="m" ? M_FACES : N_FACES;
