@@ -589,7 +589,7 @@ const nickInput = document.getElementById("nick");
 const textInput = document.getElementById("msgtext");
 const chatMain = document.getElementById("chatMain");
 function getNick(){ return nickInput.value.trim(); }
-document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); }; });
+document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); try{ messagesEl.innerHTML=""; seen.clear(); loadMessages(); }catch(e){} }; });
 nickInput.addEventListener("input", ()=>{ nickInput.classList.remove("need"); });
 const seen = new Set();
 /* ===== Protección anti-copia ===== */
@@ -747,7 +747,7 @@ function addMsg(m){
   const PALETTE = ["#ff6ec7","#39ff6a","#00e5ff","#ff7a1a","#b78bff","#ffd23f","#ff5d5d","#6ab8ff","#4dff88","#ff2fd6","#7df9ff","#ff8ac2","#ffd166","#c39bff","#ff70a6","#ee334e"];
   function colorFor(nick){ let h=7; const s=String(nick||""); for(let i=0;i<s.length;i++){ h=(h*131+s.charCodeAt(i))>>>0; } return PALETTE[h%PALETTE.length]; }
   const colors = {"Radio Intensa":"#ff2fd6"};
-  const g = guessGender(m.nick) || (m.nick===getNick() ? myGender : "");
+  const g = (m.nick===getNick() && myGender) ? myGender : guessGender(m.nick);
   const face = faceFor(m.nick, g);
   const isLali = /^lali$/i.test(m.nick||"");
   const isCesar = /^c[eé]sar$/i.test(m.nick||"");
