@@ -240,6 +240,12 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .pk-grid{display:flex;flex-wrap:wrap;gap:8px}
 .pk-e{font-size:26px;cursor:pointer;padding:4px;border-radius:8px}
 .pk-e:hover{background:rgba(0,229,255,.15)}
+.face-picker{position:absolute;left:12px;right:12px;bottom:150px;max-height:250px;overflow-y:auto;background:#14142a;
+  border:1px solid var(--magenta);border-radius:12px;padding:12px;z-index:30;display:none;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.face-picker .fp-title{font-size:13px;color:var(--muted);margin-bottom:8px}
+.face-picker .pk-f{font-size:30px;cursor:pointer;padding:6px;border-radius:10px;border:2px solid transparent}
+.face-picker .pk-f:hover{background:rgba(255,45,149,.15)}
+.face-picker .pk-f.sel{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.5)}
 .pk-g{width:88px;height:66px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border)}
 .pk-g:hover{border-color:var(--cyan)}
 .pk-s{cursor:pointer;padding:4px}
@@ -505,6 +511,7 @@ footer .visits{border:2px solid var(--cyan);
         <button type="button" class="gbtn" data-g="m" title="Hombre">👦</button>
         <button type="button" class="gbtn" data-g="f" title="Mujer">👧</button>
       </div>
+      <div class="face-picker" id="facePicker"></div>
       <div class="chat-input">
         <button class="tool-btn" id="emojiBtn" title="Emojis">😊</button>
         <button class="tool-btn" id="gifBtn" title="GIFs">GIF</button>
@@ -589,7 +596,28 @@ const nickInput = document.getElementById("nick");
 const textInput = document.getElementById("msgtext");
 const chatMain = document.getElementById("chatMain");
 function getNick(){ return nickInput.value.trim(); }
-document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); try{ messagesEl.innerHTML=""; seen.clear(); loadMessages(); }catch(e){} }; });
+const facePickerEl = document.getElementById("facePicker");
+let facePickerG = null;
+function closeFacePicker(){ facePickerEl.style.display="none"; facePickerG=null; }
+function openFacePicker(g){
+  if(facePickerG===g){ closeFacePicker(); return; }
+  facePickerG = g;
+  const faces = g==="f" ? F_FACES : M_FACES;
+  facePickerEl.innerHTML = '<div class="fp-title">'+(g==="f"?"Elegí tu carita 👧":"Elegí tu carita 👦")+'</div><div class="pk-grid">'+
+    faces.map(function(f){ return '<span class="pk-f'+(f===myFace?' sel':'')+'" data-f="'+f+'">'+f+'</span>'; }).join("")+'</div>';
+  facePickerEl.querySelectorAll(".pk-f").forEach(function(sp){
+    sp.onclick=function(){
+      myFace=sp.getAttribute("data-f");
+      try{ localStorage.setItem("ri_face",myFace); localStorage.setItem("ri_gender",myGender); }catch(e){}
+      facePickerEl.querySelectorAll(".pk-f").forEach(function(x){ x.classList.remove("sel"); });
+      sp.classList.add("sel");
+      setTimeout(closeFacePicker, 350);
+      try{ messagesEl.innerHTML=""; seen.clear(); loadMessages(); }catch(e){}
+    };
+  });
+  facePickerEl.style.display="block";
+}
+document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); openFacePicker(myGender); }; });
 nickInput.addEventListener("input", ()=>{ nickInput.classList.remove("need"); });
 const seen = new Set();
 /* ===== Protección anti-copia ===== */
@@ -611,12 +639,16 @@ const seen = new Set();
     }
   });
 })();
-const botGender = {"Tiziano":"m","Morena Acosta":"f","El Ruso":"m","Candela":"f","Braian Toledo":"m","Ailén":"f","Santino":"m","Milagros Ferrer":"f","Thiago":"m","Delfina":"f","El Colo":"m","Brisa":"f","Lautaro Giménez":"m","Aitana":"f","Bastián":"m","Emma Núñez":"f","Dylan":"m","Julieta Roldán":"f","El Flaco":"m","Kiara":"f","Nazareno":"m","Pilar Benítez":"f","El Tano":"m","Maitena":"f","Gino":"m","Renata":"f","El Chueco":"m","Zoe":"f","Ian":"m","Alma Pereyra":"f","Teo":"m","Bianca":"f","El Negro Sosa":"m","Nahiara":"f","Valentino":"m","Uma":"f","El Pela":"m","Jazmín Duarte":"f","Romeo":"m","Olivia":"f","El Gordo":"m","Martina Cejas":"f","Bauty":"m","Francisca":"f","El Enano":"m","Paloma":"f","Dante Leguizamón":"m","Ámbar":"f","El Mudo":"m","Romi":"f","Eitan":"m","Violeta Soria":"f","El Turco":"m","Aymara":"f","León":"m","Nerea":"f","El Cordobés":"m","Iara":"f","Máximo Paz":"m","Giovanna":"f","El Santiagueño":"m","Lola":"f","Ciro":"m","Antonia":"f","El Mendocino":"m","Vera":"f","Elio":"m","Josefina Quirós":"f","El Pibe":"m","Malena":"f","Gael":"m","Agustina Luna":"f","El Viejo":"m","Catalina":"f","Noah":"m","Paula Andrada":"f","El Zurdo":"m","Victoria":"f","Ramiro":"m","Sofía Ledesma":"f","El Colorado":"m","Florencia":"f","Tomás":"m","Camila Duarte":"f","El Petiso":"m","Luciana":"f","Elías":"m","Ximena":"f","El Gallego":"m","Daniela":"f","Bruno":"m","Abril Montes":"m","El Chaqueño":"m","Sasha":"f","Lisandro":"m","Oriana":"f","El Tucu":"m","Micaela Torres":"f","Joaco":"m","Ariadna":"f","El Bomba":"m","Nicol":"m","Ezio":"m","Sharon":"f","El Mago":"m","Tamara":"f","Ulises":"m","Deborah":"f","El Chino":"m","Yamila":"f","Fabricio":"m","Karen":"f","El Porteño":"m","Aldana":"f","Kevin":"m","Melina":"f","El Santafesino":"m","Daiana":"f","Yago":"m","Rocío":"f","El Entrerriano":"m","Samira":"f","Denis":"m","Aixa":"f","El Pampeano":"m","Mili":"f","Alan":"m","Noelia":"f","El Riojano":"m","Cintia":"f","Renzo":"m","Salma":"f","El Jujeño":"m","Belén":"f","Uriel":"m","Macarena":"f","El Salteño":"m","Fiamma":"f","Alex":"m","Nadia":"f","El Puntano":"m","Milena":"f","Gastón":"m","Alejandra":"f","El Neuquino":"m","Brenda":"f","Iván":"m","Eliana":"f","El Rionegrino":"m","Priscila":"f","El Chubutense":"m","Ailín":"f","Mauro":"m","Jimena":"f","El Fueguino":"m","Antonella":"f","Nicolás":"m","Débora Paz":"f","El Misionero":"m","Yael":"f","El Correntino":"m","Sol":"f","Ezequiel":"m","Azul":"f","El Formoseño":"m","Ludmila":"f","Julián":"m","Mora":"f","El Santiagueño Paz":"m","Indira":"f"};
+const GFEM=["Abril Montes","Ailén","Ailín","Azul","Belén","Deborah","Jazmín Duarte","Karen","Milagros Ferrer","Mili","Pilar Benítez","Rocío","Romi","Sharon","Sol","Yael","Zoe","Ámbar"];
+function guessGender(nick){ const n=String(nick||""); if(GFEM.indexOf(n)>=0) return "f"; if(/^el\s/i.test(n)) return "m"; const w=n.split(/\s+/)[0]; return /a$/i.test(w)?"f":"m"; }
 function guessGender(nick){ const n = String(nick||""); if(botGender[n]) return botGender[n]; if(/^el\s/i.test(n)) return "m"; const w = n.split(/\s+/)[0]; return /a$/i.test(w) ? "f" : "m"; }
 const M_FACES = ["👨","🧔","👨‍🦱","👨‍🦰","👱‍♂️","🧑‍🦲","🕵️‍♂️","👷‍♂️","🧙‍♂️","💂‍♂️","🙍‍♂️","🤵‍♂️"];
 const F_FACES = ["👩","👩‍🦱","👩‍🦰","👩‍🦳","👱‍♀️","🕵️‍♀️","👷‍♀️","🧙‍♀️","👸","💃","💂‍♀️","👩‍🦲"];
 const N_FACES = ["\u{1F9D1}","\u{1F642}","\u{1F60E}","\u{1F920}","\u{1F98A}","\u{1F431}","\u{1F43C}","\u{1F981}"];
 let myGender = "";
+let myFace = "";
+try{ myGender=localStorage.getItem("ri_gender")||""; myFace=localStorage.getItem("ri_face")||""; }catch(e){}
+if(myGender){ document.querySelectorAll(".gbtn").forEach(function(x){ if(x.getAttribute("data-g")===myGender) x.classList.add("sel"); }); }
 function faceFor(nick, g){
   if(nick==="Radio Intensa") return "\u0001F4FB";
   if(/^lali$/i.test(nick||""))return'<img src="https://files.catbox.moe/mdxf0e.jpg">';
@@ -748,7 +780,8 @@ function addMsg(m){
   function colorFor(nick){ let h=7; const s=String(nick||""); for(let i=0;i<s.length;i++){ h=(h*131+s.charCodeAt(i))>>>0; } return PALETTE[h%PALETTE.length]; }
   const colors = {"Radio Intensa":"#ff2fd6"};
   const g = (m.nick===getNick() && myGender) ? myGender : guessGender(m.nick);
-  const face = faceFor(m.nick, g);
+  const isSpecial = /^lali$/i.test(m.nick||"") || /^c[eé]sar$/i.test(m.nick||"");
+  const face = (!isSpecial && m.nick===getNick() && myFace) ? myFace : faceFor(m.nick, g);
   const isLali = /^lali$/i.test(m.nick||"");
   const isCesar = /^c[eé]sar$/i.test(m.nick||"");
   const ncol = isLali ? "#ff6ec7" : isCesar ? "#4dd8ff" : (colors[m.nick]||colorFor(m.nick));
