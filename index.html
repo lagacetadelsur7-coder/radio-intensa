@@ -230,6 +230,11 @@ h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-righ
 .chat-link{color:var(--cyan);text-decoration:underline;word-break:break-all}
 .chat-link:hover{color:#fff}
 .chat-link.yt{color:#ff8080}
+.yt-prev{display:block;margin:6px 0;max-width:320px;text-decoration:none}
+.yt-prev-img{position:relative;display:block;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.25)}
+.yt-prev-img img{display:block;width:100%}
+.yt-prev-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:34px;color:#fff;text-shadow:0 2px 8px #000}
+.yt-prev-url{display:block;margin-top:4px;font-size:12px;color:var(--cyan);word-break:break-all}
 .chat-gif{max-width:220px;border-radius:10px;margin-top:4px;display:block}
 .tool-btn{background:#1a1a2e;border:1px solid var(--border);border-radius:10px;color:#fff;font-size:17px;
   padding:10px 11px;cursor:pointer;flex:none;line-height:1}
@@ -681,7 +686,7 @@ const GIF_URLS = [
   "https://media.giphy.com/media/xThtar0e9kO3WkwQ1O/giphy.gif",
   "https://media.giphy.com/media/RNcZfSefdn2Iq1SdZI/giphy.gif",
   "https://media.giphy.com/media/blSTtZehjAZ8I/giphy.gif"
-]; /* 12 GIFs verificados 2026-10-10: aplausos, música, risas, radio vintage, fiesta */
+];
 const GIFSET = new Set(GIF_URLS);
 const GIPHY_KEY = "qKuAMvC7RRGQ6TY8Z97aNh3a9HwQnVv8"; /* clave de Cé - no compartir */
 function giphyThumb(g){ return (g.images && g.images.fixed_width_small && g.images.fixed_width_small.url) || ""; }
@@ -691,6 +696,12 @@ const STICKERS = {
 ":bravo:": '<span class="stk stk-bravo">👏 BRAVO</span>', ":genio:": '<span class="stk stk-genio">🧠 GENIO</span>', ":fuego:": '<span class="stk stk-fuego">🔥 FUEGO</span>', ":amor:": '<span class="stk stk-amor">❤️ AMOR</span>', ":fiesta:": '<span class="stk stk-fiesta">🎉 FIESTA</span>', ":noche:": '<span class="stk stk-noche">🌙 BUENAS NOCHES</span>', ":mate:": '<span class="stk stk-mate">🧉 MATES</span>', ":musica:": '<span class="stk stk-musica">🎶 MÚSICA</span>', ":aplausos:": '<span class="stk stk-aplausos">👏 APLAUSOS</span>', ":idolo:": '<span class="stk stk-idolo">⭐ ÍDOLO</span>', ":gracias:": '<span class="stk stk-gracias">🙏 GRACIAS</span>', ":saludos:": '<span class="stk stk-saludos">👋 SALUDOS</span>', ":bienvenido:": '<span class="stk stk-bienvenido">🎊 BIENVENIDO</span>', ":feliz:": '<span class="stk stk-feliz">😄 FELIZ</span>', ":fuerza:": '<span class="stk stk-fuerza">💪 FUERZA</span>', ":exito:": '<span class="stk stk-exito">🚀 ÉXITO</span>', ":risa:": '<span class="stk stk-risa">😂 JAJA</span>', ":corazon:": '<span class="stk stk-corazon">💖 CORAZÓN</span>', ":triste:": '<span class="stk stk-triste">😢 TRISTE</span>', ":dale:": '<span class="stk stk-dale">🙌 DALE</span>',
 ":lali:": '<span class="stk stk-lali"><img src="https://files.catbox.moe/mdxf0e.jpg" alt="Lali">LALI</span>'
 };
+function ytId(h){
+  let m=h.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+  if(m) return m[1];
+  m=h.match(/(?:youtu\.be\/|youtube\.com\/(?:shorts|embed|live|v)\/)([A-Za-z0-9_-]{11})/i);
+  return m?m[1]:null;
+}
 function linkify(s){
   return s.replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, function(u){
     let href=u, label=u, end="";
@@ -698,6 +709,8 @@ function linkify(s){
     if(tm){ end=tm[0]; href=href.slice(0,-tm[0].length); label=label.slice(0,-tm[0].length); }
     if(/^www\./i.test(href)) href="https://"+href;
     const yt=/youtube\.com|youtu\.be/i.test(href);
+    const id=yt?ytId(href):null;
+    if(id) return '<a class="yt-prev" href="'+href+'" target="_blank" rel="noopener"><span class="yt-prev-img"><img src="https://i.ytimg.com/vi/'+id+'/hqdefault.jpg" alt="" loading="lazy" onerror="this.parentNode.hidden=true"><span class="yt-prev-play">▶</span></span><span class="yt-prev-url">'+label+'</span></a>'+end;
     return '<a class="chat-link'+(yt?' yt':'')+'" href="'+href+'" target="_blank" rel="noopener">'+(yt?'▶ ':'')+label+'</a>'+end;
   });
 }
@@ -1593,11 +1606,11 @@ function botLoop(){
 setTimeout(botLoop, 12000);
 /* ===== CARTELERA OFICIAL: avisos de programas ===== */
 const CARTELERA = [
-  {n:"Vecinos", d:5, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png", eh:23, emi:30},
+  {n:"Vecinos", d:1, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png", eh:23, emi:30},
   {n:"Arenas del Tiempo", d:0, h:23, mi:0, cond:"Lali Mitre", lug:"Buenos Aires, Argentina", img:"https://files.catbox.moe/5r1xh3.jpg", eh:23, emi:50},
   {n:"So Ham", d:1, h:14, mi:0, cond:"Helena", lug:"Espa\u00f1a", img:"https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg", eh:15, emi:0},
-  {n:"Mucho por Vivir", d:3, h:17, mi:30, cond:"Benjam\u00edn", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg", eh:23, emi:30},
-  {n:"El Div\u00e1n", d:3, h:17, mi:0, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png", eh:18, emi:0},
+  {n:"Mucho por Vivir", d:3, h:17, mi:30, cond:"Benjam\u00edn", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg", eh:18, emi:30},
+  {n:"El Div\u00e1n", d:2, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png", eh:23, emi:30},
   {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis, Argentina", img:"https://files.catbox.moe/gt19vd.jpg", eh:23, emi:0}
 ];
 const DIAS_N = ["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"];
