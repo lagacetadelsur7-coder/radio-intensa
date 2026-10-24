@@ -1818,13 +1818,15 @@ document.getElementById("stkBtn").onclick = function(){ togglePicker("stk"); };
 if("scrollRestoration" in history){ history.scrollRestoration = "manual"; }
 window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
 /* ============ CONTADOR DE VISITAS ============ */
+function vc(v){document.getElementById("visitCount").textContent=Number(v).toLocaleString("es-AR")}
 (async ()=>{
   try{
     const { data, error } = await sb.rpc("bump_visits");
-    if(!error && data != null)
-      document.getElementById("visitCount").textContent = Number(data).toLocaleString("es-AR");
+    if(!error && data != null) vc(data);
   }catch(e){}
 })();
+sb.channel("visits-live").on("postgres_changes",{event:"UPDATE",schema:"public",table:"visits"},p=>{if(p.new&&p.new.count!=null)vc(p.new.count)}).subscribe();
+setInterval(async()=>{try{const{data}=await sb.from("visits").select("count").eq("id",1).single();if(data&&data.count!=null)vc(data.count)}catch(e){}},30000);
 </script>
 <script src="bots-ar.js?v=9"></script>
 </body>
