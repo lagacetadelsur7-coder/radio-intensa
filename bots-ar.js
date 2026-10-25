@@ -542,3 +542,19 @@ window.AR_MSGS = {
     });
   }catch(e){}
 })();
+
+/* Stickers nuevos (oct 2026, a pedido de Cé): se suman al picker automáticamente */
+try{
+if(typeof STICKERS!=="undefined"){
+Object.assign(STICKERS,{
+":rosa:":'<span class="stk stk-rosa">🌹 ROSA</span>',
+":brillo:":'<span class="stk stk-brillo">✨ BRILLO</span>',
+":abrazo:":'<span class="stk stk-abrazo">🤗 ABRAZO</span>',
+":beso:":'<span class="stk stk-beso">😘 BESO</span>',
+":flor:":'<span class="stk stk-flor">🌸 FLOR</span>',
+":mariposa:":'<span class="stk stk-mariposa">🦋 MARIPOSA</span>',
+":arcoiris:":'<span class="stk stk-arcoiris">🌈 ARCOÍRIS</span>'});
+var _ss=document.createElement("style");
+_ss.textContent=".stk-rosa{background:#2a0011;border:2px solid #ff5f8f;color:#ffb0cd;animation:stkGlow 1.6s infinite}.stk-brillo{background:#1a1a33;border:2px solid #b78bff;color:#d0b3ff;animation:stkPulse 1.2s infinite}.stk-abrazo{background:#332200;border:2px solid #ffcf5f;color:#ffe0a0}.stk-beso{background:#2a001a;border:2px solid #ff6ec7;color:#ffb0dd}.stk-flor{background:#1a0a2a;border:2px solid #ff8ac2;color:#ffc2dd}.stk-mariposa{background:#0a1a33;border:2px solid #5fc8ff;color:#a0e0ff}.stk-arcoiris{background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6fff5f,#4db8ff,#c084fc);border:2px solid #fff;color:#fff;animation:stkGlow 1.6s infinite}";
+document.head.appendChild(_ss);
+}}catch(e){}
