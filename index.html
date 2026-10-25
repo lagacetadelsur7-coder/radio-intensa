@@ -474,7 +474,6 @@ footer .visits{border:2px solid var(--cyan);
     <h2 class="sec" id="programas">PROGRAMAS</h2>
     <div class="prog-grid">
       <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div class="info"><b>Vecinos</b><p>Lun · 22:30 a 23:30 hs</p></div></div>
-      <div class="card"><img class="thumb-img" loading="lazy" src="https://files.catbox.moe/5r1xh3.jpg" alt="Arenas del Tiempo"><div class="info"><b>Arenas del Tiempo</b><p>Dom · 23 a 23:50 hs</p></div></div>
       <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div class="info"><b>So Ham</b><p>Lun · 14 a 15 hs</p></div></div>
       <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div class="info"><b>Mucho por Vivir</b><p>Mié · 17:30 a 18:30 hs</p></div></div>
       <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div class="info"><b>El Diván</b><p>Mar · 22:30 a 23:30 hs</p></div></div>
@@ -485,7 +484,6 @@ footer .visits{border:2px solid var(--cyan);
     <div class="side">
       <h3>PRÓXIMOS EVENTOS</h3>
       <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div><b>Vecinos</b><p>Lun · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
-      <div class="ev"><img src="https://files.catbox.moe/5r1xh3.jpg" alt="Arenas del Tiempo"><div><b>Arenas del Tiempo</b><p>Dom · 23:00 hs<br>Buenos Aires, Argentina</p></div></div>
       <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div><b>So Ham</b><p>Lun · 14:00 hs<br>España</p></div></div>
       <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div><b>Mucho por Vivir</b><p>Mié · 17:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
       <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div><b>El Diván</b><p>Mar · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
@@ -537,7 +535,7 @@ footer .visits{border:2px solid var(--cyan);
   <div class="flogo">RADIO INTENSA</div>
   <div class="alma">ALMAFUERTE MEDIOS Y CONTENIDOS</div>
   <img class="amc-foot" loading="lazy" src="https://files.catbox.moe/lvxfzc.jpg" alt="Almafuerte medios y contenidos">
-  <div class="gerencia">Lali Mitre · Gerencia General</div>
+  <div class="gerencia">Gerencia General</div>
   <div class="visits"><span id="visitCount">···</span>&nbsp;visitas</div>
   <p class="copy">Río Cuarto, Córdoba, Argentina · Copyright © 2025 Radio Intensa · Todos los derechos reservados</p>
 </footer>
@@ -1045,7 +1043,6 @@ function programaActual(){
     const d = dias[parts.weekday];
     const h = (parseInt(parts.hour,10)%24) + parseInt(parts.minute,10)/60;
     if(d===1 && h>=22.5 && h<23.5) return "Vecinos";
-    if(d===0 && h>=23 && h<23.84) return "Arenas del Tiempo";
     if(d===1 && h>=14 && h<15) return "So Ham";
     if(d===3 && h>=17.5 && h<18.5) return "Mucho por Vivir";
     if(d===2 && h>=22.5 && h<23.5) return "El Diván";
@@ -1605,7 +1602,6 @@ setTimeout(botLoop, 12000);
 /* ===== CARTELERA OFICIAL: avisos de programas ===== */
 const CARTELERA = [
   {n:"Vecinos", d:1, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png", eh:23, emi:30},
-  {n:"Arenas del Tiempo", d:0, h:23, mi:0, cond:"Lali Mitre", lug:"Buenos Aires, Argentina", img:"https://files.catbox.moe/5r1xh3.jpg", eh:23, emi:50},
   {n:"So Ham", d:1, h:14, mi:0, cond:"Helena", lug:"Espa\u00f1a", img:"https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg", eh:15, emi:0},
   {n:"Mucho por Vivir", d:3, h:17, mi:30, cond:"Benjam\u00edn", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg", eh:18, emi:30},
   {n:"El Div\u00e1n", d:2, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png", eh:23, emi:30},
