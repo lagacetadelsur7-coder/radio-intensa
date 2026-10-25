@@ -558,3 +558,16 @@ var _ss=document.createElement("style");
 _ss.textContent=".stk-rosa{background:#2a0011;border:2px solid #ff5f8f;color:#ffb0cd;animation:stkGlow 1.6s infinite}.stk-brillo{background:#1a1a33;border:2px solid #b78bff;color:#d0b3ff;animation:stkPulse 1.2s infinite}.stk-abrazo{background:#332200;border:2px solid #ffcf5f;color:#ffe0a0}.stk-beso{background:#2a001a;border:2px solid #ff6ec7;color:#ffb0dd}.stk-flor{background:#1a0a2a;border:2px solid #ff8ac2;color:#ffc2dd}.stk-mariposa{background:#0a1a33;border:2px solid #5fc8ff;color:#a0e0ff}.stk-arcoiris{background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6fff5f,#4db8ff,#c084fc);border:2px solid #fff;color:#fff;animation:stkGlow 1.6s infinite}";
 document.head.appendChild(_ss);
 }}catch(e){}
+
+/* Auto-reconexión del reproductor (Cé 25-oct-2026): si el stream se corta, reintenta solo */
+try{
+if(typeof audio!=="undefined"&&typeof togglePlay!=="undefined"&&typeof getStreamUrl!=="undefined"&&typeof setPlaying!=="undefined"&&typeof playBtn!=="undefined"&&typeof bigPlay!=="undefined"){
+let wP=false,rN=0,rT=0;
+const _t=togglePlay;
+togglePlay=function(){var p=playing;_t();wP=!p;rN=0;};
+playBtn.onclick=togglePlay;bigPlay.onclick=togglePlay;
+function rec(){if(!wP)return;clearTimeout(rT);if(++rN>5){wP=false;setPlaying(false);return;}rT=setTimeout(function(){var u=getStreamUrl();audio.src=u+(u.includes("?")?"&":"?")+"r="+Date.now();audio.play().then(()=>{rN=0;setPlaying(true);}).catch(()=>{rT=setTimeout(rec,2000);});},2000*rN);}
+audio.onerror=rec;audio.onstalled=rec;audio.addEventListener("ended",rec);
+audio.addEventListener("pause",function(){if(wP)rT=setTimeout(rec,500);});
+audio.onplaying=()=>{clearTimeout(rT);rN=0;};
+}}catch(e){}
