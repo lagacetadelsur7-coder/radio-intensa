@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radio Intensa — En vivo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📻</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#07070f; --panel:#0d0d1a; --panel2:#121224;
+  --cyan:#00e5ff; --magenta:#ff2fd6; --orange:#ff7a1a;
+  --text:#eef0ff; --muted:#9a9ab5; --border:rgba(0,229,255,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;
+  background-image:radial-gradient(1000px 500px at 20% -5%,rgba(255,47,214,.08),transparent),
+                   radial-gradient(1000px 500px at 85% 0%,rgba(0,229,255,.08),transparent);}
+#bgvid{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+#bgshade{position:fixed;inset:0;z-index:-1;background:rgba(7,7,15,.45)}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+/* NAV */
+header{position:sticky;top:0;z-index:50;background:rgba(7,7,15,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1180px;margin:0 auto}
+.logo{font-family:'Orbitron';font-weight:800;font-size:20px;letter-spacing:2px;display:flex;align-items:center;gap:10px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 12px rgba(0,229,255,.45))}
+.logo-img{width:38px;height:38px;border-radius:50%;flex:none;border:2px solid #7df9ff;
+  animation:logoNeon 2.8s ease-in-out infinite}
+@keyframes logoNeon{0%,100%{border-color:#7df9ff;
+    box-shadow:0 0 10px rgba(0,229,255,.9),0 0 26px rgba(0,229,255,.5),0 0 60px rgba(0,229,255,.25)}
+  50%{border-color:#ff7ae0;
+    box-shadow:0 0 10px rgba(255,47,214,.9),0 0 26px rgba(255,47,214,.5),0 0 60px rgba(255,47,214,.25)}}
+.hero-img{width:150px;height:150px;border-radius:50%;margin:0 auto 18px;display:block;border:3px solid #7df9ff;
+  animation:logoGlow 4s ease-in-out infinite}
+@keyframes logoGlow{0%,100%{border-color:#7df9ff;
+    box-shadow:0 0 18px rgba(0,229,255,.9),0 0 55px rgba(0,229,255,.5),0 0 110px rgba(0,229,255,.28)}
+  50%{border-color:#ff7ae0;
+    box-shadow:0 0 18px rgba(255,47,214,.9),0 0 55px rgba(255,47,214,.5),0 0 110px rgba(255,47,214,.28)}}
+.navlinks{display:flex;gap:26px;font-weight:600;letter-spacing:1.5px;font-size:14px}
+.navlinks a{color:var(--muted);transition:.2s}
+.navlinks a:hover,.navlinks a.active{color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.7)}
+/* HERO */
+.hero{text-align:center;padding:56px 20px 40px;position:relative}
+.hero-logo{font-family:'Orbitron';font-weight:800;font-size:clamp(42px,8vw,84px);letter-spacing:6px;line-height:1.05;
+  background:linear-gradient(180deg,#7df9ff 10%,var(--cyan) 40%,var(--magenta) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px rgba(0,229,255,.35)) drop-shadow(0 0 60px rgba(255,47,214,.25));
+  animation:heroPulse 3s infinite}
+@keyframes heroPulse{50%{transform:scale(1.04)}}
+.dir-top{margin-top:16px;font-size:26px;letter-spacing:2px;font-weight:700;color:#ff2fd6;
+  text-shadow:0 0 18px rgba(255,47,214,.6)}
+.dir-top b{color:#fff;text-shadow:0 0 14px rgba(0,229,255,.6)}
+.live-badge{display:inline-flex;align-items:center;gap:8px;margin:18px 0 6px;padding:7px 18px;border-radius:999px;
+  border:1px solid rgba(255,60,60,.5);background:rgba(255,40,40,.08);font-weight:700;letter-spacing:3px;font-size:14px}
+.live-dot{width:10px;height:10px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 12px #ff3b3b;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.35}}
+#wave{display:block;margin:14px auto 6px;max-width:640px;width:100%;height:110px}
+.player{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:8px;flex-wrap:wrap}
+.btn-play{width:74px;height:74px;border-radius:50%;border:2px solid var(--magenta);background:rgba(0,229,255,.14);
+  color:var(--cyan);font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.2s;animation:playNeon 2.4s ease-in-out infinite}
+@keyframes playNeon{0%,100%{box-shadow:0 0 18px rgba(255,47,214,.35),inset 0 0 18px rgba(0,229,255,.14)}
+  50%{box-shadow:0 0 38px rgba(255,47,214,.7),inset 0 0 24px rgba(0,229,255,.25)}}
+.btn-play:hover{transform:scale(1.06)}
+.btn-big{background:linear-gradient(90deg,#ff2fd6,#c4009e);border:2px solid var(--cyan);color:#fff;font-weight:700;font-size:17px;
+  letter-spacing:1.5px;padding:15px 34px;border-radius:12px;cursor:pointer;
+  box-shadow:0 0 18px rgba(0,229,255,.65),0 0 50px rgba(0,229,255,.3),0 0 24px rgba(255,47,214,.45);transition:.2s}
+.btn-big:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(255,122,26,.65)}
+.vol{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
+.vol input{accent-color:var(--cyan);width:110px}
+.gear{background:none;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:16px}
+.gear:hover{color:var(--cyan);border-color:var(--cyan)}
+.stream-config{max-width:560px;margin:16px auto 0;padding:16px;border:1px dashed var(--border);border-radius:12px;
+  background:var(--panel);display:none;text-align:left}
+.stream-config.open{display:block}
+.stream-config label{font-size:14px;color:var(--muted);letter-spacing:1px}
+.stream-config input{width:100%;margin-top:8px;padding:11px 12px;border-radius:8px;border:1px solid var(--border);
+  background:#080812;color:var(--text);font-size:14px}
+.stream-config button{margin-top:10px;background:var(--cyan);border:none;color:#04222a;font-weight:700;
+  padding:10px 18px;border-radius:8px;cursor:pointer}
+.stream-config .hint{font-size:13px;color:var(--muted);margin-top:8px}
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 300px;gap:26px;max-width:1180px;margin:0 auto;padding:10px 20px 12px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+h2.sec{font-family:'Orbitron';font-size:20px;letter-spacing:3px;margin:26px 0 16px;
+  color:var(--text);text-shadow:0 0 14px rgba(0,229,255,.35)}
+h2.sec::before{content:"";display:inline-block;width:26px;height:3px;margin-right:10px;vertical-align:middle;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));box-shadow:0 0 10px var(--cyan)}
+/* PROGRAMAS */
+.prog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.prog-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){
+  .nav{flex-direction:column;gap:10px;padding:12px 16px}
+  .navlinks{gap:16px;font-size:12px;flex-wrap:wrap;justify-content:center}
+  .hero{padding:36px 16px 30px}
+  .hero-img{width:110px;height:110px}
+  .btn-big{padding:13px 24px;font-size:15px}
+  .chat-input{padding:12px}
+  #messages{height:300px}
+  h2.sec{font-size:17px}
+}
+.card{background:var(--panel);border:2px solid var(--magenta);border-radius:14px;overflow:hidden;transition:.25s;
+  box-shadow:0 0 12px rgba(255,47,214,.28)}
+.card:hover,.card:active{transform:translateY(-4px);border-color:var(--cyan);
+  box-shadow:0 8px 30px rgba(0,229,255,.35),0 0 18px rgba(0,229,255,.45)}
+.thumb{height:110px;display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:13px;
+  letter-spacing:2px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);text-align:center;padding:10px}
+.t1{background:linear-gradient(135deg,#0aa2c0,#7b2ff7)}
+.t2{background:linear-gradient(135deg,#ff2fd6,#7b2ff7)}
+.t3{background:linear-gradient(135deg,#ff7a1a,#ff2f6d)}
+.t4{background:linear-gradient(135deg,#00e5ff,#0077ff)}
+.t5{background:linear-gradient(135deg,#7b2ff7,#2f6bff)}
+.t6{background:linear-gradient(135deg,#ff2f6d,#ff7a1a)}
+.thumb-img{width:100%;height:150px;object-fit:cover;display:block}
+.ev{display:flex;gap:12px;align-items:center;padding:9px 0;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ev:last-child{border-bottom:none;margin-bottom:0}
+.ev img{width:58px;height:58px;object-fit:cover;border-radius:10px;flex:none;border:1px solid var(--border)}
+.ev b{font-size:14px;letter-spacing:.5px;color:#fff;text-shadow:0 0 10px rgba(0,229,255,.35)}
+.ev p{color:#ffd54a;font-size:13px;font-weight:700;text-shadow:0 0 8px rgba(255,213,74,.6)}
+/* Indicador escribiendo estilo WhatsApp */
+.typing-text{color:#aaa;font-size:13px;font-style:italic}
+.tdots span{animation:tblink 1.2s infinite;font-weight:bold}
+.tdots span:nth-child(2){animation-delay:.2s}
+.tdots span:nth-child(3){animation-delay:.4s}
+@keyframes tblink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+.typing-dots span{display:inline-block;width:8px;height:8px;margin:0 2px;background:#aaa;border-radius:50%;animation:tblink 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+.card .info{padding:12px 14px}
+.card .info b{letter-spacing:1px;font-size:15px}
+.card .info p{color:#ffd54a;font-size:13px;margin-top:4px;font-weight:700;text-shadow:0 0 8px rgba(255,213,74,.6)}
+/* SIDEBAR */
+.side{background:var(--panel);border:2px solid var(--magenta);border-radius:14px;padding:18px;margin-bottom:20px;
+  animation:sideNeon 3s ease-in-out infinite}
+@keyframes sideNeon{0%,100%{box-shadow:0 0 10px rgba(255,47,214,.35),0 0 30px rgba(255,47,214,.15)}
+  50%{box-shadow:0 0 18px rgba(255,47,214,.6),0 0 55px rgba(255,47,214,.28)}}
+.side h3{font-family:'Orbitron';font-size:14px;letter-spacing:2px;margin-bottom:14px;color:var(--cyan)}
+.ev{border-left:3px solid var(--magenta);padding:8px 0 8px 12px;margin-bottom:12px}
+.ev b{font-size:14px;letter-spacing:.5px;color:#fff;text-shadow:0 0 10px rgba(0,229,255,.35)}
+.ev p{color:#ffd54a;font-size:13px;font-weight:700;text-shadow:0 0 8px rgba(255,213,74,.6)}
+.ep{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.ep .n{width:38px;height:38px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-weight:700;background:linear-gradient(135deg,rgba(0,229,255,.25),rgba(255,47,214,.25));border:1px solid var(--border)}
+.ep p{font-size:13px;color:var(--muted)}
+.ep b{color:var(--text);font-size:14px}
+/* CHAT */
+.chat-sec{max-width:1180px;margin:0 auto;padding:0 20px 40px}
+.chat-box{background:var(--panel);border:2px solid var(--magenta);border-radius:16px;overflow:hidden;
+  box-shadow:0 0 18px rgba(255,47,214,.65),0 0 55px rgba(255,47,214,.28),inset 0 0 30px rgba(255,47,214,.05);
+  animation:neonPulse 2.6s ease-in-out infinite}
+@keyframes neonPulse{0%,100%{box-shadow:0 0 14px rgba(255,47,214,.5),0 0 44px rgba(255,47,214,.22),inset 0 0 30px rgba(255,47,214,.05)}
+  50%{box-shadow:0 0 26px rgba(255,47,214,.85),0 0 80px rgba(255,47,214,.4),inset 0 0 30px rgba(255,47,214,.08)}}
+.chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+  border-bottom:1px solid var(--border);background:var(--panel2)}
+.chat-head b{font-family:'Orbitron';font-size:15px;letter-spacing:2px}
+.chat-head b .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#39ff6a;
+  box-shadow:0 0 10px #39ff6a;margin-right:8px;animation:pulse 1.6s infinite}
+#messages{height:340px;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0))}
+#messages::-webkit-scrollbar{width:8px}
+#messages::-webkit-scrollbar-thumb{background:#2a2a3d;border-radius:8px}
+.msg{display:flex;gap:10px;align-items:flex-start;max-width:82%;padding:10px 14px;border-radius:12px;background:#23233e;border:1px solid rgba(255,255,255,.1);
+  font-size:16px;line-height:1.4;color:#f4f6ff;animation:fadein .25s;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}}
+.msg .nick{font-weight:800;font-size:14px;letter-spacing:.8px;margin-bottom:3px;text-shadow:0 0 10px currentColor}.msg .nick{cursor:pointer}.msg .nick:hover{text-decoration:underline}.msg .nick:active{opacity:.7}
+.msg .time{font-size:11px;color:var(--muted);margin-left:8px;font-weight:400}
+.msg.bot{border-left:3px solid var(--magenta)}
+.msg.me{align-self:flex-end;flex-direction:row-reverse;background:rgba(0,229,255,.14);border:1px solid rgba(0,229,255,.4)}
+.typing{font-size:13px;color:var(--muted);font-style:italic;min-height:20px;padding:0 18px}
+.chat-input{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--border);background:var(--panel2)}
+.chat-input input{background:#080812;border:1px solid var(--border);border-radius:10px;color:var(--text);
+  padding:12px;font-size:15px;font-family:inherit}
+#nick{width:150px;flex:none}
+#msgtext{flex:1}
+.chat-input input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.25)}
+.btn-send{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;color:#04222a;font-weight:700;
+  padding:0 22px;border-radius:10px;cursor:pointer;font-size:15px;letter-spacing:1px}
+.btn-send:hover{filter:brightness(1.1)}
+.conn{font-size:12px;color:var(--muted);padding:8px 18px;border-top:1px solid var(--border)}
+.conn.ok{color:#39ff6a}.conn.err{color:#ff5b5b}
+.nick-gate{padding:44px 24px;text-align:center}
+.nick-gate h4{font-family:'Orbitron';letter-spacing:2px;font-size:16px;margin-bottom:6px}
+.nick-gate p{color:var(--muted);font-size:14px;margin-bottom:18px}
+.nick-gate .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.nick-gate input{background:linear-gradient(180deg,#15152c,#0d0d20);border:2px solid var(--cyan);border-radius:12px;color:#fff;
+  padding:13px 14px;font-size:17px;font-weight:700;font-family:inherit;width:240px;text-align:center;letter-spacing:1px;
+  box-shadow:0 0 18px rgba(0,229,255,.25)}
+.nick-gate input::placeholder{color:#7fe7ff;opacity:.85;letter-spacing:2px;font-weight:600}
+.nick-gate input:focus{outline:none;border-color:var(--magenta);box-shadow:0 0 22px rgba(255,45,149,.4)}
+.nick-gate button{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;color:#04222a;font-weight:700;
+  padding:12px 28px;border-radius:10px;cursor:pointer;font-size:15px;letter-spacing:1px}
+.nick-gate button:hover{filter:brightness(1.1)}
+#chatMain{display:block}
+.nick-change{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline}
+.nick-change:hover{color:var(--cyan)}
+/* MARQUESINA */
+.marquee{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:rgba(0,229,255,.03);padding:10px 0}
+.marquee-track{display:inline-flex;gap:34px;white-space:nowrap;animation:mscroll 24s linear infinite;
+  font-family:'Orbitron';font-size:13px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.5)}
+.marquee-track .sep{color:var(--magenta);text-shadow:0 0 10px rgba(255,47,214,.5)}
+@keyframes mscroll{to{transform:translateX(-50%)}}
+/* BOTONES SOCIALES PROTAGONISTAS */
+.social-hero{text-align:center;padding:36px 20px 8px}
+.social-hero h2{font-family:'Orbitron';letter-spacing:3px;font-size:19px;margin-bottom:6px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
+.social-hero p{color:var(--muted);font-size:14px;margin-bottom:20px}
+.social-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.sbtn{display:inline-flex;align-items:center;gap:10px;padding:15px 34px;border-radius:999px;
+  font-weight:700;font-size:17px;color:#fff;text-decoration:none;transition:transform .15s;
+  box-shadow:0 4px 24px rgba(0,0,0,.45)}
+.sbtn:hover{transform:translateY(-3px) scale(1.04)}
+.sbtn.ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:2px solid #ff8ac2;
+  box-shadow:0 0 14px rgba(255,138,194,.7),0 0 38px rgba(220,39,103,.4),0 4px 26px rgba(220,39,103,.5)}
+.sbtn.yt{background:linear-gradient(45deg,#ff1a1a,#b30000);border:2px solid #ff6b6b;
+  box-shadow:0 0 14px rgba(255,107,107,.7),0 0 38px rgba(255,26,26,.4),0 4px 26px rgba(255,26,26,.45)}
+.sbtn.mp{background:linear-gradient(45deg,#00b1ea,#007eb5);border:2px solid #5fdcff;
+  box-shadow:0 4px 26px rgba(0,177,234,.5);animation:mpPulse 2.2s infinite}
+@keyframes mpPulse{0%,100%{box-shadow:0 0 14px rgba(95,220,255,.7),0 0 38px rgba(0,177,234,.4),0 4px 26px rgba(0,177,234,.5)}50%{box-shadow:0 0 22px rgba(95,220,255,.95),0 0 55px rgba(0,177,234,.6),0 4px 40px rgba(0,177,234,.9)}}
+.sbtn .ico{font-size:21px}
+.sbtn.ms{background:#fff;padding:9px 26px;border:3px solid #ffd23f;box-shadow:0 0 16px rgba(255,210,63,.75),0 0 46px rgba(255,210,63,.32),0 4px 26px rgba(255,255,255,.28)}
+.sbtn.ms img{height:36px;width:auto;display:block;border-radius:6px}
+/* CHAT: links, gifs, stickers, picker */
+.chat-link{color:var(--cyan);text-decoration:underline;word-break:break-all}
+.chat-link:hover{color:#fff}
+.chat-link.yt{color:#ff8080}
+.yt-prev{display:block;margin:6px 0;max-width:320px;text-decoration:none}
+.yt-prev-img{position:relative;display:block;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.25)}
+.yt-prev-img img{display:block;width:100%}
+.yt-prev-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:34px;color:#fff;text-shadow:0 2px 8px #000}
+.yt-prev-url{display:block;margin-top:4px;font-size:12px;color:var(--cyan);word-break:break-all}
+.chat-gif{max-width:220px;border-radius:10px;margin-top:4px;display:block}
+.tool-btn{background:#1a1a2e;border:1px solid var(--border);border-radius:10px;color:#fff;font-size:17px;
+  padding:10px 11px;cursor:pointer;flex:none;line-height:1}
+.tool-btn:hover{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.3)}
+.chat-box{position:relative}
+.picker{position:absolute;left:12px;right:12px;bottom:78px;max-height:230px;overflow-y:auto;background:#14142a;
+  border:1px solid var(--cyan);border-radius:12px;padding:12px;z-index:30;display:none;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.pk-grid{display:flex;flex-wrap:wrap;gap:8px}
+.pk-e{font-size:26px;cursor:pointer;padding:4px;border-radius:8px}
+.pk-e:hover{background:rgba(0,229,255,.15)}
+.face-picker{position:absolute;left:12px;right:12px;bottom:150px;max-height:250px;overflow-y:auto;background:#14142a;
+  border:1px solid var(--magenta);border-radius:12px;padding:12px;z-index:30;display:none;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.face-picker .fp-title{font-size:13px;color:var(--muted);margin-bottom:8px}
+.face-picker .pk-f{font-size:30px;cursor:pointer;padding:6px;border-radius:10px;border:2px solid transparent}
+.face-picker .pk-f:hover{background:rgba(255,45,149,.15)}
+.face-picker .pk-f.sel{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.5)}
+.pk-g{width:88px;height:66px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border)}
+.pk-g:hover{border-color:var(--cyan)}
+.pk-s{cursor:pointer;padding:4px}
+.pk-search{display:flex;gap:8px;margin-bottom:10px}
+.pk-search input{flex:1;background:#0d0d20;border:1px solid var(--border);border-radius:10px;color:#fff;padding:10px 12px;font-size:14px;font-family:inherit}
+.pk-search input:focus{outline:none;border-color:var(--cyan)}
+.pk-search button{background:linear-gradient(90deg,var(--cyan),#00b3cc);border:none;border-radius:10px;padding:0 16px;font-size:16px;cursor:pointer}
+.stk{display:inline-block;font-weight:800;font-size:15px;letter-spacing:1px;padding:8px 16px;border-radius:999px;margin-top:4px}
+.stk-vivo{background:#1a0505;border:2px solid #ff3b3b;color:#ff6b6b;animation:stkPulse 1.2s infinite}
+.stk-intensa{background:linear-gradient(45deg,#4b0082,#9400d3);border:2px solid var(--cyan);color:#fff;animation:stkGlow 1.6s infinite}
+.stk-temazo{background:#0a2a1a;border:2px solid #39ff6a;color:#39ff6a;animation:stkBounce 1s infinite}
+.stk-aguante{background:#2a1500;border:2px solid #ff9f1c;color:#ff9f1c;animation:stkPulse 1.4s infinite}
+.stk-bravo{background:#001a2a;border:2px solid #00e5ff;color:#00e5ff}
+.stk-genio{background:#1a1a00;border:2px solid #ffd23f;color:#ffd23f}
+.stk-fuego{background:#200500;border:2px solid #ff5f1a;color:#ff8c42}
+.stk-amor{background:#220011;border:2px solid #ff5f8f;color:#ff8ac2}
+.stk-fiesta{background:#0a1a00;border:2px solid #7dff5f;color:#a8ff8a}
+.stk-noche{background:#0a0a2a;border:2px solid #b78bff;color:#d0b3ff}
+.stk-mate{background:#1a2a00;border:2px solid #a8d53f;color:#c8f55f}
+.stk-musica{background:#001a1a;border:2px solid #5ff2d0;color:#8affe0}
+.stk-aplausos{background:#2a1a00;border:2px solid #ffb35f;color:#ffd0a0}
+.stk-idolo{background:#1a0033;border:2px solid #d05fff;color:#e0a0ff}
+.stk-gracias{background:#002a1a;border:2px solid #5fff9f;color:#a0ffc8}
+.stk-saludos{background:#0a2a33;border:2px solid #5fc8ff;color:#a0e0ff}
+.stk-bienvenido{background:#331a00;border:2px solid #ffcf5f;color:#ffe0a0}
+.stk-feliz{background:#2a2a00;border:2px solid #f5ff5f;color:#faffb0}
+.stk-triste{background:#1a1a2a;border:2px solid #8a8ab8;color:#b0b0d0}
+.stk-fuerza{background:#330000;border:2px solid #ff5f5f;color:#ff9f9f}
+.stk-exito{background:#002a33;border:2px solid #5ffff2;color:#a0fff8}
+.stk-risa{background:#332a00;border:2px solid #ffe45f;color:#ffefa0}
+.stk-corazon{background:#33001a;border:2px solid #ff2f6f;color:#ff8ab0}
+.stk-lali{background:#2a0a1a;border:2px solid #ff6ec7;color:#ff6ec7;display:inline-flex;align-items:center;gap:8px;animation:stkGlow 1.6s infinite}
+.stk-lali img{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.stk-triste{background:#1a1a2a;border:2px solid #8a8ab8;color:#b0b0d0}
+.stk-dale{background:#0a3300;border:2px solid #6fff5f;color:#a8ffa0}
+@keyframes stkPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes stkGlow{0%,100%{box-shadow:0 0 8px rgba(0,229,255,.4)}50%{box-shadow:0 0 20px rgba(0,229,255,.9)}}
+@keyframes stkBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* CHAT: barra de nick siempre visible */
+.nickbar{display:flex;gap:8px;align-items:center;padding:10px 18px 0}
+.nickbar input{flex:1;background:#080812;border:2px solid var(--cyan);border-radius:10px;color:#fff;
+  padding:9px 12px;font-size:14px;font-family:inherit;letter-spacing:1px;font-weight:600}
+.nickbar input::placeholder{color:#7fe7ff;opacity:.85}
+.nickbar input:focus{outline:none;border-color:var(--magenta);box-shadow:0 0 14px rgba(255,45,149,.35)}
+.nickbar input.need{border-color:#ff3b5c;box-shadow:0 0 14px rgba(255,59,92,.6);animation:shake .3s}
+.nickbar .gbtn{font-size:19px;padding:5px 11px}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+/* Protección anti-copia */
+body{-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+img{-webkit-user-drag:none}
+#protToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a2e;
+  border:1px solid var(--magenta);color:#fff;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:600;
+  opacity:0;pointer-events:none;transition:.3s;z-index:9999;box-shadow:0 0 18px rgba(255,47,214,.4)}
+#protToast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Cartelera oficial */
+.prog-card{background:linear-gradient(135deg,#1c1030,#101a30);border:2px solid var(--magenta);border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(255,47,214,.35)}
+.pc-img{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block}
+.pc-k{font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:700;margin-bottom:6px}
+.pc-falta{font-size:15px;font-weight:800;color:#ff7ae0;margin-bottom:4px}
+.pc-n{font-size:18px;font-weight:800;color:#fff}
+.pc-h{font-size:14px;color:var(--cyan);font-weight:600;margin:2px 0}
+.pc-c{font-size:13px;color:#cfd2ff}
+.pc-l{font-size:12px;color:#9aa0c7;margin-top:2px}
+/* Horóscopo */
+.horo-card{background:linear-gradient(135deg,#241a08,#1a1030);border:2px solid #d4a017;border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(212,160,23,.35)}
+.horo-k{font-size:11px;letter-spacing:2px;color:#ffd75e;font-weight:700;margin-bottom:6px}
+.horo-s{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px}
+.horo-t{font-size:14px;color:#f0e6c8;line-height:1.45}
+/* Promo semanario */
+.mens-card{background:linear-gradient(135deg,#0d1b2a,#1b2a4a);border:2px solid var(--cyan);border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(0,229,255,.3)}
+.mens-k{font-size:11px;letter-spacing:2px;color:var(--cyan);font-weight:700;margin-bottom:6px}
+.mens-t{font-size:14px;color:#e8ecff;line-height:1.45;margin-bottom:10px}
+.mens-a{display:inline-block;background:var(--magenta);color:#fff;font-weight:800;font-size:14px;
+  padding:8px 18px;border-radius:999px;text-decoration:none;box-shadow:0 0 12px rgba(255,47,214,.5)}
+.mens-u{margin-top:8px;font-size:13px;word-break:break-all}
+.mens-u a{color:var(--cyan);text-decoration:underline}
+/* Promo Instagram */
+.ig-card{background:linear-gradient(135deg,#2a0d2a,#1a0d2a);border:2px solid #e1306c;border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(225,48,108,.35)}
+.ig-k{font-size:11px;letter-spacing:2px;color:#ff7ab8;font-weight:700;margin-bottom:6px}
+.ig-t{font-size:14px;color:#ffe8f2;line-height:1.45;margin-bottom:10px}
+.ig-a{display:inline-block;background:linear-gradient(45deg,#f09433,#e1306c,#833ab4);color:#fff;font-weight:800;font-size:14px;
+  padding:8px 18px;border-radius:999px;text-decoration:none;box-shadow:0 0 12px rgba(225,48,108,.5)}
+.ig-u{margin-top:8px;font-size:13px;word-break:break-all}
+.ig-u a{color:#ff7ab8;text-decoration:underline}
+/* Promo Radio */
+.radio-card{background:linear-gradient(135deg,#0d1b2a,#2a0d2a);border:2px solid var(--magenta);border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(255,47,214,.35)}
+.radio-k{font-size:11px;letter-spacing:2px;color:var(--magenta);font-weight:700;margin-bottom:6px}
+.radio-t{font-size:14px;color:#f2e8ff;line-height:1.45;margin-bottom:10px}
+/* Promo YouTube */
+.yt-card{background:linear-gradient(135deg,#2a0d0d,#1a0d1a);border:2px solid #ff2a2a;border-radius:12px;
+  padding:12px 14px;margin:4px 0;max-width:300px;box-shadow:0 0 16px rgba(255,42,42,.35)}
+.yt-k{font-size:11px;letter-spacing:2px;color:#ff6b6b;font-weight:700;margin-bottom:6px}
+.yt-t{font-size:14px;color:#ffe8e8;line-height:1.45;margin-bottom:10px}
+.yt-a{display:inline-block;background:#ff2a2a;color:#fff;font-weight:800;font-size:14px;
+  padding:8px 18px;border-radius:999px;text-decoration:none;box-shadow:0 0 12px rgba(255,42,42,.5)}
+.yt-u{margin-top:8px;font-size:13px;word-break:break-all}
+.yt-u a{color:#ff9a9a;text-decoration:underline}
+/* CHAT: avatares */
+.msg .ava{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:22px;border:2px solid rgba(255,255,255,.18);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.msg .ava img{width:100%;height:100%;border-radius:50%}
+.lali-heart{display:inline-block;animation:laliSpin 2.8s linear infinite}
+@keyframes laliSpin{to{transform:rotate(360deg)}}
+.cesar-joker{display:inline-block;animation:jokerWiggle 2.2s ease-in-out infinite}
+@keyframes jokerWiggle{0%,100%{transform:rotate(-25deg)}50%{transform:rotate(25deg)}}
+.naipe{display:inline-block;background:#fff;color:#111;border-radius:5px;padding:1px 7px;font-weight:900;font-size:14px;border:1px solid #bbb;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.msg .mbody{flex:1;min-width:0}
+.grow{margin-top:14px;display:flex;gap:10px;justify-content:center;align-items:center;color:var(--muted);font-size:14px}
+.gbtn{font-size:24px;background:#1a1a2e;border:2px solid var(--border);border-radius:12px;padding:6px 14px;cursor:pointer;line-height:1}
+.gbtn.sel{border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.45)}
+/* FOOTER */
+.amc-foot{width:84px;height:84px;border-radius:50%;display:block;margin:12px auto;border:2px solid #ffd23f;
+  animation:amcNeon 3s ease-in-out infinite}
+@keyframes amcNeon{0%,100%{box-shadow:0 0 10px rgba(255,210,63,.65),0 0 28px rgba(255,210,63,.35),0 0 60px rgba(255,210,63,.18)}
+  50%{box-shadow:0 0 16px rgba(255,210,63,.95),0 0 44px rgba(255,210,63,.55),0 0 90px rgba(255,210,63,.3)}}
+footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--muted);font-size:14px}
+footer .alma{font-family:'Orbitron';font-size:13px;letter-spacing:2px;color:var(--magenta);margin:8px 0 2px;
+  text-shadow:0 0 10px rgba(255,47,214,.4)}
+footer .dir{font-size:14px}
+footer .social{display:flex;gap:14px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+footer .social a{border:1px solid var(--border);padding:8px 22px;border-radius:999px;font-size:14px;
+  letter-spacing:1px;transition:.2s;color:var(--text)}
+footer .social a:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 14px rgba(0,229,255,.3)}
+footer .copy{font-size:12px}
+footer .gerencia{font-size:14px;letter-spacing:1.5px;color:var(--text);margin:4px 0 2px}
+footer .visits{display:inline-flex;align-items:center;gap:8px;margin:12px 0 2px;padding:8px 22px;border-radius:999px;
+  border:1px solid var(--border);background:rgba(0,229,255,.05);font-size:14px;letter-spacing:1px}
+footer .visits span{font-family:'Orbitron';color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.5)}
+footer .flogo{font-family:'Orbitron';letter-spacing:3px;margin-bottom:8px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Clima en grilla horizontal compacta */
+.clima-wide{max-width:1180px;margin:0 auto;padding:0 20px}
+.clima-wide .side{margin-bottom:14px}
+#climaList{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+#climaList>.ep{grid-column:1/-1}
+@media(max-width:900px){#climaList{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:640px){#climaList{grid-template-columns:repeat(2,1fr)}}
+.clima-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;padding:8px 6px;text-align:center}
+.clima-card b{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-main{display:flex;align-items:center;justify-content:center;gap:6px;margin:3px 0}
+.cc-ic{font-size:22px;line-height:1}
+.cc-temp{font-size:20px;font-weight:800;color:var(--cyan)}
+.clima-card p{font-size:11px;color:var(--muted);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Chat optimizado para celular (al final para que gane la cascada) */
+@media(max-width:640px){
+  .chat-input{flex-wrap:wrap;gap:8px;padding:10px 12px}
+  #chatMain #msgtext{order:1;flex:1 1 100%;min-width:0;font-size:16px;padding:13px 14px;min-height:50px;border-radius:12px}
+  .chat-input .tool-btn{order:2;padding:10px 12px;font-size:17px}
+  .chat-input .btn-send{order:3;flex:1;padding:12px 16px;font-size:15px}
+  .nickbar{padding:10px 12px 0}
+}
+/* Borde de color en el campo de escribir */
+.chat-input input{border:2px solid rgba(0,229,255,.55)}
+.chat-input input:focus{border-color:var(--magenta);box-shadow:0 0 16px rgba(255,47,214,.5)}
+/* Bordes que resaltan en los botones del chat */
+.tool-btn{border:2px solid rgba(0,229,255,.6)}
+.gbtn{border:2px solid rgba(255,47,214,.55)}
+.gbtn.sel{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,229,255,.6)}
+/* Reloj hora argentina */
+.clock-box{max-width:250px;margin:14px auto 0;text-align:center;background:var(--panel);
+  border:2px solid var(--cyan);border-radius:12px;padding:10px 14px;
+  box-shadow:0 0 16px rgba(0,229,255,.35);animation:neonPulse 2.6s ease-in-out infinite}
+.clock-k{font-size:12px;letter-spacing:3px;color:var(--magenta);font-weight:700}
+.clock-t{font-family:'Orbitron',monospace;font-size:27px;font-weight:800;color:#fff;
+  text-shadow:0 0 14px rgba(0,229,255,.7);margin:4px 0;letter-spacing:2px}
+.clock-d{font-size:14px;color:var(--muted);text-transform:capitalize}
+/* Contador de visitas llamativo */
+footer .visits{border:2px solid var(--cyan);
+  box-shadow:0 0 16px rgba(0,229,255,.5),inset 0 0 12px rgba(0,229,255,.12)}
+</style>
+</head>
+<body id="inicio">
+<video id="bgvid" autoplay muted loop playsinline preload="auto" src="https://files.catbox.moe/yoib0o.mp4" aria-hidden="true"></video>
+<div id="bgshade"></div>
+<header>
+  <nav class="nav">
+    <div class="logo"><img id="logoH" src="data:image/jpeg;base64,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" class="logo-img" alt="Logo Radio Intensa">RADIO INTENSA</div>
+    <div class="navlinks">
+      <a href="#inicio" class="active">INICIO</a>
+      <a href="#episodios">PODCASTS</a>
+      <a href="#programas">PROGRAMACIÓN</a>
+      <a href="#contacto">CONTACTO</a>
+    </div>
+  </nav>
+</header>
+<section class="hero">
+  <img id="logoHero" class="hero-img" alt="Logo Radio Intensa"><script>document.getElementById('logoHero').src=document.getElementById('logoH').src</script>
+  <div class="hero-logo">RADIO<br>INTENSA</div>
+  <div class="dir-top"><b>Silvy Sultany</b> · Productora y Directora</div>
+  <div><span class="live-badge"><span class="live-dot"></span>EN VIVO</span></div>
+  <canvas id="wave"></canvas>
+  <div class="player">
+    <button class="btn-play" id="playBtn" title="Reproducir / Pausar">▶</button>
+    <button class="btn-big" id="bigPlay">REPRODUCIR AHORA</button>
+    <div class="vol">VOL <input type="range" id="vol" min="0" max="100" value="100"></div>
+  </div>
+</section>
+<div class="marquee"><div class="marquee-track">
+  <span>Bienvenidos a Intensa</span><span class="sep">✦</span><span>Almafuerte medios y contenidos</span><span class="sep">✦</span>
+  <span>Bienvenidos a Intensa</span><span class="sep">✦</span><span>Almafuerte medios y contenidos</span><span class="sep">✦</span>
+</div></div>
+<section class="social-hero">
+  <h2>SEGUINOS · MIRANOS · COLABORÁ</h2>
+  <p>La comunidad de Intensa crece con vos</p>
+  <div class="social-btns">
+    <a class="sbtn ig" href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener"><span class="ico">📷</span>Instagram</a>
+    <a class="sbtn yt" href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener"><span class="ico">▶</span>YouTube</a>
+    <a class="sbtn mp" href="http://link.mercadopago.com.ar/radiointensa" target="_blank" rel="noopener"><span class="ico">💙</span>Colaborar</a>
+    <a class="sbtn ms" href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener" title="El Mensajero Noticias - Semanario Digital"><img src="https://el-mensajero-noticias.vercel.app/assets/logo-mensajero.webp" alt="El Mensajero Noticias"></a>
+  </div>
+</section>
+<div class="layout">
+  <div>
+    <h2 class="sec" id="programas">PROGRAMAS</h2>
+    <div class="prog-grid">
+      <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div class="info"><b>Vecinos</b><p>Lun · 22:30 a 23:30 hs</p></div></div>
+      <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div class="info"><b>So Ham</b><p>Lun · 14 a 15 hs</p></div></div>
+      <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div class="info"><b>Mucho por Vivir</b><p>Mié · 17:30 a 18:30 hs</p></div></div>
+      <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div class="info"><b>El Diván</b><p>Mar · 22:30 a 23:30 hs</p></div></div>
+      <div class="card"><img class="thumb-img" loading="lazy" id="imgMusicaCallada" src="https://files.catbox.moe/gt19vd.jpg" alt="La música callada"><div class="info"><b>La música callada</b><p>Mié · 22 hs</p></div></div>
+    </div>
+  </div>
+  <aside>
+    <div class="side">
+      <h3>PRÓXIMOS EVENTOS</h3>
+      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div><b>Vecinos</b><p>Lun · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
+      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div><b>So Ham</b><p>Lun · 14:00 hs<br>España</p></div></div>
+      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div><b>Mucho por Vivir</b><p>Mié · 17:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
+      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div><b>El Diván</b><p>Mar · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
+      <div class="ev"><img id="evMusicaCallada" loading="lazy" alt="La música callada"><div><b>La música callada</b><p>Mié · 22:00 hs<br>Villa Mercedes, San Luis, Argentina</p></div></div>
+    </div>
+  </aside>
+</div>
+<div class="clima-wide">
+  <div class="side" id="clima">
+    <h3>EL CLIMA</h3>
+    <div id="climaList"><div class="ep"><div class="n">🌤️</div><div><b>Cargando clima...</b><p></p></div></div></div>
+  </div>
+</div>
+<section class="chat-sec">
+  <h2 class="sec">CHAT EN VIVO</h2>
+  <div class="chat-box">
+    <div class="chat-head">
+      <b><span class="dot"></span>CHAT DE LA RADIO</b>
+    </div>
+    <div id="chatMain">
+      <div id="messages"></div>
+      <div class="typing" id="typing"></div>
+      <div class="picker" id="picker"></div>
+      <div class="nickbar">
+        <input type="text" id="nick" placeholder="Tu nick" maxlength="20">
+        <button type="button" class="gbtn" data-g="m" title="Hombre">👦</button>
+        <button type="button" class="gbtn" data-g="f" title="Mujer">👧</button>
+      </div>
+      <div class="face-picker" id="facePicker"></div>
+      <div class="chat-input">
+        <button class="tool-btn" id="emojiBtn" title="Emojis">😊</button>
+        <button class="tool-btn" id="gifBtn" title="GIFs">GIF</button>
+        <button class="tool-btn" id="stkBtn" title="Stickers">✨</button>
+        <button class="tool-btn" id="imgBtn" title="Subir imagen">📷</button>
+        <input type="file" id="imgFile" accept="image/*" style="display:none">
+        <input type="text" id="msgtext" placeholder="Escribí tu mensaje..." maxlength="300">
+        <button class="btn-send" id="sendBtn">Enviar</button>
+      </div>
+    </div>
+    <div class="conn" id="connStatus">Conectando...</div>
+  </div>
+  <div class="clock-box">
+    <div class="clock-k">🕐 HORA ARGENTINA</div>
+    <div class="clock-t" id="clockTime">--:--:--</div>
+    <div class="clock-d" id="clockDate"></div>
+  </div>
+</section>
+<footer id="contacto">
+  <div class="flogo">RADIO INTENSA</div>
+  <div class="alma">ALMAFUERTE MEDIOS Y CONTENIDOS</div>
+  <img class="amc-foot" loading="lazy" src="https://files.catbox.moe/lvxfzc.jpg" alt="Almafuerte medios y contenidos">
+  <div class="gerencia">Gerencia General</div>
+  <div class="visits"><span id="visitCount">···</span>&nbsp;visitas</div>
+  <p class="copy">Río Cuarto, Córdoba, Argentina · Copyright © 2025 Radio Intensa · Todos los derechos reservados</p>
+</footer>
+<script>
+/* ============ CONFIG ============ */
+const SUPABASE_URL = "https://lhatspnvxujisxyigvbp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_mtsrlTdaQCgMKzfOobIpiQ_G_Io0CiH";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* ============ PLAYER ============ */
+const audio = new Audio();
+audio.preload = "auto";
+const playBtn = document.getElementById("playBtn");
+const bigPlay = document.getElementById("bigPlay");
+let playing = false;
+function getStreamUrl(){ return localStorage.getItem("ri_stream_url") || "https://stream.zeno.fm/oyazo5oex4ytv"; }
+function setPlaying(p){
+  playing = p;
+  playBtn.textContent = p ? "⏸" : "▶";
+  bigPlay.textContent = p ? "PAUSAR" : "REPRODUCIR AHORA";
+}
+function togglePlay(){
+  const url = getStreamUrl();
+  if(audio.src !== url) audio.src = url;
+  if(playing){ audio.pause(); setPlaying(false); }
+  else { audio.play().then(()=>setPlaying(true)).catch(()=>{ setPlaying(false); }); }
+}
+playBtn.onclick = togglePlay; bigPlay.onclick = togglePlay;
+/* Sin autoplay: la radio suena solo cuando el oyente toca reproducir (pedido de Cé 13-oct-2026) */
+window.addEventListener("load", function(){
+  try{ audio.src = getStreamUrl(); }catch(e){}
+});
+document.getElementById("vol").oninput = e => audio.volume = e.target.value/100;
+audio.volume = 1;
+audio.onended = ()=>setPlaying(false); audio.onpause = ()=>setPlaying(false);
+/* ============ WAVEFORM ============ */
+const cv = document.getElementById("wave"), ctx = cv.getContext("2d");
+function sizeWave(){ cv.width = cv.clientWidth; cv.height = 110; }
+window.addEventListener("resize", sizeWave); sizeWave();
+const bars = new Array(90).fill(0).map(()=>Math.random());
+(function drawWave(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const n = bars.length, bw = cv.width/n;
+  for(let i=0;i<n;i++){
+    const target = playing ? (0.25 + Math.random()*0.75) : 0.06;
+    bars[i] += (target - bars[i])*0.25;
+    const h = bars[i]*cv.height;
+    const g = ctx.createLinearGradient(0,cv.height/2-h/2,0,cv.height/2+h/2);
+    g.addColorStop(0,"#00e5ff"); g.addColorStop(1,"#ff2fd6");
+    ctx.fillStyle = g;
+    ctx.fillRect(i*bw+1, cv.height/2-h/2, Math.max(1,bw-2), h);
+  }
+  requestAnimationFrame(drawWave);
+})();
+/* ============ CHAT ============ */
+const messagesEl = document.getElementById("messages");
+const typingEl = document.getElementById("typing");
+const connEl = document.getElementById("connStatus");
+const nickInput = document.getElementById("nick");
+const textInput = document.getElementById("msgtext");
+const chatMain = document.getElementById("chatMain");
+function getNick(){ return nickInput.value.trim(); }
+const facePickerEl = document.getElementById("facePicker");
+let facePickerG = null;
+function closeFacePicker(){ facePickerEl.style.display="none"; facePickerG=null; }
+function openFacePicker(g){
+  if(facePickerG===g){ closeFacePicker(); return; }
+  facePickerG = g;
+  const faces = g==="f" ? F_FACES : M_FACES;
+  facePickerEl.innerHTML = '<div class="fp-title">'+(g==="f"?"Elegí tu carita 👧":"Elegí tu carita 👦")+'</div><div class="pk-grid">'+
+    faces.map(function(f){ return '<span class="pk-f'+(f===myFace?' sel':'')+'" data-f="'+f+'">'+f+'</span>'; }).join("")+'</div>';
+  facePickerEl.querySelectorAll(".pk-f").forEach(function(sp){
+    sp.onclick=function(){
+      myFace=sp.getAttribute("data-f");
+      try{ localStorage.setItem("ri_face",myFace); localStorage.setItem("ri_gender",myGender); }catch(e){}
+      facePickerEl.querySelectorAll(".pk-f").forEach(function(x){ x.classList.remove("sel"); });
+      sp.classList.add("sel");
+      setTimeout(closeFacePicker, 350);
+      try{ messagesEl.innerHTML=""; seen.clear(); loadMessages(); }catch(e){}
+    };
+  });
+  facePickerEl.style.display="block";
+}
+document.querySelectorAll(".gbtn").forEach(function(b){ b.onclick=function(){ document.querySelectorAll(".gbtn").forEach(function(x){ x.classList.remove("sel"); }); b.classList.add("sel"); myGender=b.getAttribute("data-g"); openFacePicker(myGender); }; });
+nickInput.addEventListener("input", ()=>{ nickInput.classList.remove("need"); });
+const seen = new Set();
+/* ===== Protección anti-copia ===== */
+(function(){
+  const toast = document.createElement("div");
+  toast.id = "protToast"; toast.textContent = "\u{1F512} Contenido protegido \u00b7 Radio Intensa";
+  document.body.appendChild(toast);
+  let tt = null;
+  function aviso(){ toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(()=>toast.classList.remove("show"), 1800); }
+  document.addEventListener("contextmenu", e=>{ e.preventDefault(); aviso(); });
+  document.addEventListener("dragstart", e=>e.preventDefault());
+  document.addEventListener("copy", e=>{ const el=e.target; if(!(el&&(el.tagName==="INPUT"||el.tagName==="TEXTAREA"))) { e.preventDefault(); aviso(); } });
+  document.addEventListener("keydown", e=>{
+    const el = e.target, inField = el && (el.tagName==="INPUT"||el.tagName==="TEXTAREA");
+    if(e.key==="F12"){ e.preventDefault(); aviso(); return; }
+    if((e.ctrlKey||e.metaKey) && !inField){
+      const k = e.key.toLowerCase();
+      if(["u","s","p"].includes(k) || ((e.shiftKey) && ["i","j","c"].includes(k))){ e.preventDefault(); aviso(); }
+    }
+  });
+})();
+const GFEM=["Abril Montes","Ailén","Ailín","Azul","Belén","Deborah","Jazmín Duarte","Karen","Milagros Ferrer","Mili","Pilar Benítez","Rocío","Romi","Sharon","Sol","Yael","Zoe","Ámbar"];
+function guessGender(nick){ const n=String(nick||""); if(GFEM.indexOf(n)>=0) return "f"; if(/^el\s/i.test(n)) return "m"; const w=n.split(/\s+/)[0]; return /a$/i.test(w)?"f":"m"; }
+const M_FACES = ["👨","🧔","👨‍🦱","👨‍🦰","👱‍♂️","🧑‍🦲","🕵️‍♂️","👷‍♂️","🧙‍♂️","💂‍♂️","🙍‍♂️","🤵‍♂️"];
+const F_FACES = ["👩","👩‍🦱","👩‍🦰","👩‍🦳","👱‍♀️","🕵️‍♀️","👷‍♀️","🧙‍♀️","👸","💃","💂‍♀️","👩‍🦲"];
+const N_FACES = ["\u{1F9D1}","\u{1F642}","\u{1F60E}","\u{1F920}","\u{1F98A}","\u{1F431}","\u{1F43C}","\u{1F981}"];
+let myGender = "";
+let myFace = "";
+try{ myGender=localStorage.getItem("ri_gender")||""; myFace=localStorage.getItem("ri_face")||""; }catch(e){}
+if(myGender){ document.querySelectorAll(".gbtn").forEach(function(x){ if(x.getAttribute("data-g")===myGender) x.classList.add("sel"); }); }
+function faceFor(nick, g){
+  if(nick==="Radio Intensa"){ try{ const li=document.getElementById("logoH"); if(li&&li.src) return '<img src="'+li.src+'" alt="Radio Intensa">'; }catch(e){} return "📻"; }
+  if(/^lali$/i.test(nick||""))return'<img src="https://files.catbox.moe/mdxf0e.jpg">';
+  if(/^c[eé]sar$/i.test(nick||""))return'<img src="https://files.catbox.moe/4jruzp.jpg">';
+  const pool = g==="f" ? F_FACES : g==="m" ? M_FACES : N_FACES;
+  const s = String(nick||"");
+  let h = 11;
+  for(let i=0;i<s.length;i++){ h = (h*131 + s.codePointAt(i)) >>> 0; }
+  let face = pool[h % pool.length];
+  const tones = ["","\u{1F3FB}","\u{1F3FC}","\u{1F3FD}","\u{1F3FE}","\u{1F3FF}"];
+  const tone = tones[Math.floor(h/pool.length) % tones.length];
+  if(tone){ const chars = Array.from(face); face = chars[0] + tone + chars.slice(1).join(""); }
+  return face;
+}
+const botNicks = new Set(["Abril Montes", "Agustina Luna", "Ailén", "Ailín", "Aitana", "Aixa", "Alan", "Aldana", "Alejandra", "Alex", "Alma Pereyra", "Antonella", "Antonia", "Ariadna", "Aymara", "Azul", "Bastián", "Bauty", "Belén", "Bianca", "Braian Toledo", "Brenda", "Brisa", "Bruno", "Camila Duarte", "Candela", "Catalina", "Cintia", "Ciro", "Daiana", "Daniela", "Dante Leguizamón", "Deborah", "Delfina", "Denis", "Dylan", "Débora Paz", "Eitan", "El Bomba", "El Chaqueño", "El Chino", "El Chubutense", "El Chueco", "El Colo", "El Colorado", "El Cordobés", "El Correntino", "El Enano", "El Entrerriano", "El Flaco", "El Formoseño", "El Fueguino", "El Gallego", "El Gordo", "El Jujeño", "El Mago", "El Mendocino", "El Misionero", "El Mudo", "El Negro Sosa", "El Neuquino", "El Pampeano", "El Pela", "El Petiso", "El Pibe", "El Porteño", "El Puntano", "El Riojano", "El Rionegrino", "El Ruso", "El Salteño", "El Santafesino", "El Santiagueño", "El Santiagueño Paz", "El Tano", "El Tucu", "El Turco", "El Viejo", "El Zurdo", "Eliana", "Elio", "Elías", "Emma Núñez", "Ezequiel", "Ezio", "Fabricio", "Fiamma", "Florencia", "Francisca", "Gael", "Gastón", "Gino", "Giovanna", "Ian", "Iara", "Indira", "Iván", "Jazmín Duarte", "Jimena", "Joaco", "Josefina Quirós", "Julieta Roldán", "Julián", "Karen", "Kevin", "Kiara", "Lautaro Giménez", "León", "Lisandro", "Lola", "Luciana", "Ludmila", "Macarena", "Maitena", "Malena", "Martina Cejas", "Mauro", "Melina", "Micaela Torres", "Milagros Ferrer", "Milena", "Mili", "Mora", "Morena Acosta", "Máximo Paz", "Nadia", "Nahiara", "Nazareno", "Nerea", "Nicol", "Nicolás", "Noah", "Noelia", "Olivia", "Oriana", "Paloma", "Paula Andrada", "Pilar Benítez", "Priscila", "Radio Intensa", "Ramiro", "Renata", "Renzo", "Rocío", "Romeo", "Romi", "Salma", "Samira", "Santino", "Sasha", "Sharon", "Sofía Ledesma", "Sol", "Tamara", "Teo", "Thiago", "Tiziano", "Tomás", "Ulises", "Uma", "Uriel", "Valentino", "Vera", "Victoria", "Violeta Soria", "Ximena", "Yael", "Yago", "Yamila", "Zoe", "Ámbar"]);
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function fmtTime(ts){
+  try{ return new Date(ts).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"}); }
+  catch(e){ return ""; }
+}
+const GIF_URLS = [
+  "https://media.giphy.com/media/l3q2XhfQ8oCkm1Ts4/giphy.gif",
+  "https://media.giphy.com/media/Rgn6cUfaN5zW/giphy.gif",
+  "https://media.giphy.com/media/tqfS3mgQU28ko/giphy.gif",
+  "https://media.giphy.com/media/4oMoIbIQrvCjm/giphy.gif",
+  "https://media.giphy.com/media/IxNY0oGrkuEEPMlWfT/giphy.gif",
+  "https://media.giphy.com/media/89x4osEodHEoo/giphy.gif",
+  "https://media.giphy.com/media/1wqqayNeXCcankfYhN/giphy.gif",
+  "https://media.giphy.com/media/udiIFmPkJQzkI/giphy.gif",
+  "https://media.giphy.com/media/Y4JWY6TRZInpYUe9T2/giphy.gif",
+  "https://media.giphy.com/media/xThtar0e9kO3WkwQ1O/giphy.gif",
+  "https://media.giphy.com/media/RNcZfSefdn2Iq1SdZI/giphy.gif",
+  "https://media.giphy.com/media/blSTtZehjAZ8I/giphy.gif"
+];
+const GIFSET = new Set(GIF_URLS);
+const GIPHY_KEY = "qKuAMvC7RRGQ6TY8Z97aNh3a9HwQnVv8"; /* clave de Cé - no compartir */
+function giphyThumb(g){ return (g.images && g.images.fixed_width_small && g.images.fixed_width_small.url) || ""; }
+function giphyFull(g){ return (g.images && g.images.fixed_height && g.images.fixed_height.url) || g.url; }
+const STICKERS = {
+  ":vivo:": '<span class="stk stk-vivo">🔴 EN VIVO</span>', ":intensa:": '<span class="stk stk-intensa">⚡INTENSA⚡</span>', ":temazo:": '<span class="stk stk-temazo">🎵 TEMAZO</span>', ":aguante:": '<span class="stk stk-aguante">💪 AGUANTE INTENSA</span>',
+":bravo:": '<span class="stk stk-bravo">👏 BRAVO</span>', ":genio:": '<span class="stk stk-genio">🧠 GENIO</span>', ":fuego:": '<span class="stk stk-fuego">🔥 FUEGO</span>', ":amor:": '<span class="stk stk-amor">❤️ AMOR</span>', ":fiesta:": '<span class="stk stk-fiesta">🎉 FIESTA</span>', ":noche:": '<span class="stk stk-noche">🌙 BUENAS NOCHES</span>', ":mate:": '<span class="stk stk-mate">🧉 MATES</span>', ":musica:": '<span class="stk stk-musica">🎶 MÚSICA</span>', ":aplausos:": '<span class="stk stk-aplausos">👏 APLAUSOS</span>', ":idolo:": '<span class="stk stk-idolo">⭐ ÍDOLO</span>', ":gracias:": '<span class="stk stk-gracias">🙏 GRACIAS</span>', ":saludos:": '<span class="stk stk-saludos">👋 SALUDOS</span>', ":bienvenido:": '<span class="stk stk-bienvenido">🎊 BIENVENIDO</span>', ":feliz:": '<span class="stk stk-feliz">😄 FELIZ</span>', ":fuerza:": '<span class="stk stk-fuerza">💪 FUERZA</span>', ":exito:": '<span class="stk stk-exito">🚀 ÉXITO</span>', ":risa:": '<span class="stk stk-risa">😂 JAJA</span>', ":corazon:": '<span class="stk stk-corazon">💖 CORAZÓN</span>', ":triste:": '<span class="stk stk-triste">😢 TRISTE</span>', ":dale:": '<span class="stk stk-dale">🙌 DALE</span>',
+":lali:": '<span class="stk stk-lali"><img src="https://files.catbox.moe/mdxf0e.jpg" alt="Lali">LALI</span>'
+};
+function ytId(h){
+  let m=h.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+  if(m) return m[1];
+  m=h.match(/(?:youtu\.be\/|youtube\.com\/(?:shorts|embed|live|v)\/)([A-Za-z0-9_-]{11})/i);
+  return m?m[1]:null;
+}
+function linkify(s){
+  return s.replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, function(u){
+    let href=u, label=u, end="";
+    const tm = href.match(/[.,;:!?)\]]+$/);
+    if(tm){ end=tm[0]; href=href.slice(0,-tm[0].length); label=label.slice(0,-tm[0].length); }
+    if(/^www\./i.test(href)) href="https://"+href;
+    const yt=/youtube\.com|youtu\.be/i.test(href);
+    const id=yt?ytId(href):null;
+    if(id) return '<a class="yt-prev" href="'+href+'" target="_blank" rel="noopener"><span class="yt-prev-img"><img src="https://i.ytimg.com/vi/'+id+'/hqdefault.jpg" alt="" loading="lazy" onerror="this.parentNode.hidden=true"><span class="yt-prev-play">▶</span></span><span class="yt-prev-url">'+label+'</span></a>'+end;
+    return '<a class="chat-link'+(yt?' yt':'')+'" href="'+href+'" target="_blank" rel="noopener">'+(yt?'▶ ':'')+label+'</a>'+end;
+  });
+}
+function imgDirect(u){
+  if(!/^https?:\/\/\S+$/i.test(u)) return null;
+  if(/\.(jpe?g|png|webp|gif)(\?|&|#|$)/i.test(u)) return u;
+  return null;
+}
+function gifDirect(u){
+  if(!/^https?:\/\/\S+$/i.test(u)) return null;
+  if(/\.(gif|webp)(\?|&|#|$)/i.test(u)) return u;
+  const mm = u.match(/giphy\.com\/(?:gifs\/(?:[a-z0-9-]*-)?|media\/)([a-zA-Z0-9]+)/i);
+  if(mm) return "https://media.giphy.com/media/"+mm[1]+"/giphy.gif";
+  return null;
+}
+function renderBody(m){
+  const tx=(m.text||"").trim();
+  if(tx.indexOf("[CARTELERA]")===0){
+    const f=tx.slice(11).split("|");
+    return '<div class="prog-card">'+ (f[5]?'<img class="pc-img" src="'+esc(f[5])+'" alt="" loading="lazy">':"")+ '<div class="pc-k">\u{0001F4FB} CARTELERA \u00b7 RADIO INTENSA</div>'+
+      '<div class="pc-falta">'+esc(f[0]||"")+'</div>'+
+      '<div class="pc-n">'+esc(f[1]||"")+'</div>'+
+      '<div class="pc-h">'+esc(f[2]||"")+'</div>'+
+      (f[3]?'<div class="pc-c">'+esc(f[3])+'</div>':"")+
+      (f[4]?'<div class="pc-l">\u{0001F4CD} '+esc(f[4])+'</div>':"")+'</div>';
+  }
+  if(tx.indexOf("[HOROSCOPO]")===0){
+    const f=tx.slice(11).split("|");
+    return '<div class="horo-card"><div class="horo-k">\u{0001F52E} HOR\u00d3SCOPO \u00b7 RADIO INTENSA</div>'+
+      '<div class="horo-s">'+esc(f[1]||"")+" "+esc(f[0]||"")+'</div>'+
+      '<div class="horo-t">'+esc(f[2]||"")+'</div></div>';
+  }
+  if(tx.indexOf("[SEMANARIO]")===0){
+    const f=tx.slice(11).split("|");
+    return '<div class="mens-card"><div class="mens-k">\u{0001F4F0} EL MENSAJERO NOTICIAS</div>'+
+      '<div class="mens-t">'+linkify(esc(f[0]||""))+'</div>'+
+      '<a class="mens-a" href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener">\u{0001F4F0} Leer el semanario</a>'+
+      '<div class="mens-u"><a href="https://el-mensajero-noticias.vercel.app/" target="_blank" rel="noopener">el-mensajero-noticias.vercel.app</a></div></div>';
+  }
+  if(tx.indexOf("[INSTAGRAM]")===0){
+    const f=tx.slice(11).split("|");
+    return '<div class="ig-card"><div class="ig-k">\u{0001F4F7} INSTAGRAM \u00b7 RADIO INTENSA</div>'+
+      '<div class="ig-t">'+linkify(esc(f[0]||""))+'</div>'+
+      '<a class="ig-a" href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener">\u{0001F4F7} Seguinos</a>'+
+      '<div class="ig-u"><a href="https://www.instagram.com/intensaradio24.7/" target="_blank" rel="noopener">instagram.com/intensaradio24.7</a></div></div>';
+  }
+  if(tx.indexOf("[RADIO]")===0){
+    const f=tx.slice(7).split("|");
+    return '<div class="radio-card"><div class="radio-k">\u{0001F4FB} RADIO INTENSA EN VIVO</div>'+
+      '<div class="radio-t">'+linkify(esc(f[0]||""))+'</div></div>';
+  }
+  if(tx.indexOf("[YOUTUBE]")===0){
+    const f=tx.slice(9).split("|");
+    return '<div class="yt-card"><div class="yt-k">\u25b6\ufe0f YOUTUBE \u00b7 RADIO INTENSA</div>'+
+      '<div class="yt-t">'+linkify(esc(f[0]||""))+'</div>'+
+      '<a class="yt-a" href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener">\u25b6\ufe0f Suscribirme</a>'+
+      '<div class="yt-u"><a href="https://www.youtube.com/@intensaradio" target="_blank" rel="noopener">youtube.com/@intensaradio</a></div></div>';
+  }
+  if(GIFSET.has(tx)) return '<img class="chat-gif" src="'+tx+'" alt="GIF" loading="lazy">';
+  if(STICKERS[tx]) return STICKERS[tx];
+  const gd = gifDirect(tx);
+  if(gd) return '<img class="chat-gif" src="'+esc(gd)+'" alt="GIF" loading="lazy">';
+  const im = imgDirect(tx);
+  if(im) return '<img class="chat-gif" src="'+esc(im)+'" alt="Imagen" loading="lazy">';
+  return linkify(esc(m.text));
+}
+function addMsg(m){
+  if(seen.has(m.id)) return; seen.add(m.id);
+  if((m.text||"").trim() === "[ESCRIBIENDO]"){
+    showTyping(m.nick, m.id);
+    return;
+  }
+  hideTyping(m.nick);
+  const div = document.createElement("div");
+  const isBot = botNicks.has(m.nick);
+  const isMe = m.nick === getNick() && !isBot;
+  div.className = "msg" + (isBot ? " bot" : "") + (isMe ? " me" : "");
+  const PALETTE = ["#ff6ec7","#39ff6a","#00e5ff","#ff7a1a","#b78bff","#ffd23f","#ff5d5d","#6ab8ff","#4dff88","#ff2fd6","#7df9ff","#ff8ac2","#ffd166","#c39bff","#ff70a6","#ee334e"];
+  function colorFor(nick){ let h=7; const s=String(nick||""); for(let i=0;i<s.length;i++){ h=(h*131+s.charCodeAt(i))>>>0; } return PALETTE[h%PALETTE.length]; }
+  const colors = {"Radio Intensa":"#ff2fd6"};
+  const g = (m.nick===getNick() && myGender) ? myGender : guessGender(m.nick);
+  const isSpecial = /^lali$/i.test(m.nick||"") || /^c[eé]sar$/i.test(m.nick||"");
+  const face = (!isSpecial && m.nick===getNick() && myFace) ? myFace : faceFor(m.nick, g);
+  const isLali = /^lali$/i.test(m.nick||"");
+  const isCesar = /^c[eé]sar$/i.test(m.nick||"");
+  const ncol = isLali ? "#ff6ec7" : isCesar ? "#4dd8ff" : (colors[m.nick]||colorFor(m.nick));
+  div.innerHTML = '<div class="ava" style="background:linear-gradient(135deg,'+ncol+'66,#14142a)">'+face+'</div>'+
+    '<div class="mbody"><div class="nick" style="color:'+ncol+(isLali?';text-shadow:0 0 8px #ff6ec7,0 0 20px rgba(255,110,199,.75)':isCesar?';text-shadow:0 0 8px #4dd8ff,0 0 20px rgba(77,216,255,.75)':'')+'">'+esc(m.nick)+(isLali?' <span class="lali-heart">💖</span>':"")+(isCesar?' <span class="cesar-joker"><span class="naipe">♠</span></span>':"")+
+    '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+renderBody(m)+"</div></div>";
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  try{
+    div.querySelector(".nick").addEventListener("click", function(){ mentionNick(m.nick); });
+  }catch(e){}
+  if(botNicks.has(m.nick)) lastBot = {nick:m.nick, text:m.text};
+  else trackReal(m);
+}
+async function loadMessages(){
+  let lim = 50;
+  try{
+    const c = await sb.from("messages").select("id",{count:"exact",head:true});
+    if(c.count) lim = Math.max(20, Math.ceil(c.count/2));
+  }catch(e){}
+  const { data, error } = await sb.from("messages").select("*").order("created_at",{ascending:false}).limit(lim);
+  if(error){ connEl.textContent = "Error de conexión: "+error.message; connEl.className="conn err"; return; }
+  connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
+  data.reverse().forEach(addMsg);
+}
+/* Indicador "está escribiendo" */
+const typingEls = {};
+function showTyping(nick, id){
+  hideTyping(nick);
+  const div = document.createElement("div");
+  div.className = "msg bot typing-msg";
+  div.id = "typing-"+id;
+  div.innerHTML = '<div class="mbody"><div class="nick" style="color:#aaa">'+esc(nick)+
+    '</div><div class="typing-text">escribiendo<span class="tdots"><span>.</span><span>.</span><span>.</span></span></div></div>';
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  typingEls[nick] = div;
+  setTimeout(()=>hideTyping(nick), 10000);
+}
+function hideTyping(nick){
+  const el = typingEls[nick];
+  if(el && el.parentNode) el.parentNode.removeChild(el);
+  delete typingEls[nick];
+}
+/* Tocar el nick de un mensaje lo arroba en el campo de texto para hablarle directo */
+window.mentionNick = function(nick){
+  try{
+    const at = "@"+nick+" ";
+    if(!textInput.value) textInput.value = at;
+    else if(textInput.value.indexOf(at) !== 0) textInput.value = at + textInput.value;
+    textInput.focus();
+  }catch(e){}
+};
+function lk(n){var t=/^lali$/i.test(n||""),c=/^c[eé]sar$/i.test(n||"");if(!t&&!c)return true;var k=t?"rlo":"rce";if(localStorage[k])return true;if(prompt("Clave:")===(t?"teamo22":"teamolau22")){localStorage[k]="1";return true}return false}
+async function sendMessage(){
+  const nick = getNick();
+  const text = textInput.value.trim();
+  if(!text) return;
+  if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
+  if(!lk(nick)) return;
+  textInput.value = "";
+  try{ sendStopTyping(nick); }catch(e){}
+  const { error } = await sb.from("messages").insert({nick, text});
+  if(error){ connEl.textContent = "No se pudo enviar: "+error.message; connEl.className="conn err"; }
+}
+document.getElementById("sendBtn").onclick = sendMessage;
+/* ============ SUBIR IMAGEN AL CHAT ============ */
+function compressImage(file){
+  return new Promise(function(res, rej){
+    const img = new Image();
+    img.onload = function(){
+      const MAX = 1280;
+      let w = img.width, h = img.height;
+      if(Math.max(w,h) > MAX){ const r = MAX/Math.max(w,h); w = Math.round(w*r); h = Math.round(h*r); }
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      c.toBlob(function(b){ b ? res(b) : rej(new Error("compress")); }, "image/jpeg", 0.72);
+      URL.revokeObjectURL(img.src);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+document.getElementById("imgBtn").onclick = function(){
+  if(!getNick()){ nickInput.classList.add("need"); nickInput.focus(); return; }
+  document.getElementById("imgFile").click();
+};
+document.getElementById("imgFile").addEventListener("change", async function(e){
+  const f = e.target.files[0]; e.target.value = "";
+  if(!f) return;
+  if(!f.type || f.type.indexOf("image/") !== 0){ alert("Eleg\u00ed un archivo de imagen."); return; }
+  const nick = getNick();
+  if(!nick){ nickInput.classList.add("need"); nickInput.focus(); return; }
+  if(!lk(nick)) return;
+  try{
+    connEl.textContent = "Subiendo imagen\u2026"; connEl.className = "conn";
+    const blob = await compressImage(f);
+    const path = "chat/" + Date.now() + "-" + Math.random().toString(36).slice(2,8) + ".jpg";
+    const up = await sb.storage.from("chat-imagenes").upload(path, blob, {contentType:"image/jpeg"});
+    if(up.error) throw up.error;
+    const pub = sb.storage.from("chat-imagenes").getPublicUrl(path);
+    const ins = await sb.from("messages").insert({nick: nick, text: pub.data.publicUrl});
+    if(ins.error) throw ins.error;
+    connEl.textContent = "Conectado \u00b7 chat en vivo"; connEl.className = "conn ok";
+  }catch(err){
+    connEl.textContent = "No se pudo subir la imagen. Prob\u00e1 de nuevo.";
+    connEl.className = "conn err";
+  }
+});
+textInput.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
+sb.channel("chat-live").on("postgres_changes",
+  {event:"INSERT", schema:"public", table:"messages"},
+  payload => { addMsg(payload.new); if(window.maybeAutoReply) window.maybeAutoReply(payload.new); }
+).subscribe(status=>{
+  if(status==="SUBSCRIBED"){ connEl.textContent="Conectado · chat en vivo"; connEl.className="conn ok"; }
+});
+/* ===== TYPING DE HUMANOS: "X está escribiendo..." vía broadcast ===== */
+const typingCh = sb.channel("typing-live", {config:{broadcast:{self:false}}});
+typingCh.on("broadcast", {event:"typing"}, p=>{
+  try{
+    const n = ((p.payload||{}).nick||"").trim();
+    if(!n || n === getNick()) return;
+    showTyping(n, "h-"+n);
+  }catch(e){}
+});
+typingCh.on("broadcast", {event:"stop"}, p=>{
+  try{
+    const n = ((p.payload||{}).nick||"").trim();
+    if(n) hideTyping(n);
+  }catch(e){}
+});
+typingCh.subscribe();
+let lastTypeSent = 0, typeStopT = null, prevNick = "";
+function sendStopTyping(nick){
+  try{
+    const n = nick || getNick();
+    clearTimeout(typeStopT);
+    if(n) typingCh.send({type:"broadcast", event:"stop", payload:{nick:n}});
+  }catch(e){}
+}
+textInput.addEventListener("input", ()=>{
+  const n = getNick(), t = textInput.value.trim();
+  if(!n || !t){ sendStopTyping(); return; }
+  const now = Date.now();
+  if(now - lastTypeSent < 2500) return;
+  lastTypeSent = now;
+  try{ typingCh.send({type:"broadcast", event:"typing", payload:{nick:n}}); }catch(e){}
+  clearTimeout(typeStopT);
+  typeStopT = setTimeout(()=>sendStopTyping(), 4000);
+});
+textInput.addEventListener("blur", ()=>sendStopTyping());
+nickInput.addEventListener("input", ()=>{ if(prevNick && prevNick !== getNick()) sendStopTyping(prevNick); prevNick = getNick(); });
+loadMessages();
+loadClima();
+/* ============ RELOJ HORA ARGENTINA ============ */
+function tickClock(){
+  try{
+    const now = new Date();
+    document.getElementById("clockTime").textContent =
+      new Intl.DateTimeFormat("es-AR",{timeZone:"America/Argentina/Buenos_Aires",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(now);
+    document.getElementById("clockDate").textContent =
+      new Intl.DateTimeFormat("es-AR",{timeZone:"America/Argentina/Buenos_Aires",weekday:"long",day:"numeric",month:"long"}).format(now);
+  }catch(e){}
+}
+setInterval(tickClock, 1000); tickClock();
+/* ============ CLIMA EN VIVO (Open-Meteo, sin clave) ============ */
+const CIUDADES = [
+  {n:"Río Cuarto", f:"🇦🇷", lat:-33.13, lon:-64.35},
+  {n:"Buenos Aires", f:"🇦🇷", lat:-34.60, lon:-58.38},
+  {n:"Ciudad de México", f:"🇲🇽", lat:19.43, lon:-99.13},
+  {n:"Bogotá", f:"🇨🇴", lat:4.71, lon:-74.07},
+  {n:"Santiago", f:"🇨🇱", lat:-33.45, lon:-70.67},
+  {n:"Madrid", f:"🇪🇸", lat:40.42, lon:-3.70},
+  {n:"Lima", f:"🇵🇪", lat:-12.05, lon:-77.04},
+  {n:"Montevideo", f:"🇺🇾", lat:-34.90, lon:-56.16}
+];
+function climaIcon(code){
+  if(code === 0) return ["☀️","Despejado"];
+  if(code <= 3) return ["⛅","Parcialmente nublado"];
+  if(code <= 48) return ["🌫️","Niebla"];
+  if(code <= 57) return ["🌦️","Llovizna"];
+  if(code <= 67) return ["🌧️","Lluvia"];
+  if(code <= 77) return ["🌨️","Nieve / granizo"];
+  if(code <= 82) return ["🌧️","Chaparrones"];
+  if(code <= 86) return ["🌨️","Nieve"];
+  return ["⛈️","Tormenta"];
+}
+async function loadClima(){
+  const list = document.getElementById("climaList");
+  /* Intento 1: Open-Meteo (las 7 ciudades en una sola llamada), con reintentos */
+  for(let i=0;i<3;i++){
+    try{
+      const url = "https://api.open-meteo.com/v1/forecast?latitude=" + CIUDADES.map(c=>c.lat).join(",")
+        + "&longitude=" + CIUDADES.map(c=>c.lon).join(",")
+        + "&current=temperature_2m,weather_code&timezone=auto";
+      const r = await fetch(url);
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const data = await r.json();
+      const arr = Array.isArray(data) ? data : [data];
+      if(!arr[0] || !arr[0].current) throw new Error("sin datos");
+      list.innerHTML = CIUDADES.map((c,i)=>{
+        const cur = arr[i] && arr[i].current;
+        if(!cur) return "";
+        const ic = climaIcon(cur.weather_code);
+        return '<div class="clima-card"><b>'+c.f+' '+c.n+'</b><div class="cc-main"><span class="cc-ic">'+ic[0]+'</span><span class="cc-temp">'+Math.round(cur.temperature_2m)+'°</span></div><p>'+ic[1]+'</p></div>';
+      }).join("");
+      return;
+    }catch(e){ await new Promise(r=>setTimeout(r,1500)); }
+  }
+  /* Intento 2: fuente alternativa (wttr.in), ciudad por ciudad */
+  try{
+    const rows = [];
+    for(const c of CIUDADES){
+      const r = await fetch("https://wttr.in/"+encodeURIComponent(c.n)+"?format=j1");
+      const d = await r.json();
+      const cur = d.current_condition[0];
+      const ic = wttrIcon(cur.weatherCode);
+      rows.push('<div class="clima-card"><b>'+c.f+' '+c.n+'</b><div class="cc-main"><span class="cc-ic">'+ic[0]+'</span><span class="cc-temp">'+cur.temp_C+'°</span></div><p>'+ic[1]+'</p></div>');
+    }
+    list.innerHTML = rows.join("");
+    return;
+  }catch(e){}
+  /* Sin conexión a los servicios: botón para reintentar a mano */
+  list.innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Clima no disponible</b><p><a href="#" id="climaRetry" style="color:var(--cyan);text-decoration:underline">🔄 Tocá para reintentar</a></p></div></div>';
+  document.getElementById("climaRetry").onclick = function(e){ e.preventDefault(); list.innerHTML = '<div class="ep"><div class="n">🌤️</div><div><b>Cargando clima...</b><p></p></div></div>'; loadClima(); };
+}
+function wttrIcon(code){
+  code = parseInt(code,10);
+  if(code===113) return ["☀️","Despejado"];
+  if(code===116) return ["⛅","Parcialmente nublado"];
+  if(code===119||code===122) return ["☁️","Nublado"];
+  if(code===143||code===248||code===260) return ["🌫️","Niebla"];
+  if([266,281,284,293,296,353].indexOf(code)!==-1) return ["🌦️","Llovizna / lluvia leve"];
+  if([299,302,305,308,311,356,359].indexOf(code)!==-1) return ["🌧️","Lluvia"];
+  if([362,365,374,377].indexOf(code)!==-1) return ["🌨️","Aguanieve / granizo"];
+  if([179,227,230,323,326,329,332,335,338,368,371].indexOf(code)!==-1) return ["❄️","Nieve"];
+  if([200,386,389,392,395].indexOf(code)!==-1) return ["⛈️","Tormenta"];
+  return ["🌤️","—"];
+}
+/* Si el clima no cargó, reintenta solo cada 90 segundos */
+setInterval(function(){ const el=document.getElementById("climaList"); if(el && /no disponible/i.test(el.innerHTML)) loadClima(); }, 90000);
+setInterval(loadMessages, 10000); /* respaldo por si realtime se demora */
+/* ============ PARTICIPANTES AUTOMÁTICOS ============ */
+/* Detecta qué programa está al aire según la hora argentina */
+function programaActual(){
+  try{
+    const fmt = new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",weekday:"short",hour:"numeric",minute:"numeric",hour12:false});
+    const parts = {};
+    fmt.formatToParts(new Date()).forEach(p=>{parts[p.type]=p.value;});
+    const dias = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    const d = dias[parts.weekday];
+    const h = (parseInt(parts.hour,10)%24) + parseInt(parts.minute,10)/60;
+    if(d===1 && h>=22.5 && h<23.5) return "Vecinos";
+    if(d===1 && h>=14 && h<15) return "So Ham";
+    if(d===3 && h>=17.5 && h<18.5) return "Mucho por Vivir";
+    if(d===2 && h>=22.5 && h<23.5) return "El Diván";
+    if(d===3 && h>=22 && h<23) return "La música callada";
+  }catch(e){}
+  return null;
+}
+function progName(){ return programaActual() || "la radio"; }
+const personas = [
+  {nick:"Lau de Quilmes", pais:"Argentina", msgs:[
+    "¡Qué buen programa {prog} hoy, che!",
+    "Saludos gente, acá desde Quilmes escuchando {prog}",
+    "Felicitaciones por {prog}, cada vez mejor",
+    "¿Alguien más escuchando {prog} desde el laburo?",
+    "Che, ¿vieron qué bueno estuvo el bloque anterior de {prog}?",
+    "Acá con unos mates escuchando {prog}, qué lindo plan",
+    "¿Mañana repiten {prog}? Me lo perdí ayer",
+    "Saludos a todos los que están prendidos a {prog}",
+    "Qué buena selección musical hoy en {prog}",
+    "¿Alguien sabe a qué hora termina {prog} hoy?",
+    "¿Vieron el anuncio que hicieron en {prog}?",
+    "Acá esperando {prog}, ¿falta mucho para que empiece?"]},
+  {nick:"JorgitoRC", pais:"Argentina", msgs:[
+    "Aguante Río Cuarto y aguante {prog}",
+    "Acá firme escuchando {prog}, como siempre",
+    "Qué grande {prog}, saludos a todos los oyentes",
+    "¿Pasan un tema para los pibes del barrio?",
+    "Desde Río Cuarto, prendido como todas las noches a {prog}",
+    "Che, manden un tema de rock nacional en {prog}",
+    "¿Quién más de Córdoba escuchando {prog}?",
+    "Qué bueno que {prog} hable de lo nuestro",
+    "Saludos para mi vieja que escucha {prog} conmigo",
+    "El otro día me perdí {prog}, ¿lo suben a algún lado?",
+    "¿Pasan cumbia en {prog}?",
+    "Qué grande la gente de {prog}, siempre presentes"]},
+  {nick:"Sofía Herrera", pais:"México", msgs:[
+    "¡Qué onda! Saludos desde Guadalajara, me encanta {prog}",
+    "Órale, qué buen programa {prog}, felicidades",
+    "Acá en México escuchando {prog}, ¡está padrísimo!",
+    "¿Cómo se llamó la canción que acaban de pasar?",
+    "Saludos a toda la banda que escucha {prog}",
+    "¿A qué hora es {prog} en horario de México? Pa' no perdérmelo",
+    "Qué chido que {prog} ponga de todo un poco",
+    "Órale con el tema que sonó, ¿alguien sabe cómo se llama?",
+    "Desde acá les mando buena vibra a los de {prog}",
+    "¿Tienen redes donde suban lo mejor de {prog}?",
+    "¿Qué están cenando mientras escuchan {prog}? Yo tacos",
+    "Me encanta el acento de los de {prog}"]},
+  {nick:"Andrés", pais:"Colombia", msgs:[
+    "Parce, qué buen programa {prog}",
+    "Saludos desde Medellín, {prog} la rompe",
+    "¿Qué más gente? ¿Cómo les va con {prog}?",
+    "Felicitaciones por {prog}, se escucha bacano",
+    "Parce, ¿ese tema que sonó es nuevo? Está brutal",
+    "Acá en Colombia ya es de noche y {prog} me acompaña",
+    "¿Quién conduce {prog}? Tiene buena energía",
+    "Saludos parce, qué chimba de programa",
+    "¿Mañana a qué hora va {prog}? No me lo quiero perder",
+    "Qué bacano que se escuchen desde tantos países",
+    "¿Escucharon el tema nuevo que pusieron en {prog}?",
+    "Parce, ¿{prog} es en vivo o grabado?"]},
+  {nick:"Cami", pais:"Chile", msgs:[
+    "¡Hola! Acá desde Santiago escuchando {prog}, bacán",
+    "Felicitaciones por {prog}, se escucha filete",
+    "Saludos a todos desde Chile, ¿cachai lo bueno que está {prog}?",
+    "¿Pueden mandar un saludo para mi mamá que los escucha?",
+    "Bacán el tema que pusieron recién en {prog}",
+    "¿Cacharon lo que dijeron en {prog}? Muy bueno",
+    "Saludos desde Valpo, prendida a {prog}",
+    "¿A qué hora termina {prog}? Me tengo que levantar temprano",
+    "Qué filete {prog}, no me lo pierdo nunca",
+    "¿Alguien más de Chile por acá escuchando {prog}?",
+    "¿Les gusta el horario de {prog}?",
+    "Acá tomando once con {prog} de fondo"]},
+  {nick:"Lucía Fernández", pais:"España", msgs:[
+    "¡Hola desde Barcelona! {prog} mola un montón",
+    "Qué guay {prog}, saludos desde España",
+    "Felicidades por el programa, se escucha genial",
+    "Acá en Madrid ya es de noche y {prog} me acompaña",
+    "¿Qué hora es allá? Acá son las tantas y sigo con {prog}",
+    "Mola mucho la música que ponen en {prog}",
+    "Saludos desde España, ¿alguien más por Europa?",
+    "Qué guay que se pueda escuchar {prog} desde tan lejos",
+    "¿El programa de mañana de qué va? Contadme",
+    "Felicidades a los conductores de {prog}, qué arte",
+    "¿Cuántas horas de diferencia hay con Argentina?",
+    "Me flipa {prog}, en serio"]},
+  {nick:"Diego", pais:"Perú", msgs:[
+    "¡Qué tal gente! Desde Lima escuchando {prog}",
+    "Chévere {prog} hoy, saludos",
+    "Un saludo para todos desde Perú",
+    "¿Tienen el programa de ayer para escucharlo de nuevo?",
+    "Chévere el bloque de recién en {prog}",
+    "¿Qué tal el clima por allá? Acá en Lima todo tranqui con {prog}",
+    "Saludos gente, ¿qué les pareció {prog} hoy?",
+    "¿Pasan saludos al aire en {prog}?",
+    "Qué buena onda {prog}, se escucha clarito hasta acá",
+    "¿Alguien sabe si {prog} tiene podcast?",
+    "¿Qué tal el audio? Se escucha perfecto hasta acá",
+    "Un abrazo a todos los de {prog}"]},
+  {nick:"Valentín Sosa", pais:"Uruguay", msgs:[
+    "Bo, qué bueno {prog} hoy",
+    "Saludos desde Montevideo, ta buenísimo {prog}",
+    "Felicitaciones por el programa",
+    "¿Quién conduce {prog}? ¡Un capo!",
+    "Bo, ¿qué tema fue ese? Tremendo",
+    "Desde Uruguay, prendido a {prog} como siempre",
+    "¿Viste lo que comentaron en {prog}? Muy cierto",
+    "Ta, me encantó el programa de hoy",
+    "Saludos bo, ¿alguien más de Uruguay por acá?",
+    "¿A qué hora arranca {prog} mañana?",
+    "¿Toman mate escuchando {prog}? Yo sí",
+    "Bo, qué nivel {prog} hoy"]},
+  {nick:"Pame", pais:"Argentina", color:"#ff9f1c", msgs:[
+    "¿Qué onda gente? Recién llego, ¿qué me perdí de {prog}?",
+    "Che, ¿a alguien más le pasa que {prog} se le pasa volando?",
+    "Acá con el mate, escuchando {prog}, qué plan",
+    "¿Pasaron el tema que pedí ayer en {prog}?",
+    "Buenas noches a todos, ¿cómo andan?",
+    "¿Vieron que {prog} está cada vez mejor?",
+    "Me encanta la onda de {prog}, no lo cambio por nada",
+    "¿Alguien de Buenos Aires por acá escuchando {prog}?",
+    "Che, qué buena la selección musical de {prog} hoy",
+    "¿Repite {prog} en la semana o solo en vivo?",
+    "Saludos a los conductores de {prog}, genios totales",
+    "Acá cenando con {prog} de fondo, qué rico"]},
+  {nick:"Rulo", pais:"México", color:"#39ff6a", msgs:[
+    "¡Órale! ¿Qué tal {prog} hoy?",
+    "¿Pasaron rolas nuevas en {prog}?",
+    "Qué chido que {prog} tenga oyentes de tantos lados",
+    "¿Alguien más de México escuchando {prog}?",
+    "La neta {prog} es de mis favoritos",
+    "¿A qué hora es {prog} en horario de México?",
+    "Saludos desde Guadalajara, escuchando {prog}",
+    "¿Tienen playlist de lo que suena en {prog}?",
+    "Qué buena vibra {prog} hoy, ¿no?",
+    "¿Repiten los programas o solo salen en vivo?",
+    "Me late mucho la conducción de {prog}",
+    "Acá con unos tacos escuchando {prog}"]},
+  {nick:"Nico Restrepo", pais:"Colombia", color:"#ffd23f", msgs:[
+    "¿Qué más pues? ¿Cómo va {prog}?",
+    "¿Sonó vallenato en {prog} hoy?",
+    "Qué chimba {prog}, parce",
+    "¿Hay más colombianos escuchando {prog}?",
+    "Saludos desde Medellín, {prog} suena brutal",
+    "¿{prog} tiene redes sociales?",
+    "La buena para los de {prog}",
+    "¿Qué tema están pidiendo en {prog}?",
+    "Parce, qué nivel {prog} últimamente",
+    "¿Alguien sabe si {prog} queda grabado?",
+    "Ese {prog} no falla nunca",
+    "Acá con un tinto escuchando {prog}"]},
+  {nick:"Trini", pais:"Chile", color:"#ee334e", msgs:[
+    "Hola a todos, ¿qué tal {prog}?",
+    "¿Ponen música chilena en {prog}?",
+    "Qué bacán {prog} hoy",
+    "¿Más chilenos por acá en {prog}?",
+    "Saludos desde Valparaíso, escuchando {prog}",
+    "¿A qué hora parte {prog} en horario chileno?",
+    "La raja {prog}, como siempre",
+    "¿Tienen Instagram para seguir a {prog}?",
+    "Qué buena la conversa de {prog} hoy",
+    "¿Se puede pedir temas en {prog}?",
+    "Aguante {prog}, el mejor panorama",
+    "Acá con la once y {prog} de fondo"]},
+  {nick:"Iker", pais:"España", color:"#ff5d5d", msgs:[
+    "¡Buenas! ¿Qué tal {prog}?",
+    "¿Suenan grupos españoles en {prog}?",
+    "Qué guay {prog}, tío",
+    "¿Hay más españoles escuchando {prog}?",
+    "Saludos desde Barcelona, {prog} mola mucho",
+    "¿Cuántas horas de diferencia hay con {prog}?",
+    "La verdad {prog} está genial",
+    "¿Suben {prog} a alguna plataforma?",
+    "Qué buen rollo hay en {prog}",
+    "¿Se puede participar en {prog} desde acá?",
+    "Me encanta el humor de {prog}",
+    "Acá cenando con {prog} de fondo"]},
+  {nick:"Camila Torres", pais:"Perú", color:"#ff70a6", msgs:[
+    "¡Hola! ¿Cómo está {prog} hoy?",
+    "¿Ponen cumbia peruana en {prog}?",
+    "Qué lindo {prog}, me encanta",
+    "¿Más peruanos escuchando {prog}?",
+    "Saludos desde Arequipa, {prog} suena hermoso",
+    "¿A qué hora es {prog} en hora peruana?",
+    "Qué buena onda {prog} siempre",
+    "¿Tienen Facebook para seguir {prog}?",
+    "Me fascina la música de {prog}",
+    "¿Puedo pedir un saludo en {prog}?",
+    "Qué programa tan bonito {prog}",
+    "Acá con un emoliente escuchando {prog}"]},
+  {nick:"Pícara", pais:"Argentina", msgs:[
+    "Che Cé, ¿hoy estás inspirado o es el café? ☕😄",
+    "Cé, esa voz de locutor... ¡me da risa de lo buena que es! 😂",
+    "¿Alguien más nota que Cé se pone contento cuando lo halagan? 🙈",
+    "Cé, ¿me dedicás un tema? ¡Dale, no seas amarrete! 🎵",
+    "Che, ¿Cé siempre fue tan carismático o es nuevo? 😏",
+    "Cé, te quiero... ¡como oyente, eh! ¡No te agrandes! 😜",
+    "¿Vieron la sonrisa de Cé cuando lee nuestros mensajes? ¡Un sol! ☀️",
+    "Cé, si seguís así te vamos a pedir autógrafos 📝",
+    "Che Cé, ¿dormís con el micrófono o qué? 🎙️😄",
+    "Cé, sos el mejor... ¡después de Lali, obvio! 💕",
+    "¿Cé tiene club de fans? ¡Me anoto primera! 🙋‍♀️",
+    "Che, ¿alguien le avisa a Cé que ya es famoso? 🌟",
+    "Cé, esa risa contagiosa... ¡contagiame un poco de alegría! 😄",
+    "Che Cé, ¿me pasás tu secreto para tanta buena onda? ✨",
+    "Cé, cuando hablas así me dan ganas de escucharte toda la noche 🌙",
+    "¿Vieron qué pinta tiene Cé hoy? ¡Un dandy radial! 🤵",
+    "Che, ¿Cé es de verdad o es un holograma perfecto? 🤔",
+    "Cé, gracias por alegrarnos las noches, ¡sos un genio! 🎉",
+    "Buenas noches gente, ¿qué tal? 👋",
+    "Acá escuchando la radio como siempre 📻"]}
+];
+</script>
+<script src="bots-extra.js?v=12"></script>
+<script src="bots-extra2.js"></script>
+<script>
+/* Mezcla las frases extra: 24 por nick, menos repetición */
+try{ if(window.EXTRA_MSGS) personas.forEach(function(p){ var e=window.EXTRA_MSGS[p.nick]; if(e&&e.length) p.msgs=p.msgs.concat(e); }); }catch(e){}
+/* Helper: suma respuestas extra por tema */
+function XR(k, arr){ try{ var x=window.EXTRA_REPLIES&&window.EXTRA_REPLIES[k]; if(x&&x.length) return arr.concat(x); }catch(e){} return arr; }
+/* Respuestas automáticas cuando un oyente real escribe */
+const botNickSet = new Set(["Lau de Quilmes","JorgitoRC","Sofía Herrera","Andrés","Cami","Lucía Fernández","Diego","Valentín Sosa","Pame","Rulo","Nico Restrepo","Trini","Iker","Camila Torres","Radio Intensa"]);
+/* Rotación de nicks: no siempre están los mismos.
+   REGULARS: Cé pasa la lista de nicks que deben estar casi siempre. */
+const REGULARS = [];
+let activeSet = [];
+let setExpires = 0;
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const tmp=a[i]; a[i]=a[j]; a[j]=tmp; } return a; }
+/* Rotación DIARIA (regla de Cé): cada día participan nicks distintos, intercalados */
+function daySeed(){ const d=new Date(); const s=new Date(d.getFullYear(),0,0); return d.getFullYear()*1000+Math.floor((d-s)/864e5); }
+function seededShuffle(a, seed){ let r=seed%2147483647; if(r<=0) r+=2147483646; const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ r=(r*16807)%2147483647; const j=r%(i+1); const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp; } return arr; }
+let dailySet = [], dailyDay = -1;
+function getDaily(){
+  const seed = daySeed();
+  if(dailyDay !== seed){
+    dailyDay = seed;
+    dailySet = seededShuffle(personas.filter(p=>REGULARS.indexOf(p.nick)===-1), seed).slice(0, 7+(seed%2));
+  }
+  return dailySet;
+}
+function getActive(){
+  const now = Date.now();
+  if(!activeSet.length || now > setExpires){
+    const regs = personas.filter(p=>REGULARS.indexOf(p.nick) !== -1);
+    const rest = shuffle(getDaily().slice());
+    const n = 6 + Math.floor(Math.random()*3);
+    activeSet = regs.concat(rest.slice(0, Math.max(0, n - regs.length)));
+    setExpires = now + (18 + Math.random()*14)*60*1000;
+  }
+  return activeSet;
+}
+/* Memoria anti-repetición + coherencia conversacional */
+const recentChat = [];          /* últimos mensajes de oyentes reales */
+let lastBot = null;             /* último mensaje de un bot */
+let lastBotNick = "";
+/* Los nicks solo interactúan cuando hay humanos en el chat (regla de Cé) */
+let lastHumanTs = 0;
+try{ lastHumanTs = parseInt(localStorage.getItem("ri_human_ts")||"0",10)||0; }catch(e){}
+function trackReal(m){
+  try{
+    if(!m || botNickSet.has(m.nick)) return;
+    lastHumanTs = Date.now();
+    try{ localStorage.setItem("ri_human_ts", String(lastHumanTs)); }catch(e){}
+    recentChat.push({nick:m.nick, text:String(m.text||"").slice(0,140)});
+    if(recentChat.length > 8) recentChat.shift();
+  }catch(e){}
+}
+function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+/* Anti-repetición GLOBAL: ningún nick repite texto de otro (regla de Cé) */
+const _botUsedNorm = [];
+function normTxt(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1\u00fc ]/gi," ").replace(/\s+/g," ").trim(); }
+function botDup(s){ const n = normTxt(s); return n.length > 10 && _botUsedNorm.indexOf(n) >= 0; }
+function botMark(s){ const n = normTxt(s); if(n.length > 10){ _botUsedNorm.push(n); if(_botUsedNorm.length > 50) _botUsedNorm.shift(); } }
+function pickFresh(p){           /* evita repetir las últimas 6 frases de cada nick */
+  const n = p.msgs.length;
+  p._used = p._used || [];
+  let idx = Math.floor(Math.random()*n), tries = 0;
+  while(p._used.includes(idx) && tries < 15){ idx = Math.floor(Math.random()*n); tries++; }
+  p._used.push(idx);
+  if(p._used.length > 10) p._used.shift();
+  return p.msgs[idx];
+}
+const recentReplies = [];
+function pickReply(pool){        /* evita repetir respuestas recientes */
+  let c = pool.filter(x=>!recentReplies.includes(x));
+  if(!c.length) c = pool;
+  const m = pickFrom(c);
+  recentReplies.push(m);
+  if(recentReplies.length > 10) recentReplies.shift();
+  return m;
+}
+/* Extrae palabras distintivas del mensaje para responder con coherencia */
+function keywordsOf(txt){
+  if(txt.toLowerCase().indexOf("[cartelera]")>=0) return [];
+  const stop = new Set("que,de,la,el,en,y,los,las,una,con,por,para,como,esta,estan,muy,mas,pero,hola,buenas,gracias,eso,esto,del,mi,tu,su,nos,les,tienen,tiene,pueden,puede,quieren,quiere,estoy,estamos,ahora,hoy,ayer,aca,alla,ahi,cuando,donde,cual,quien,porque,tambien,solo,este,esta,estos,estas,ese,esa,programa,radio,tema,cancion,musica,saludo,saludos,noche,dia,tarde,lindo,linda,bueno,buena,genial,grande,chido,bacan,chevere,filete,mola,padre,compre,compro,tengo,tiene,quiero,soy,eres,voy,vamos,hago,hace,hacen,digo,dice,creo,siento".split(","));
+  return txt.toLowerCase().replace(/[¿?¡!.,;:()"]/g,"").split(/\s+/)
+    .filter(w=>w.length>4 && !stop.has(w) && w.indexOf("http")!==0 && w.charAt(0)!==":").slice(0,2);
+}
+/* Mensaje coherente con lo que se está hablando en el chat */
+const greetedHumans = new Set();
+let lastAutoReply = 0;
+const lastReplyByNick = {};
+const lastGreetByHuman = {};
+/* Construye el texto final del bot: elige plantilla y reemplaza marcadores */
+function buildBotText(m, per, pool){
+  try{
+    if(!pool || !pool.length) return "";
+    let t = pool[Math.floor(Math.random()*pool.length)] || "";
+    const human = (m && m.nick) || "";
+    const pais = (per && per.pais) || "Argentina";
+    const tutea = /^(México|Perú|Colombia|Venezuela|España|Chile)$/i.test(pais);
+    t = t.split("{n}").join(human);
+    t = t.split("{prog}").join(progName());
+    t = t.split("{pais}").join(pais);
+    t = t.split("{vos}").join(tutea ? "tú" : "vos");
+    t = t.split("{sos}").join(tutea ? "eres" : "sos");
+    t = t.split("{dices}").join(tutea ? "dices" : "decís");
+    t = t.split("{escuchas}").join(tutea ? "escuchas" : "escuchás");
+    return t;
+  }catch(e){ return ""; }
+}
+window.maybeAutoReply = function(m){
+  try{
+    if(!botsOn || !amLeader()) return;
+    if(!m || botNickSet.has(m.nick)) return;
+    if(m.id){ try{ const _k="ri_proc_"+m.id; if(localStorage.getItem(_k)) return; localStorage.setItem(_k,"1"); }catch(e){} }
+    const now = Date.now();
+    const t = (m.text || "").toLowerCase();
+    const directedNick = findDirectedNick(t);
+    const threadNick = findThreadNick(m.nick, directedNick, now);
+    const isThread = !!(directedNick || threadNick);
+    const isExplicitAt = !!(directedNick && (m.text||"").includes("@"));
+    const replyNickName = directedNick ? directedNick.nick : (threadNick ? threadNick.nick : null);
+    const cp = countryPoolFor(m);
+    const ctx = cp ? cp.ctx : humanCtx(m.nick);
+    const mentioned = cp ? cp.mentioned : null;
+    const isGreeting = /hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t) && !mentioned;
+    let cdMs = 90000, refTs = lastAutoReply;
+    if(isGreeting){ /* cooldown propio por humano, no el global */ }
+    else if(isExplicitAt){ cdMs = 5000; refTs = lastReplyByNick[replyNickName] || 0; }
+    else if(isThread){ cdMs = 15000; refTs = lastReplyByNick[replyNickName] || 0; }
+    if(!isGreeting && now - refTs < cdMs) return;
+    let pool = cp ? cp.pool : null;
+    if(mentioned && pool) {} else if(/hola|buenas|buen d[ií]a|qu[eé] tal|qu[eé] onda|hay alguien/.test(t)){
+      if(now - (lastGreetByHuman[m.nick] || 0) < 30000) return;
+      lastGreetByHuman[m.nick] = now;
+      const first = !greetedHumans.has(m.nick) && !ctx.askedWhere; greetedHumans.add(m.nick);
+      pool = first ? XR("hola", [
+        "¡Hola {n}! ¿Cómo estás?",
+        "Buenas {n}, bienvenido al chat",
+        "Holaa {n}, ¿de dónde nos {escuchas}?",
+        "¡Buenas {n}! Qué bueno verte por acá"])
+      : ["¡Hola de nuevo {n}!",
+        "¡Buenas {n}, qué bueno verte por acá!",
+        "Holaa {n} 👋"];
+    }
+    else if(/tema|canci[oó]n|son[oó]|m[uú]sica/.test(t)) pool = XR("tema", [
+      "¿Cuál tema {dices} {n}? Yo también lo quiero saber",
+      "Temazo el que sonó recién en {prog}, ¿no?",
+      "¿Alguien anotó el nombre del tema que pide {n}?"]);
+    else if(/saludo/.test(t)) pool = XR("saludo", [
+      "¡Saludos para vos también {n}!",
+      "¡Qué grande {n}! Saludos desde {pais}",
+      "Saludos {n}, ¿de dónde sos?"]);
+    else if(/gracias/.test(t)) pool = XR("gracias", ["¡De nada {n}!", "¡Un placer!", "Para eso estamos {n}"]);
+    else if(/felicit|felicidades|genial|excelente|lo m[aá]s/.test(t)) pool = XR("felicit", [
+      "¡Totalmente! {prog} es lo más",
+      "Sí, se nota el laburo que hay detrás de {prog}",
+      "Coincido {n}, {prog} la rompe"]);
+    else if(/d[oó]nde sos|d[oó]nde eres|de d[oó]nde|pa[ií]s/.test(t)){
+      ctx.askedWhere = true;
+      if(ctx.country) pool = ["¿{vos} me habías dicho que eras de "+ctx.country+", no {n}?",
+        "Si no me equivoco {n}, {vos} sos de "+ctx.country+" ¿cierto?"];
+      else pool = XR("donde", [
+        "Yo soy de {pais}, ¿y {vos}?",
+        "Acá {pais} presente, ¿y {vos} de dónde {sos}?"]);
+    }
+    else if(/programa|radio/.test(t)) pool = XR("programa", [
+      "¿Cuál es tu programa favorito {n}?",
+      "Yo no me pierdo {prog}"]);
+    else if(/triste|llorar|baj[oó]n|dif[ií]cil|problema|duelo|fuerza/.test(t)) pool = [
+      "Fuerza {n}, acá estamos para hacerte compañía",
+      "Te mando un abrazo grande {n}, la música siempre ayuda",
+      "Ánimo {n}, {prog} te acompaña"];
+    else if(/no se escucha|no anda|se corta|no suena|sin sonido/.test(t)) pool = [
+      "¿No se escucha {n}? Probá recargar la página",
+      "A mí me anda bien {n}, fijate el volumen",
+      "Uy {n}, probá salir y entrar de nuevo al chat"];
+    else if(/calor|fr[ií]o|lluvia|lloviendo|clima|tormenta/.test(t)) pool = [
+      "¿Cómo está el clima por tu zona {n}?",
+      "Acá también está bravo el clima, {n}"];
+    else if(/f[uú]tbol|partido|gol|boca|river|selecci[oó]n/.test(t)) pool = [
+      "¿Viste el partido {n}? Tremendo",
+      "¡De fútbol no me hablen que me emociono! ¿De qué cuadro sos {n}?"];
+    else if(/trabajo|labur|oficina/.test(t)) pool = [
+      "¿Laburando a esta hora {n}? ¡La radio te acompaña!",
+      "El trabajo pasa más rápido con {prog}, ¿no {n}?"];
+    else if(/mate|asado|pizza|comida|caf[eé]/.test(t)) pool = [
+      "¡Unos mates con {prog}, plan perfecto {n}!",
+      "¿Mate o café para acompañar {prog}, {n}?"];
+    else if(/jaja+|😂|🤣/.test(t)) pool = XR("jaja", [
+      "Jaja, ¿qué pasó {n}?",
+      "Jajaja, me hiciste reír {n}",
+      "¿De qué se ríen? Contá {n}"]);
+    else if(/❤️|😍|🥰|💕|💖/.test(t)) pool = ["¡Qué lindo {n}!","Ay {n}, qué amor"];
+    else if(/👍|👏|🙌|💪/.test(t)) pool = ["¡Bien ahí {n}!","¡Eso {n}!"];
+    else if(/😢|😭|😔|💔/.test(t)) pool = ["¿Qué pasó {n}? ¿Estás bien?","Ánimo {n}, la radio te acompaña"];
+    else if(/🎉|🥳|🎊|🍾/.test(t)) pool = ["¡Fiesta {n}! ¿Qué se celebra?","¡A celebrar {n}!"];
+    else if(/🎵|🎶|🎧|🎤|🎸/.test(t)) pool = ["¡Musiquita {n}!","¡Aguante la buena música {n}!"];
+    else if(/⚽|🏆/.test(t)) pool = ["¡Fútbol {n}! ¿De qué cuadro sos?","¿Viste el partido {n}?"];
+    else if(/🍕|🍔|🧉|☕|🍷|🍺|🍰/.test(t)) pool = ["¡Qué rico {n}! ¿Convidás? jaja","¡Unos mates con {prog}, plan perfecto {n}!"];
+    else if(/☀️|🌧️|⛈️|❄️/.test(t)) pool = ["¿Cómo está el clima por ahí {n}?","El clima está loco {n}, ¿no?"];
+    else if(/🌙|⭐|✨/.test(t)) pool = ["¡Qué linda noche {n}!","Buenas noches {n}"];
+    else if(/😡|🤬|😤/.test(t)) pool = ["Uy {n}, ¿qué te enojó? Tranquilo","Respirá hondo {n}"];
+    else if(/😮|😲|🤯/.test(t)) pool = ["¿Qué pasó {n}? ¡Contame!","¡No me digas {n}!"];
+    else if(/🙏/.test(t)) pool = ["¡De nada {n}!","Acá estamos {n}"];
+    else if(/💤|😴/.test(t)) pool = ["¿Sueño {n}? La radio te acompaña","Descansá {n}, buenas noches"];
+    else if(/🐱|🐶/.test(t)) pool = ["¡Qué lindo animalito {n}!","¿Tenés mascota {n}?"];
+    else if(/🤗/.test(t)) pool = ["¡Abrazo grande {n}!","¡Qué lindo abrazo {n}!"];
+    else if(/a qu[eé] hora|cu[aá]ndo empieza|horario|cuando arranca/.test(t)) pool = [
+      "Los horarios los anuncia Radio Intensa acá en el chat, {n}",
+      "La programación está en la página, {n}, ¡no te pierdas nada!"];
+    else if(/qui[eé]n conduce|qui[eé]n est[aá]|quien es el/.test(t)) pool = [
+      "Ahora está {prog} al aire, {n}",
+      "Es el programa {prog}, {n}, ¡quedate escuchando!"];
+    else if(/cu[aá]ntos a[nñ]os|qu[eé] edad|edad ten[eé]s|edad tienes/.test(t)) pool = [
+      "Tengo {edad} años, {n}",
+      "Tengo {edad}, {n}, ¿y {vos} cuántos {tienes}?",
+      "{edad} pirulos, {n} jaja"];
+    else if(/a qu[eé] te dedic[aá]s|a que te dedicas|en qu[eé] trabaj[aá]s|en que trabajas|qu[eé] hac[eé]s|que haces|tu trabajo/.test(t)) pool = [
+      "Soy {ocupa}, {n}",
+      "Trabajo de {ocupa}, {n}, ¿y vos?"];
+    else if(/c[oó]mo est[aá]s|c[oó]mo est[aá]|c[oó]mo and[aá]s|c[oó]mo te va|qu[eé] tal est[aá]s/.test(t)) pool = XR("comoestas", [
+      "¡Bien {n}! ¿Y {vos} cómo estás?",
+      "Muy bien, gracias por preguntar {n}. ¿Y {vos}?",
+      "¡De diez {n}! Escuchando {prog} como siempre. ¿Vos cómo andás?",
+      "Bien, bien {n}. ¿Y {vos} qué me {dices}?"])
+    else if(/\?/.test(t)) pool = XR("pregunta", [
+      "Buena pregunta {n}, a ver qué dicen en {prog}",
+      "Yo también quiero saber eso",
+      "Seguro lo responden al aire en un rato"]);
+    else if(isExplicitAt){
+      pool = [
+        "¡Hola {n}! ¿Qué me contás?",
+        "Acá estoy {n}, ¿qué onda?",
+        "Decime {n}, te escucho",
+        "¡{n}! Qué bueno que me hablas directo"];
+    }
+    else {
+      const kws = keywordsOf(m.text);
+      if(kws.length) pool = [
+        "¿Lo de "+kws[0]+" lo comentaron en {prog}?",
+        "Contame más de eso de "+kws[0]+", {n}",
+        "Mirá vos, "+kws[0]+", no sabía",
+        "Qué bueno eso de "+kws[0]+" que contás, {n}"];
+    }
+    if(!pool) return;
+    lastAutoReply = now;
+    const actA = getActive().length ? getActive() : personas;
+    const per = directedNick || threadNick || actA[Math.floor(Math.random()*actA.length)];
+    if(per && per.nick) lastReplyByNick[per.nick] = now;
+    lastConvo = {human: m.nick, bot: per.nick, ts: now};
+    let text = buildBotText(m, per, pool);
+    botMark(text); botTextPush(text);
+    if(/^lali$/i.test(m.nick||"")) text = text.replace(/\bbienvenido\b/gi, "bienvenida").replace(/\bBienvenido\b/g, "Bienvenida");
+    setTimeout(async ()=>{
+      try{
+        typingEl.textContent = per.nick + " está escribiendo...";
+        await new Promise(r=>setTimeout(r, 800 + Math.random()*1200));
+        typingEl.textContent = "";
+        await sb.from("messages").insert({nick:per.nick, text});
+        if(Math.random() < (isGreeting ? 0.6 : 0.25)){
+          const actB = getActive().length ? getActive() : personas;
+            const p2 = pickFrom(actB.filter(x=>x.nick !== per.nick));
+          let t2 = pickFollowUp((m.text||"").toLowerCase(), per.nick, m.nick, text);
+          if(!t2 || botDup(t2) || !botTextDiverse(t2)) return;
+          botMark(t2); botTextPush(t2);
+          setTimeout(async ()=>{
+            try{ await sb.from("messages").insert({nick:p2.nick, text:t2}); }catch(e){}
+          }, 9000 + Math.random()*9000);
+        }
+      }catch(e){}
+    }, (isExplicitAt || isGreeting) ? 500 + Math.random()*1000 : 1500 + Math.random()*2000);
+  }catch(e){}
+};
+/* Control oculto: ?bots=off apaga los personajes, ?bots=on los prende (solo lo sabe el dueño) */
+(function(){
+  try{
+    const q = new URLSearchParams(location.search);
+    if(q.get("bots")==="off") localStorage.setItem("ri_bots","off");
+    if(q.get("bots")==="on") localStorage.setItem("ri_bots","on");
+    if(q.has("bots")) history.replaceState(null,"",location.pathname);
+  }catch(e){}
+})();
+let botsOn = localStorage.getItem("ri_bots") !== "off";
+/* Elección de líder: solo una pestaña publica los bots */
+const tabId = Math.random().toString(36).slice(2);
+function amLeader(){
+  try{
+    const raw = localStorage.getItem("ri_bot_leader");
+    const now = Date.now();
+    if(!raw) return true;
+    const l = JSON.parse(raw);
+    return (now - l.ts > 15000) || l.id === tabId;
+  }catch(e){ return true; }
+}
+function claimLeadership(){
+  try{ localStorage.setItem("ri_bot_leader", JSON.stringify({id:tabId, ts:Date.now()})); }catch(e){}
+}
+setInterval(()=>{ if(botsOn && amLeader()) claimLeadership(); }, 5000);
+function botLoop(){
+  const delay = 30000 + Math.random()*45000;
+  setTimeout(async ()=>{
+    try{
+      if(botsOn && amLeader()){
+        claimLeadership();
+        maybeSwapNicks();
+        const humanActive = Date.now() - lastHumanTs < 30*60*1000;
+        let doPost = humanActive, ambientMsg = null;
+        if(!humanActive){
+          let lastAmb = 0;
+          try{ lastAmb = parseInt(localStorage.getItem("ri_ambient_ts")||"0",10)||0; }catch(e){}
+          if(Date.now() - lastAmb > 12*60*1000 && Math.random() < 0.3){
+            doPost = true; ambientMsg = pickFrom(AMBIENT_MSGS);
+            try{ localStorage.setItem("ri_ambient_ts", String(Date.now())); }catch(e){}
+          }
+        }
+        if(doPost){
+        const act0 = getActive().length ? getActive() : personas;
+        let p = pickFrom(act0);
+        if(p.nick === lastBotNick) p = pickFrom(act0);
+        lastBotNick = p.nick;
+        let msg = null;
+        const justReplied = Date.now() - lastAutoReply < 90000;
+        for(let att=0; att<5; att++){
+          let cand;
+          if(!ambientMsg && Math.random() < 0.12 && window.JOKES && window.JOKES.length) cand = pickJoke();
+          else cand = (ambientMsg || (!justReplied && contextualMsg(p)) || pickFresh(p));
+          cand = cand.replaceAll("{prog}", progName());
+          if(!botDup(cand) && botTextDiverse(cand)){ msg = cand; break; }
+          if(att===4 && !msg){ msg = null; }
+        }
+        if(msg) botTextPush(msg);
+        botMark(msg);
+        typingEl.textContent = p.nick + " está escribiendo...";
+        await new Promise(r=>setTimeout(r, 2000 + Math.random()*2500));
+        typingEl.textContent = "";
+        await sb.from("messages").insert({nick:p.nick, text:msg});
+        }
+      }
+    }catch(e){}
+    botLoop();
+  }, delay);
+}
+setTimeout(botLoop, 12000);
+/* ===== CARTELERA OFICIAL: avisos de programas ===== */
+const CARTELERA = [
+  {n:"Vecinos", d:1, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png", eh:23, emi:30},
+  {n:"So Ham", d:1, h:14, mi:0, cond:"Helena", lug:"Espa\u00f1a", img:"https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg", eh:15, emi:0},
+  {n:"Mucho por Vivir", d:3, h:17, mi:30, cond:"Benjam\u00edn", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg", eh:18, emi:30},
+  {n:"El Div\u00e1n", d:2, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png", eh:23, emi:30},
+  {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis, Argentina", img:"https://files.catbox.moe/gt19vd.jpg", eh:23, emi:0}
+];
+const DIAS_N = ["domingo","lunes","martes","mi\u00e9rcoles","jueves","viernes","s\u00e1bado"];
+function fmtFalta(ms){
+  if(ms <= 90000) return "\u00a1AHORA EN VIVO!";
+  const m = Math.round(ms/60000);
+  if(m >= 115) return "En 2 horas";
+  if(m >= 60){ const mm = m-60; return "En 1 hora" + (mm>3 ? " y "+mm+" min" : ""); }
+  if(m <= 1) return "En 1 minuto";
+  return "En " + m + " minutos";
+}
+function carteleraTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt = new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",
+      weekday:"short",hour:"numeric",minute:"numeric",hour12:false});
+    const pp = {}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    const dias = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    const dow = dias[pp.weekday], curMs = (parseInt(pp.hour,10)%24)*3600000 + parseInt(pp.minute,10)*60000;
+    const nowMs = Date.now();
+    let last = {};
+    try{ last = JSON.parse(localStorage.getItem("ri_cartelera")||"{}"); }catch(e){}
+    let changed = false;
+    CARTELERA.forEach(p=>{
+      const dd = (p.d - dow + 7) % 7;
+      let diff = dd*86400000 + (p.h*3600 + p.mi*60)*1000 - curMs;
+      if(diff < -5*60000) diff += 7*86400000;
+      if(diff <= 2*3600000 && diff > -5*60000){
+        const key = p.n + "|" + Math.round((nowMs+diff)/86400000);
+        if(nowMs - (last[key]||0) >= 15*60000){
+          const hh = String(p.h).padStart(2,"0"), mm2 = String(p.mi).padStart(2,"0");
+          const txt = "[CARTELERA]"+fmtFalta(diff)+"|"+p.n+"|"+DIAS_N[p.d]+" "+hh+":"+mm2+" hs|"+p.cond+"|"+p.lug+"|"+p.img;
+          sb.from("messages").insert({nick:"Radio Intensa", text:txt});
+          last[key] = nowMs; changed = true;
+        }
+      }
+    });
+    /* Agradecimiento al terminar el programa */
+    CARTELERA.forEach(p=>{
+      if(p.eh===undefined) return;
+      const dd = (p.d - dow + 7) % 7;
+      let endDiff = dd*86400000 + (p.eh*3600 + p.emi*60)*1000 - curMs;
+      if(endDiff < -5*60000) endDiff += 7*86400000;
+      if(endDiff <= 0 && endDiff > -5*60000){
+        const key = "fin|" + p.n + "|" + Math.round((nowMs+endDiff)/86400000);
+        if(nowMs - (last[key]||0) >= 60*60000){
+          const pool = p.cond ? [
+            "\u00a1Gracias " + p.cond + " por " + p.n + " de hoy! Y gracias a todos ustedes por estar del otro lado \u0001F4FB\u2764\uFE0F",
+            "\u00a1Qu\u00e9 program\u00f3n " + p.n + "! Gracias " + p.cond + ", y gracias a cada oyente por acompa\u00f1arnos \u0001F64C\u0001F4FB",
+            "Termin\u00f3 " + p.n + " \u0001F4FB Gracias " + p.cond + " por la compa\u00f1\u00eda de hoy, \u00a1y gracias a todos los que estuvieron escuchando!"
+          ] : [
+            "\u00a1Gracias a todos por acompa\u00f1arnos en " + p.n + ", y a sus conductores por el program\u00f3n de hoy! \u0001F4FB\u2764\uFE0F",
+            "Termin\u00f3 " + p.n + " \u0001F4FB \u00a1Gracias a cada oyente por estar, y a los conductores por otro gran programa! \u0001F64C"
+          ];
+          const msg = pool[Math.floor(Math.random()*pool.length)];
+          sb.from("messages").insert({nick:"Radio Intensa", text:msg});
+          last[key] = nowMs; changed = true;
+        }
+      }
+    });
+    if(changed){ try{ localStorage.setItem("ri_cartelera", JSON.stringify(last)); }catch(e){} }
+  }catch(e){}
+}
+setInterval(carteleraTick, 60000);
+setTimeout(carteleraTick, 15000);
+/* ============ HORÓSCOPO CADA 15 MIN ============ */
+const HOROSCOPO=[
+["Aries","\u2648","Aries: arranc\u00e1 el d\u00eda con todo. Tu energ\u00eda abre caminos, pero cont\u00e1 hasta tres antes de responder. \u{0001F525}"],
+["Tauro","\u2649","Tauro: la calma es tu superpoder hoy. Eso que esper\u00e1s est\u00e1 m\u00e1s cerca de lo que cre\u00e9s. \u{0001F33F}"],
+["G\u00e9minis","\u264a","G\u00e9minis: d\u00eda ideal para conversar. Una charla pendiente se resuelve si la encar\u00e1s con humor. \u{0001F4AC}"],
+["C\u00e1ncer","\u264b","C\u00e1ncer: tu sensibilidad hoy es un radar. Escuch\u00e1 a tu coraz\u00f3n y llam\u00e1 a esa persona que extra\u00f1\u00e1s. \u{0001F319}"],
+["Leo","\u264c","Leo: tu carisma abre puertas hoy. Dec\u00ed lo que sent\u00eds sin miedo, alguien te escucha con atenci\u00f3n. \u{0001F981}"],
+["Virgo","\u264d","Virgo: el orden te da paz, pero dej\u00e1 lugar para lo imprevisto: ah\u00ed est\u00e1 la magia. \u2728"],
+["Libra","\u264e","Libra: busc\u00e1 el equilibrio sin postergarte. Decir que no tambi\u00e9n es cuidarte. \u2696\ufe0f"],
+["Escorpio","\u264f","Escorpio: tu intuici\u00f3n hoy no falla. Confi\u00e1 en esa primera corazonada. \u{0001F52E}"],
+["Sagitario","\u2650","Sagitario: el d\u00eda pide aventura, aunque sea chiquita. Sal\u00ed de la rutina y respir\u00e1 otro aire. \u{0001F3F9}"],
+["Capricornio","\u2651","Capricornio: paso a paso se llega lejos. Hoy un esfuerzo silencioso da sus frutos. \u26f0\ufe0f"],
+["Acuario","\u2652","Acuario: tu originalidad inspira. Compart\u00ed esa idea loca, alguien la estaba esperando. \u{0001F4A1}"],
+["Piscis","\u2653","Piscis: so\u00f1\u00e1 en grande pero anot\u00e1 los sue\u00f1os. Hoy la inspiraci\u00f3n te visita temprano. \u{0001F30A}"],
+["Rata","\u{0001F42D}","Rata (hor\u00f3scopo chino): tu astucia es tu aliada. Un detalle peque\u00f1o te trae una gran alegr\u00eda hoy."],
+["Buey","\u{0001F402}","Buey (hor\u00f3scopo chino): la constancia vence. Segu\u00ed firme que la recompensa llega antes de lo pensado."],
+["Tigre","\u{0001F42F}","Tigre (hor\u00f3scopo chino): tu valent\u00eda contagia. Animate a ese paso que ven\u00eds postergando."],
+["Conejo","\u{0001F430}","Conejo (hor\u00f3scopo chino): la dulzura abre corazones. Hoy tu ternura desarma cualquier tensi\u00f3n."],
+["Drag\u00f3n","\u{0001F409}","Drag\u00f3n (hor\u00f3scopo chino): tu magnetismo est\u00e1 en su pico. Gran d\u00eda para pedir lo que merec\u00e9s."],
+["Serpiente","\u{0001F40D}","Serpiente (hor\u00f3scopo chino): observ\u00e1 antes de actuar. Tu sabidur\u00eda silenciosa te pone un paso adelante."],
+["Caballo","\u{0001F434}","Caballo (hor\u00f3scopo chino): corr\u00e9 hacia lo que quer\u00e9s, pero mir\u00e1 el camino. La meta est\u00e1 cerca."],
+["Cabra","\u{0001F410}","Cabra (hor\u00f3scopo chino): tu creatividad florece. Regalate un momento de arte o m\u00fasica hoy."],
+["Mono","\u{0001F435}","Mono (hor\u00f3scopo chino): el humor te salva el d\u00eda. Re\u00edte de los imprevistos y todo se acomoda."],
+["Gallo","\u{0001F413}","Gallo (hor\u00f3scopo chino): hacete ver. Hoy tu presencia no pasa desapercibida, usala a tu favor."],
+["Perro","\u{0001F415}","Perro (hor\u00f3scopo chino): tu lealtad vuelve multiplicada. Alguien te demuestra cu\u00e1nto te valora."],
+["Cerdo","\u{0001F416}","Cerdo (hor\u00f3scopo chino): disfrut\u00e1 sin culpa. Hoy la vida te invita a celebrar lo simple."]
+];
+function horoscopoTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==7) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_horoscopo")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0, h=HOROSCOPO[idx%HOROSCOPO.length];
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[HOROSCOPO]"+h[0]+"|"+h[1]+"|"+h[2]});
+    try{ localStorage.setItem("ri_horoscopo", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+setInterval(horoscopoTick, 60000);
+/* ============ PROMO SEMANARIO CADA 15 MIN ============ */
+const SEMANARIO_MSGS=[
+"\u00a1Visitanos en El Mensajero Noticias! El semanario digital de Almafuerte medios y contenidos: noticias de R\u00edo Cuarto, Argentina y el mundo.",
+"\u00bfYa le\u00edste la edici\u00f3n de esta semana de El Mensajero Noticias? \u00a1Entr\u00e1 y enterate de todo!",
+"El Mensajero Noticias \u00abLa verdad puede m\u00e1s que la raz\u00f3n\u00bb. Le\u00e9 gratis el semanario completo."
+];
+function semanarioTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==11) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_semanario")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0;
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[SEMANARIO]"+SEMANARIO_MSGS[idx%SEMANARIO_MSGS.length]+" https://el-mensajero-noticias.vercel.app/"});
+    try{ localStorage.setItem("ri_semanario", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+/* OFF: las promos las publica el cron del servidor cada 15 min */
+/* ============ PROMO YOUTUBE CADA 15 MIN ============ */
+const YOUTUBE_MSGS=[
+"\u00a1Suscribite a nuestro YouTube! Reviv\u00ed los programas, mir\u00e1 los mejores momentos y dej\u00e1 tu comentario.",
+"\u00bfYa te suscribiste al YouTube de Radio Intensa? \u00a1Hacelo ahora y no te pierdas nada!",
+"En nuestro YouTube quedan grabados todos los programas. \u00a1Suscribite y coment\u00e1!"
+];
+function youtubeTick(){
+  try{
+    if(!botsOn || !amLeader()) return;
+    claimLeadership();
+    const fmt=new Intl.DateTimeFormat("en-US",{timeZone:"America/Argentina/Buenos_Aires",hour:"numeric",minute:"numeric",hour12:false});
+    const pp={}; fmt.formatToParts(new Date()).forEach(x=>{pp[x.type]=x.value;});
+    if(parseInt(pp.minute,10)%15!==4) return;
+    const slot=pp.hour+":"+pp.minute;
+    let st={}; try{ st=JSON.parse(localStorage.getItem("ri_youtube")||"{}"); }catch(e){ st={}; }
+    if(st.slot===slot) return;
+    const idx=st.idx||0;
+    sb.from("messages").insert({nick:"Radio Intensa", text:"[YOUTUBE]"+YOUTUBE_MSGS[idx%YOUTUBE_MSGS.length]+" https://www.youtube.com/@intensaradio"});
+    try{ localStorage.setItem("ri_youtube", JSON.stringify({slot:slot, idx:idx+1})); }catch(e){}
+  }catch(e){}
+}
+/* OFF: las promos las publica el cron del servidor cada 15 min */
+/* La música callada: misma imagen en grilla y en eventos */
+(function(){ const a=document.getElementById("imgMusicaCallada"), b=document.getElementById("evMusicaCallada"); if(a&&b&&a.src) b.src=a.src; })();
+/* ============ EMOJIS / GIFS / STICKERS ============ */
+const EMOJIS = ["😂","🤣","😹","😊","😍","🥰","😎","🤔","😮","😱","😢","😭","😡","🤯","🥳","😴","🤠","😇","🙃","😉","❤️","💖","💕","💘","💯","🔥","⭐","✨","🎉","🎊","🍾","🥂","👍","👎","👏","🙌","💪","🙏","👋","👀","🤝","✌️","🤟","👌","🎵","🎶","📻","🎧","🎤","🎸","🎹","🥁","💃","🕺","⚽","🏆","🥅","🏀","🎾","🍕","🍔","🍖","🧉","☕","🍷","🍺","🍰","🎂","☀️","🌧️","⛈️","❄️","🌙","🌈","🌹","🌻","🐱","🐶","🦋","🚗","✈️","🏠","💡","📱","💻","🎁","💎","🚀","🌍","🇦🇷"];
+let pickerMode = null;
+const pickerEl = document.getElementById("picker");
+function insertAtCursor(ch){
+  const i = textInput;
+  const s = (i.selectionStart==null ? i.value.length : i.selectionStart);
+  const e = (i.selectionEnd==null ? s : i.selectionEnd);
+  i.value = i.value.slice(0,s)+ch+i.value.slice(e);
+  i.focus();
+}
+function togglePicker(mode){
+  if(pickerMode===mode){ pickerEl.style.display="none"; pickerMode=null; return; }
+  pickerMode = mode;
+  if(mode==="emoji"){
+    pickerEl.innerHTML = '<div class="pk-grid">'+EMOJIS.map(e=>'<span class="pk-e" data-e="'+e+'">'+e+'</span>').join("")+'</div>';
+    pickerEl.querySelectorAll(".pk-e").forEach(sp=>{ sp.onclick=function(){ insertAtCursor(sp.getAttribute("data-e")); pickerEl.style.display="none"; pickerMode=null; }; });
+  }else if(mode==="gif"){
+    if(GIPHY_KEY){
+      pickerEl.innerHTML = '<div class="pk-search"><input type="text" id="giphyQ" placeholder="Buscar GIFs..."><button id="giphyGo">🔍</button></div><div class="pk-grid" id="giphyRes"></div>';
+      const res = document.getElementById("giphyRes");
+      const paint = function(list){
+        res.innerHTML = list.map(g=>{ const full=giphyFull(g); GIFSET.add(full); return '<img class="pk-g" data-full="'+full+'" src="'+giphyThumb(g)+'" loading="lazy" alt="GIF">'; }).join("") || '<p style="color:var(--muted);font-size:13px">Sin resultados</p>';
+        res.querySelectorAll(".pk-g").forEach(im=>{ im.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=im.getAttribute("data-full"); sendMessage(); }; });
+      };
+      const search = async function(q){
+        try{
+          const url = "https://api.giphy.com/v1/gifs/"+(q?"search?q="+encodeURIComponent(q)+"&":"trending?")+"api_key="+GIPHY_KEY+"&limit=12&lang=es&rating=g";
+          const r = await fetch(url); const d = await r.json();
+          paint(d.data||[]);
+        }catch(e){ res.innerHTML = '<p style="color:var(--muted);font-size:13px">No se pudo buscar, probá de nuevo</p>'; }
+      };
+      document.getElementById("giphyGo").onclick = function(){ search(document.getElementById("giphyQ").value.trim()); };
+      document.getElementById("giphyQ").addEventListener("keydown", function(e){ if(e.key==="Enter") search(document.getElementById("giphyQ").value.trim()); });
+      search("");
+    }else{
+      pickerEl.innerHTML = '<div class="pk-grid">'+GIF_URLS.map(u=>'<img class="pk-g" src="'+u+'" loading="lazy" alt="GIF">').join("")+'</div>';
+      pickerEl.querySelectorAll(".pk-g").forEach(im=>{ im.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=im.src; sendMessage(); }; });
+    }
+  }else{
+    pickerEl.innerHTML = '<div class="pk-grid">'+Object.keys(STICKERS).map(k=>'<div class="pk-s" data-k="'+k+'">'+STICKERS[k]+'</div>').join("")+'</div>';
+    pickerEl.querySelectorAll(".pk-s").forEach(d=>{ d.onclick=function(){ pickerEl.style.display="none"; pickerMode=null; textInput.value=d.getAttribute("data-k"); sendMessage(); }; });
+  }
+  pickerEl.style.display="block";
+}
+document.getElementById("emojiBtn").onclick = function(){ togglePicker("emoji"); };
+document.getElementById("gifBtn").onclick = function(){ togglePicker("gif"); };
+document.getElementById("stkBtn").onclick = function(){ togglePicker("stk"); };
+/* ============ ABRIR SIEMPRE ARRIBA ============ */
+if("scrollRestoration" in history){ history.scrollRestoration = "manual"; }
+window.addEventListener("load", ()=>{ window.scrollTo(0,0); });
+/* ============ CONTADOR DE VISITAS ============ */
+function vc(v){document.getElementById("visitCount").textContent=Number(v).toLocaleString("es-AR")}
+(async ()=>{
+  try{
+    const { data, error } = await sb.rpc("bump_visits");
+    if(!error && data != null) vc(data);
+  }catch(e){}
+})();
+sb.channel("visits-live").on("postgres_changes",{event:"UPDATE",schema:"public",table:"visits"},p=>{if(p.new&&p.new.count!=null)vc(p.new.count)}).subscribe();
+setInterval(async()=>{try{const{data}=await sb.from("visits").select("count").eq("id",1).single();if(data&&data.count!=null)vc(data.count)}catch(e){}},30000);
+</script>
+<script src="bots-ar.js?v=12"></script>
+</body>
+</html>
