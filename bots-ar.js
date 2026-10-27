@@ -571,3 +571,40 @@ audio.onerror=rec;audio.onstalled=rec;audio.addEventListener("ended",rec);
 audio.addEventListener("pause",function(){if(wP)rT=setTimeout(rec,500);});
 audio.onplaying=()=>{clearTimeout(rT);rN=0;};
 }}catch(e){}
+
+/* ============ CIERRE DEL CHAT 27/10/2026 (orden de Cé) ============
+   Solo Loquita y Tommy pueden escribir desde la página. Los demás ven
+   un aviso y el mensaje no se envía. Los bots y el nick oficial no usan
+   este botón, así que no les afecta. Las fotos usan otra vía (hoy rota
+   porque falta el bucket chat-imagenes), por eso el cierre cubre el
+   envío de texto, que es la vía que funciona. */
+(function(){
+  try{
+    if (typeof window.sendMessage !== 'function') return;
+    var _orig = window.sendMessage;
+    var _ok = ['loquita', 'tommy'];
+    function _lockToast(){
+      var t = document.getElementById('chatLockToast');
+      if (!t){
+        t = document.createElement('div');
+        t.id = 'chatLockToast';
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a0f1e;color:#fff;padding:12px 18px;border-radius:12px;font-size:15px;z-index:9999;box-shadow:0 0 18px rgba(255,47,214,.4);opacity:0;transition:opacity .3s;pointer-events:none;';
+        document.body.appendChild(t);
+      }
+      t.textContent = '🔒 El chat está cerrado por el momento';
+      t.style.opacity = '1';
+      clearTimeout(t._h);
+      t._h = setTimeout(function(){ t.style.opacity = '0'; }, 3000);
+    }
+    window.sendMessage = async function(){
+      try{
+        var n = '';
+        if (typeof getNick === 'function') n = (getNick() || '').trim().toLowerCase();
+        if (_ok.indexOf(n) === -1){ _lockToast(); return; }
+      }catch(e){}
+      return _orig.apply(this, arguments);
+    };
+    var b = document.getElementById('sendBtn');
+    if (b) b.onclick = window.sendMessage;
+  }catch(e){}
+})();
