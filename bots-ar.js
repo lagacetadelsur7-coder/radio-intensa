@@ -608,3 +608,29 @@ audio.onplaying=()=>{clearTimeout(rT);rN=0;};
     if (b) b.onclick = window.sendMessage;
   }catch(e){}
 })();
+
+/* Botón ↓ para volver al final cuando estás leyendo más arriba (27/10/2026) */
+(function(){
+  try{
+    if(document.getElementById('ri-scroll-down')) return;
+    var el = (typeof messagesEl !== 'undefined') ? messagesEl : document.getElementById('messages');
+    if(!el) return;
+    var btn = document.createElement('button');
+    btn.id = 'ri-scroll-down';
+    btn.type = 'button';
+    btn.textContent = '↓';
+    btn.setAttribute('aria-label','Ir al final del chat');
+    btn.style.cssText = 'display:none;position:fixed;right:18px;bottom:110px;z-index:9999;width:46px;height:46px;border-radius:50%;border:none;background:#ff6ec7;color:#fff;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 0 14px rgba(255,110,199,.8);';
+    btn.onclick = function(){ try{ el.scrollTop = el.scrollHeight; }catch(e){} };
+    document.body.appendChild(btn);
+    function upd(){
+      try{
+        var dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+        btn.style.display = (dist > 150) ? 'block' : 'none';
+      }catch(e){}
+    }
+    el.addEventListener('scroll', upd);
+    setInterval(upd, 2000);
+    upd();
+  }catch(e){}
+})();
