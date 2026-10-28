@@ -797,8 +797,9 @@ function addMsg(m){
   div.innerHTML = '<div class="ava" style="background:linear-gradient(135deg,'+ncol+'66,#14142a)">'+face+'</div>'+
     '<div class="mbody"><div class="nick" style="color:'+ncol+(isLali?';text-shadow:0 0 8px #ff6ec7,0 0 20px rgba(255,110,199,.75)':isCesar?';text-shadow:0 0 8px #4dd8ff,0 0 20px rgba(77,216,255,.75)':'')+'">'+esc(m.nick)+(isLali?' <span class="lali-heart">💖</span>':"")+(isCesar?' <span class="cesar-joker"><span class="naipe">♠</span></span>':"")+
     '<span class="time">'+fmtTime(m.created_at)+"</span></div><div>"+renderBody(m)+"</div></div>";
+  var nearBottom = (messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 150);
   messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  if(nearBottom) messagesEl.scrollTop = messagesEl.scrollHeight;
   try{
     div.querySelector(".nick").addEventListener("click", function(){ mentionNick(m.nick); });
   }catch(e){}
@@ -825,8 +826,9 @@ function showTyping(nick, id){
   div.id = "typing-"+id;
   div.innerHTML = '<div class="mbody"><div class="nick" style="color:#aaa">'+esc(nick)+
     '</div><div class="typing-text">escribiendo<span class="tdots"><span>.</span><span>.</span><span>.</span></span></div></div>';
+  var nearBottom2 = (messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < 150);
   messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  if(nearBottom2) messagesEl.scrollTop = messagesEl.scrollHeight;
   typingEls[nick] = div;
   setTimeout(()=>hideTyping(nick), 10000);
 }
