@@ -1826,6 +1826,6 @@ function vc(v){document.getElementById("visitCount").textContent=Number(v).toLoc
 sb.channel("visits-live").on("postgres_changes",{event:"UPDATE",schema:"public",table:"visits"},p=>{if(p.new&&p.new.count!=null)vc(p.new.count)}).subscribe();
 setInterval(async()=>{try{const{data}=await sb.from("visits").select("count").eq("id",1).single();if(data&&data.count!=null)vc(data.count)}catch(e){}},30000);
 </script>
-<script src="bots-ar.js?v=13"></script>
+<script src="bots-ar.js?v=14"></script>
 </body>
 </html>
