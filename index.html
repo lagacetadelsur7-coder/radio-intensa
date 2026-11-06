@@ -8,9 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="img-fix.js?v=1"></script>
+<link rel="preconnect" href="https://stream.zeno.fm">
+<link rel="preconnect" href="https://static.wixstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 <script>try{var _t=localStorage.getItem('ri-theme');if(_t==='day')document.documentElement.setAttribute('data-theme','day');}catch(e){}</script>
 <style>
 :root{
@@ -433,7 +434,7 @@ footer .visits{border:2px solid var(--cyan);
 </style>
 </head>
 <body id="inicio">
-<video id="bgvid" autoplay muted loop playsinline preload="auto" src="https://files.catbox.moe/yoib0o.mp4" aria-hidden="true"></video>
+<video id="bgvid" autoplay muted loop playsinline preload="none" src="https://files.catbox.moe/yoib0o.mp4" aria-hidden="true"></video>
 <div id="bgshade"></div>
 <header>
   <nav class="nav">
@@ -488,12 +489,12 @@ footer .visits{border:2px solid var(--cyan);
   <aside>
     <div class="side">
       <h3>PRÓXIMOS EVENTOS</h3>
-      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div><b>Vecinos</b><p>Lun · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
-      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div><b>So Ham</b><p>Lun · 14:00 hs<br>España</p></div></div>
-      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div><b>Mucho por Vivir</b><p>Mié · 17:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
-      <div class="ev"><img src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div><b>El Diván</b><p>Mar · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
+      <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div><b>Vecinos</b><p>Lun · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
+      <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div><b>So Ham</b><p>Lun · 14:00 hs<br>España</p></div></div>
+      <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div><b>Mucho por Vivir</b><p>Mié · 17:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
+      <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div><b>El Diván</b><p>Mar · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
       <div class="ev"><img id="evMusicaCallada" loading="lazy" alt="La música callada"><div><b>La música callada</b><p>Mié · 22:00 hs<br>Villa Mercedes, San Luis, Argentina</p></div></div>
-      <div class="ev"><img src="https://files.catbox.moe/zjojal.webp" alt="Deja Vu"><div><b>Deja Vu</b><p>Con César Moyano<br>Próximamente · Río Cuarto, Córdoba, Argentina</p></div></div>
+      <div class="ev"><img loading="lazy" src="https://files.catbox.moe/zjojal.webp" alt="Deja Vu"><div><b>Deja Vu</b><p>Con César Moyano<br>Próximamente · Río Cuarto, Córdoba, Argentina</p></div></div>
     </div>
   </aside>
 </div>
@@ -545,6 +546,7 @@ footer .visits{border:2px solid var(--cyan);
   <div class="visits"><span id="visitCount">···</span>&nbsp;visitas</div>
   <p class="copy">Río Cuarto, Córdoba, Argentina · Copyright © 2025 Radio Intensa · Todos los derechos reservados</p>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ============ CONFIG ============ */
 const SUPABASE_URL = "https://lhatspnvxujisxyigvbp.supabase.co";
@@ -1265,8 +1267,9 @@ const personas = [
     "Acá escuchando la radio como siempre 📻"]}
 ];
 </script>
+<script src="img-fix.js?v=1"></script>
 <script src="bots-extra.js?v=12"></script>
-<script src="bots-extra2.js"></script>
+<script src="bots-extra2.js?v=1"></script>
 <script>
 /* Mezcla las frases extra: 24 por nick, menos repetición */
 try{ if(window.EXTRA_MSGS) personas.forEach(function(p){ var e=window.EXTRA_MSGS[p.nick]; if(e&&e.length) p.msgs=p.msgs.concat(e); }); }catch(e){}
