@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="img-fix.js?v=1"></script>
+<script>try{var _t=localStorage.getItem('ri-theme');if(_t==='day')document.documentElement.setAttribute('data-theme','day');}catch(e){}</script>
 <style>
 :root{
   --bg:#07070f; --panel:#0d0d1a; --panel2:#121224;
@@ -1829,6 +1830,6 @@ function vc(v){document.getElementById("visitCount").textContent=Number(v).toLoc
 sb.channel("visits-live").on("postgres_changes",{event:"UPDATE",schema:"public",table:"visits"},p=>{if(p.new&&p.new.count!=null)vc(p.new.count)}).subscribe();
 setInterval(async()=>{try{const{data}=await sb.from("visits").select("count").eq("id",1).single();if(data&&data.count!=null)vc(data.count)}catch(e){}},30000);
 </script>
-<script src="bots-ar.js?v=14"></script>
+<script src="bots-ar.js?v=15"></script>
 </body>
 </html>

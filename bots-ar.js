@@ -599,3 +599,27 @@ audio.onplaying=()=>{clearTimeout(rT);rN=0;};
     upd();
   }catch(e){}
 })();
+
+/* Modo día/noche (Cé 6-nov-2026): botón en el nav, se guarda en localStorage */
+(function(){
+  try{
+    var st=document.createElement("style");
+    st.textContent="html[data-theme='day']{--bg:#f2f4fa;--panel:#ffffff;--panel2:#e9edf6;--text:#151528;--muted:#5b5b74;--border:rgba(22,38,92,.22)}"
+    +"html[data-theme='day'] body{background-image:radial-gradient(1000px 500px at 20% -5%,rgba(255,47,214,.10),transparent),radial-gradient(1000px 500px at 85% 0%,rgba(0,229,255,.12),transparent)}"
+    +"html[data-theme='day'] header{background:rgba(255,255,255,.94)}"
+    +"html[data-theme='day'] #bgshade{background:rgba(242,244,250,.55)}"
+    +"html[data-theme='day'] #bgvid{opacity:.22}"
+    +"html[data-theme='day'] .stream-config input,html[data-theme='day'] .chat-input input,html[data-theme='day'] .nickbar input{background:#fff;color:var(--text)}"
+    +"html[data-theme='day'] .tool-btn,html[data-theme='day'] .gbtn,html[data-theme='day'] #protToast{background:#fff;color:var(--text)}"
+    +"html[data-theme='day'] .picker,html[data-theme='day'] .face-picker{background:#fff}"
+    +"html[data-theme='day'] .stk-triste{background:#e8e8f2;color:#555578}"
+    +"#ri-theme-btn{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:999px;padding:.4rem .8rem;font-size:1.05rem;cursor:pointer;font-family:inherit}";
+    document.head.appendChild(st);
+    var nav=document.querySelector('.nav .navlinks');
+    if(!nav||document.getElementById('ri-theme-btn'))return;
+    var b=document.createElement('button');b.id='ri-theme-btn';b.type='button';
+    function upd(){var d=document.documentElement.getAttribute('data-theme')==='day';b.textContent=d?'\uD83C\uDF19':'\u2600\uFE0F';b.title=d?'Modo noche':'Modo d\u00eda';b.setAttribute('aria-label',d?'Cambiar a modo noche':'Cambiar a modo d\u00eda');}
+    b.addEventListener('click',function(){var d=document.documentElement.getAttribute('data-theme')==='day';if(d){document.documentElement.removeAttribute('data-theme');try{localStorage.setItem('ri-theme','dark');}catch(e){}}else{document.documentElement.setAttribute('data-theme','day');try{localStorage.setItem('ri-theme','day');}catch(e){}}upd();});
+    nav.appendChild(b);upd();
+  }catch(e){}
+})();
