@@ -815,11 +815,7 @@ function addMsg(m){
   else trackReal(m);
 }
 async function loadMessages(){
-  let lim = 50;
-  try{
-    const c = await sb.from("messages").select("id",{count:"exact",head:true});
-    if(c.count) lim = Math.max(20, Math.ceil(c.count/2));
-  }catch(e){}
+  const lim = 150;
   const { data, error } = await sb.from("messages").select("*").order("created_at",{ascending:false}).limit(lim);
   if(error){ connEl.textContent = "Error de conexión: "+error.message; connEl.className="conn err"; return; }
   connEl.textContent = "Conectado · chat en vivo"; connEl.className="conn ok";
