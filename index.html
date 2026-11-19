@@ -10,8 +10,16 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://stream.zeno.fm">
 <link rel="preconnect" href="https://static.wixstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+<link rel="preconnect" href="https://files.catbox.moe">
+<link rel="preconnect" href="https://lhatspnvxujisxyigvbp.supabase.co">
+<link rel="preconnect" href="https://el-mensajero-noticias.vercel.app">
+<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+<link rel="preload" as="script" href="img-fix.js?v=3">
+<link rel="preload" as="script" href="bots-extra.js?v=12">
+<link rel="preload" as="script" href="bots-extra2.js?v=1">
+<link rel="preload" as="script" href="bots-ar.js?v=15">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
 <script>try{var _t=localStorage.getItem('ri-theme');if(_t==='day')document.documentElement.setAttribute('data-theme','day');}catch(e){}</script>
 <style>
 :root{
@@ -479,7 +487,7 @@ footer .visits{border:2px solid var(--cyan);
     <div class="prog-grid">
       <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div class="info"><b>Vecinos</b><p>Lun · 22:30 a 23:30 hs</p></div></div>
       <div class="card"><img class="thumb-img" loading="lazy" id="imgArenas" src="https://files.catbox.moe/5r1xh3.jpg" alt="Arenas del Tiempo"><div class="info"><b>Arenas del Tiempo</b><p>Con Lali Mitre</p></div></div>
-      <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div class="info"><b>So Ham</b><p>Lun · 14 a 15 hs</p></div></div>
+      <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div class="info"><b>So Ham</b><p>Lun · 14 a 15 hs</p></div></div>
       <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div class="info"><b>Mucho por Vivir</b><p>Mié · 17:30 a 18:30 hs</p></div></div>
       <div class="card"><img class="thumb-img" loading="lazy" src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div class="info"><b>El Diván</b><p>Mar · 22:30 a 23:30 hs</p></div></div>
       <div class="card"><img class="thumb-img" loading="lazy" id="imgMusicaCallada" src="https://files.catbox.moe/gt19vd.jpg" alt="La música callada"><div class="info"><b>La música callada</b><p>Mié · 22 hs</p></div></div>
@@ -491,7 +499,7 @@ footer .visits{border:2px solid var(--cyan);
       <h3>PRÓXIMOS EVENTOS</h3>
       <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png" alt="Vecinos"><div><b>Vecinos</b><p>Lun · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
       <div class="ev"><img id="evArenas" loading="lazy" alt="Arenas del Tiempo"><div><b>Arenas del Tiempo</b><p>Con Lali Mitre<br>Próximamente · Buenos Aires, Argentina</p></div></div>
-      <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div><b>So Ham</b><p>Lun · 14:00 hs<br>España</p></div></div>
+      <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg" alt="So Ham"><div><b>So Ham</b><p>Lun · 14:00 hs<br>España</p></div></div>
       <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg" alt="Mucho por Vivir"><div><b>Mucho por Vivir</b><p>Mié · 17:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
       <div class="ev"><img loading="lazy" src="https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png" alt="El Diván"><div><b>El Diván</b><p>Mar · 22:30 hs<br>Río Cuarto, Córdoba, Argentina</p></div></div>
       <div class="ev"><img id="evMusicaCallada" loading="lazy" alt="La música callada"><div><b>La música callada</b><p>Mié · 22:00 hs<br>Villa Mercedes, San Luis, Argentina</p></div></div>
@@ -1610,7 +1618,7 @@ setTimeout(botLoop, 12000);
 /* ===== CARTELERA OFICIAL: avisos de programas ===== */
 const CARTELERA = [
   {n:"Vecinos", d:1, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_88f299ecc7d24a989b6be416c2eaa88b~mv2.png", eh:23, emi:30},
-  {n:"So Ham", d:1, h:14, mi:0, cond:"Helena", lug:"Espa\u00f1a", img:"https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg", eh:15, emi:0},
+  {n:"So Ham", d:1, h:14, mi:0, cond:"Helena", lug:"Espa\u00f1a", img:"https://static.wixstatic.com/media/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_68b9ff1b235b413bb1c3ce063404c124~mv2.jpg", eh:15, emi:0},
   {n:"Mucho por Vivir", d:3, h:17, mi:30, cond:"Benjam\u00edn", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_fc018dc70faa44829d47f2a60eb60ffa~mv2.jpg", eh:18, emi:30},
   {n:"El Div\u00e1n", d:2, h:22, mi:30, cond:"Silvy Sultany", lug:"R\u00edo Cuarto, C\u00f3rdoba, Argentina", img:"https://static.wixstatic.com/media/cef22d_931834a29e564767bcb49615745f83cf~mv2.png/v1/fill/w_600,h_300,al_c,q_70,enc_auto/cef22d_931834a29e564767bcb49615745f83cf~mv2.png", eh:23, emi:30},
   {n:"La m\u00fasica callada", d:3, h:22, mi:0, cond:"Mar\u00eda Ester Baz\u00e1n y Alberto Testa", lug:"Villa Mercedes, San Luis, Argentina", img:(window.RI_COVER||"https://files.catbox.moe/gt19vd.jpg"), eh:23, emi:0}
